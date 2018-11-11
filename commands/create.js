@@ -16,13 +16,14 @@ class CreateCommand extends Command {
 
 	async exec(message, args) {
 		const gym_list = args.gym_list.split(',');
-		console.log(gym_list);
 		const error = [];
 		const success = [];
 		const alreadyExists = [];
 
 
 		for(let i = 0; i < gym_list.length; i++) {
+			gym_list[i] = gym_list[i].trim();
+
 			const date = new Date();
 			try {
 				const gym = await this.client.Gyms.create({
@@ -33,8 +34,7 @@ class CreateCommand extends Command {
 					submittedOn: date.toString(),
 					timesPinged: 0,
 				});
-				console.log(gym);
-				success.push(gym.name);
+				success.push(gym.GymName);
 			}
 			catch (e) {
 				if (e.name === 'SequelizeUniqueConstraintError') {
@@ -47,11 +47,20 @@ class CreateCommand extends Command {
 			}
 		}
 		let output = '';
-		if(success.length > 0) output += `Successfully created instances for: \n\`\`\`${success.join(', ')}\`\`\`\n`;
+		if(success.length > 0) {
+			output += `Successfully created ${success.length} instances for: \n\`\`\`\n${success.join('\n')}\`\`\`\n`;
+			await message.react('511174612323663874');
+		}
 
-		if(alreadyExists.length > 0) output += `Gyms already existed by the name: \n\`\`\`${alreadyExists.join(', ')}\`\`\``;
+		if(alreadyExists.length > 0) {
+			output += `Gyms already existed by the name: \n\`\`\`\n${alreadyExists.join('\n')}\`\`\`\n`;
+			await message.react('❓');
+		}
 
-		if(error.length) output += `Could not create the gym instance for the following names: \n\`\`\`${error.join(', ')}\`\`\`\n`;
+		if(error.length > 0) {
+			output += `Could not create the gym instance for the following names: \n\`\`\`\n${error.join('\n')}\`\`\``;
+			await message.react('511174899969032193');
+		}
 
 		return message.reply(output);
 	}

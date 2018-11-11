@@ -1,16 +1,33 @@
-const { AkairoClient } = require('discord-akairo');
+const { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } = require('discord-akairo');
 const config = require('./config.json');
 const Sequelize = require('sequelize');
 
-const client = new AkairoClient({
-	ownerID: '129714945238630400',
-	prefix: config.prefix,
-	commandDirectory: './commands/',
-	inhibitorDirectory: './inhibitors/',
-	listenerDirectory: './listeners/',
-}, {
-	disableEveryone: true,
-});
+class MyClient extends AkairoClient {
+	constructor() {
+		super({
+			ownerID: '129714945238630400',
+		}, {
+			disableEveryone: true,
+		});
+
+		this.commandHandler = new CommandHandler(this, {
+			directory: './commands/',
+			prefix: config.prefix,
+		});
+		this.commandHandler.loadAll();
+
+		this.inhibitorHandler = new InhibitorHandler(this, {
+			directory: './inhibitors/',
+		});
+
+		this.listenerHandler = new ListenerHandler(this, {
+			directory: './listeners/',
+		});
+		this.listenerHandler.loadAll();
+	}
+}
+
+const client = new MyClient();
 
 const sequelize = new Sequelize('database', 'user', 'password', {
 	host: 'localhost',
