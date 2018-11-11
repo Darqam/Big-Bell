@@ -11,7 +11,6 @@ class ViewCommand extends Command {
 		const gymList = await this.client.Gyms.findAll({ attributes: ['GymName', 'userIds'] });
 		const userGyms = [];
 		gymList.forEach(gym => {
-			console.log(gym);
 			if (gym.userIds.split(',').includes(message.author.id)) {
 				userGyms.push(gym.GymName);
 			}

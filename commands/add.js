@@ -15,6 +15,7 @@ class AddCommand extends Command {
 	}
 
 	async exec(message, args) {
+		if(!args.gym_list) return message.reply('No gyms found in query');
 		const gym_list = args.gym_list.split(',');
 		let output = '';
 		const errors = [];

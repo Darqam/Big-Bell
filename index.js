@@ -32,7 +32,7 @@ const client = new MyClient();
 const sequelize = new Sequelize('database', 'user', 'password', {
 	host: 'localhost',
 	dialect: 'sqlite',
-	logging: true,
+	logging: false,
 	operatorsAliases: false,
 	// SQLite only
 	storage: 'database.sqlite',
@@ -48,6 +48,14 @@ client.Gyms = sequelize.define('gyms', {
 	submittedById: Sequelize.TEXT,
 	submittedOn: Sequelize.TEXT,
 	timesPinged: Sequelize.INTEGER,
+});
+
+client.Config = sequelize.define('config', {
+	guildId: {
+		type: Sequelize.STRING,
+		unique: true,
+	},
+	announcementChan: Sequelize.STRING,
 });
 
 client.login(config.token);

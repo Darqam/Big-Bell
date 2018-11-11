@@ -4,6 +4,7 @@ class CreateCommand extends Command {
 	constructor() {
 		super('create', {
 			aliases: ['create', 'c'],
+			channel: 'guild',
 			args: [
 				{
 					id: 'gym_list',
@@ -11,10 +12,12 @@ class CreateCommand extends Command {
 					type: 'lowercase',
 				},
 			],
+			userPermissions: ['MANAGE_GUILD'],
 		});
 	}
 
 	async exec(message, args) {
+		if(!args.gym_list) return message.reply('No gyms found in query');
 		const gym_list = args.gym_list.split(',');
 		const error = [];
 		const success = [];
