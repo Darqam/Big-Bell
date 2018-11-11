@@ -1,0 +1,17 @@
+{
+  "name": "Big_Bell_Bot",
+  "version": "1.0.0",
+  "description": "A notification bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "discord-akairo": "^7.5.5",
+    "discord.js": "github:discordjs/discord.js",
+    "eslint": "^5.9.0",
+    "sqlite": "^3.0.0"
+  }
+}
