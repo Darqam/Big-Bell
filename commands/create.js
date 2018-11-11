@@ -4,7 +4,7 @@ class CreateCommand extends Command {
 	constructor() {
 		super('create', {
 			aliases: ['create', 'c'],
-			channel: 'guild',
+			description: 'create Gym Name 1, Gym Name 2, ...\nCreates the given gyms in the database (mod only)',
 			args: [
 				{
 					id: 'gym_list',
@@ -13,6 +13,7 @@ class CreateCommand extends Command {
 				},
 			],
 			userPermissions: ['MANAGE_GUILD'],
+			channelRestriction: 'guild',
 		});
 	}
 

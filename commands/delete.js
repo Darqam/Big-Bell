@@ -4,7 +4,7 @@ class DeleteCommand extends Command {
 	constructor() {
 		super('delete', {
 			aliases: ['delete', 'del', 'd'],
-			channel: 'guild',
+			description: 'delete Gym Name 1, Gym Name 2, ...\nDeletes the given gym from the database (mod only)',
 			args: [
 				{
 					id: 'gym_list',
@@ -13,6 +13,7 @@ class DeleteCommand extends Command {
 				},
 			],
 			userPermissions: ['MANAGE_GUILD'],
+			channelRestriction: 'guild',
 		});
 	}
 

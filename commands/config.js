@@ -4,18 +4,22 @@ class ConfigCommand extends Command {
 	constructor() {
 		super('config', {
 			aliases: ['config'],
+			description: 'config channelId\nAllows for setting of alert channel (mod only)',
 			args: [
 				{
-					id: 'channel_id',
+					id: 'sendChannel',
+					type: 'channelMention',
 					match: 'content',
 				},
 			],
 			userPermissions: ['MANAGE_GUILD'],
+			channelRestriction: 'guild',
 		});
 	}
 
 	async exec(message, args) {
-		if(!message.guild.channels.has(args.channel_id)) return message.channel.send('Could not find a channel by that id in this guild.');
+		const channel_id = args.sendChannel.id;
+		if(!message.guild.channels.has(channel_id)) return message.channel.send('Could not find a channel by that id in this guild.');
 
 		const guildConfig = await this.client.Config.findOne({
 			where: { guildId: message.guild.id },
@@ -25,7 +29,7 @@ class ConfigCommand extends Command {
 			try {
 				await this.client.Config.create({
 					guildId: message.guild.id,
-					announcementChan: args.channel_id,
+					announcementChan: channel_id,
 				});
 			}
 			catch (e) {
@@ -37,16 +41,16 @@ class ConfigCommand extends Command {
 					return message.channel.send('Error while creating guild config, error dumped to logs');
 				}
 			}
-			return message.channel.send(`Updated announcement channel to ${message.guild.channels.get(args.channel_id)}`);
+			return message.channel.send(`Updated announcement channel to ${message.guild.channels.get(channel_id)}`);
 		}
 		else {
 			const affectedRows = await this.client.Config.update(
-				{ announcementChan: args.channel_id },
+				{ announcementChan: channel_id },
 				{ where : { guildId: message.guild.id } },
 			);
 
 			if(affectedRows > 0) {
-				message.channel.send(`Updated announcement channel to ${message.guild.channels.get(args.channel_id)}`);
+				message.channel.send(`Updated announcement channel to ${message.guild.channels.get(channel_id)}`);
 			}
 			else {
 				message.channel.send('Failed to update configs :/');

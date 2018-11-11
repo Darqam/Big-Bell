@@ -4,6 +4,7 @@ class RemoveCommand extends Command {
 	constructor() {
 		super('remove', {
 			aliases: ['remove', 'r'],
+			description: 'remove Gym Name 1, Gym Name 2, ...\nRemoves the user from the gym list',
 			args: [
 				{
 					id: 'gym_list',

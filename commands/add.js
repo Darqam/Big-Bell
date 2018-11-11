@@ -4,6 +4,7 @@ class AddCommand extends Command {
 	constructor() {
 		super('add', {
 			aliases: ['add', 'a'],
+			description: 'add Gym Name 1, Gym Name 2, ...\nAdds user to a list of gyms',
 			args: [
 				{
 					id: 'gym_list',

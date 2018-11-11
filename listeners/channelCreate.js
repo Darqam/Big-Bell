@@ -11,6 +11,7 @@ class ChannelCreateListener extends Listener {
 
 	async exec(channel) {
 		const channel_gym = channel.name.split('-').slice(1).join(' ');
+		const delay = 15 * 1000;
 
 		const gym = await this.client.Gyms.findOne({
 			where: {
@@ -40,7 +41,7 @@ class ChannelCreateListener extends Listener {
 				const users_arr = gym.userIds.split(',').filter(id => id != author_id).map(id => `<@${id}>`);
 
 				this.client.channels.get('511235860625096726').send(`🔔🔔🔔\nBONG!\nA raid has just called for the gym \`${channel_gym}\` in ${channel}.\nConsider ye selves notified!\n🔔🔔🔔\n${users_arr.join(',')}\n\nIf you wish to no longer be notified for this gym, please type \`${config.prefix}remove ${channel_gym}\``, { split: true });
-			}, 20000);
+			}, delay);
 		}
 		else {
 			console.log('moop');
