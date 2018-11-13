@@ -31,6 +31,7 @@ class ChannelCreateListener extends Listener {
 		let egg = false;
 		const delay = 5 * 1000;
 		let found = false;
+		let selection_done = false;
 		const list_max = 5;
 		const channel_array = channel.name.split('-');
 
@@ -139,10 +140,12 @@ class ChannelCreateListener extends Listener {
 						gym = results[0];
 						channel_gym = gym.GymName;
 					}
+					selection_done = true;
 				}
 
 				if(!gym.userIds) {
 					console.log(`No users for ${channel_gym}.`);
+					if(selection_done) send_chan.send('No one has this gym on their watchlist, keeping quiet.');
 					return;
 				}
 
@@ -157,6 +160,7 @@ class ChannelCreateListener extends Listener {
 				if(users_arr.length < 1) {
 					// If there are no users for this gym, stop
 					console.log(`No users for ${channel_gym} aside from author.`);
+					if(selection_done) send_chan.send('No one but the author has this gym on their watchlist, keeping quiet.');
 					return;
 				}
 
