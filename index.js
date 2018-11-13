@@ -47,6 +47,10 @@ client.Gyms = sequelize.define('gyms', {
 	submittedById: Sequelize.TEXT,
 	submittedOn: Sequelize.TEXT,
 	timesPinged: Sequelize.INTEGER,
+	gymMap: Sequelize.TEXT,
+	gymDirections: Sequelize.TEXT,
+	exRaidNumber: Sequelize.INTEGER,
+	exRaidEligibility: Sequelize.TEXT,
 });
 
 client.Config = sequelize.define('config', {
