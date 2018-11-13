@@ -98,11 +98,11 @@ class ChannelCreateListener extends Listener {
 				let author_mention = '';
 				if(first) {
 					author_id = first.mentions.users.first().id;
-					author_mention = ` <@${author_id}>`;
+					author_mention = ` <@${author_id}> `;
 				}
 
 				if(results.length > 1) {
-					let react_out = `Hey${author_mention} (or anyone), I found a few options, could you please specify which gym so I can alert those who are watching for this gym?\n`;
+					let react_out = `Hey${author_mention}, I found a few options, could anyone please specify which gym is correct so I can alert those who are watching for this gym?\n`;
 					for(let i = 0; i < list_max; i++) {
 						if(i == results.length) break;
 						react_out += `${i} - ${results[i].GymName}\n`;
@@ -121,7 +121,6 @@ class ChannelCreateListener extends Listener {
 					};
 					try {
 						let collected = await react_msg.awaitReactions(react_filter, {max: 1, time: 120000, errors: ['time'] });
-						console.log('nani');
 						const reaction = collected.first();
 
 						// loop over our emoji numbers to see which index was used
