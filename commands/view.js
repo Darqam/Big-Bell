@@ -3,7 +3,7 @@ const { Command } = require('discord-akairo');
 class ViewCommand extends Command {
 	constructor() {
 		super('view', {
-			aliases: ['view', 'v'],
+			aliases: ['view', 'v', 'list'],
 			description: 'Lets the user view which gyms they are subscribed to',
 		});
 	}
