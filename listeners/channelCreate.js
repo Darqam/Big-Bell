@@ -24,11 +24,13 @@ class ChannelCreateListener extends Listener {
 
 		// There is only (so far) a few pokemons with `-` in their name,
 		// when they do it's only there once
-		if(pokemons.includes(channel_array[0])) {
-			channel_gym = channel_array.slice(1).join(' ');
+		if(pokemons.includes(channel_array[0] + '-' + channel_array[1])) {
+			channel_array.splice(0, 2);
+			channel_gym = channel_array.join(' ');
 		}
-		else if(pokemons.includes(channel_array[0] + '-' + channel_array[1])) {
-			channel_gym = channel_array.slice(2).join(' ');
+		else if(pokemons.includes(channel_array[0])) {
+			channel_array.splice(0, 1);
+			channel_gym = channel_array.join(' ');
 		}
 
 		// Case 2, raid egg. Assume format level-X-egg-park-name
@@ -67,7 +69,6 @@ class ChannelCreateListener extends Listener {
 			}
 		}
 		else {
-			console.log('moop');
 			found = true;
 		}
 
@@ -91,7 +92,10 @@ class ChannelCreateListener extends Listener {
 				const messages = await channel.messages.fetch();
 				const first = messages.last();
 
-				if(!gym.userIds) return;
+				if(!gym.userIds) {
+					console.log(`No users for ${channel_gym}.`)
+					return;
+				}
 
 				// Here we start dealing with building up the mention list
 				let users_arr = gym.userIds.split(',');
@@ -103,14 +107,17 @@ class ChannelCreateListener extends Listener {
 				else {
 					users_arr = users_arr.map(id => `<@${id}>`);
 				}
-				if(users_arr.length <= 1) {
+				if(users_arr.length < 1) {
 					// If there are no users for this gym, stop
-					console.log('meep');
+					console.log(`No users for ${channel_gym} aside from author.`);
 					return;
 				}
 
 				return this.client.channels.get('511235860625096726').send(`🔔🔔🔔\nBONG!\nA raid has just called for the gym \`${channel_gym}\` in ${channel}.\nConsider ye selves notified!\n🔔🔔🔔\n${users_arr.join(',')}\n\nIf you wish to no longer be notified for this gym, please type \`${config.prefix}remove ${channel_gym}\``, { split: true });
 			}, delay);
+		}
+		else {
+			console.log(`Found nothing for ${channel_gym}.`)
 		}
 	}
 }
