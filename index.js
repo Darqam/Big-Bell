@@ -44,7 +44,6 @@ client.Gyms = sequelize.define('gyms', {
 		unique: true,
 	},
 	userIds: Sequelize.TEXT,
-	submittedByTag: Sequelize.TEXT,
 	submittedById: Sequelize.TEXT,
 	submittedOn: Sequelize.TEXT,
 	timesPinged: Sequelize.INTEGER,

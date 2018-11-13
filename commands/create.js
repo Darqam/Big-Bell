@@ -33,7 +33,6 @@ class CreateCommand extends Command {
 				const gym = await this.client.Gyms.create({
 					GymName: gym_list[i],
 					userIds: '',
-					submittedByTag: message.author.tag,
 					submittedById: message.author.id,
 					submittedOn: date.toString(),
 					timesPinged: 0,
