@@ -1,7 +1,11 @@
 
 - add capability to recognize raid egg channels
+- match hatched-level-X-egg-gym-name-here
 - add a message in new channel with maps
 - notify channel if gym is ex raid eligible or not
+	-say how many times it has been an ex raid(?)
+
+	
 - track ex gym spawns
 - create command to ping list on queue
 	- Can only be called in raid-looking channels
