@@ -31,7 +31,6 @@ class ChannelCreateListener extends Listener {
 		let egg = false;
 		const delay = 5 * 1000;
 		let found = false;
-		let selection_done = false;
 		const list_max = 5;
 		const channel_array = channel.name.split('-');
 
@@ -108,7 +107,7 @@ class ChannelCreateListener extends Listener {
 						react_out += `${i} - ${results[i].GymName}\n`;
 					}
 					const react_msg = await send_chan.send(react_out);
-					let valid_emojis = [];
+					const valid_emojis = [];
 
 					for(let j = 0; j < list_max; j++) {
 						if(j == results.length) break;
@@ -120,14 +119,14 @@ class ChannelCreateListener extends Listener {
 						return valid_emojis.includes(reaction.emoji.name) && !user.bot;
 					};
 					try {
-						let collected = await react_msg.awaitReactions(react_filter, {max: 1, time: 120000, errors: ['time'] });
+						const collected = await react_msg.awaitReactions(react_filter, { max: 1, time: 120000, errors: ['time'] });
 						const reaction = collected.first();
 
 						// loop over our emoji numbers to see which index was used
 						for(const key in emojiCharacters) {
 							if(emojiCharacters.hasOwnProperty(key) && emojiCharacters[key] == reaction.emoji.name) {
-									gym = results[key];
-									channel_gym = gym.GymName;
+								gym = results[key];
+								channel_gym = gym.GymName;
 							}
 						}
 						if(!gym) {
@@ -143,7 +142,7 @@ class ChannelCreateListener extends Listener {
 				}
 
 				if(!gym.userIds) {
-					console.log(`No users for ${channel_gym}.`)
+					console.log(`No users for ${channel_gym}.`);
 					return;
 				}
 
@@ -161,18 +160,18 @@ class ChannelCreateListener extends Listener {
 					return;
 				}
 
-				return send_chan.send(`🔔🔔🔔\nBONG!\nA raid has just called for the gym \`${channel_gym}\` in ${channel}.\nConsider ye selves notified!\n🔔🔔🔔\n${users_arr.join(',')}\n\nIf you wish to no longer be notified for this gym, please type \`${config.prefix}remove ${channel_gym}\``, { split: true });
-
 				// Purely for fun
 				const affectedRows = await this.client.Gyms.update(
 					{ timesPinged: gym.timesPinged + 1 },
 					{ where : { GymName: channel_gym } },
 				);
 				if(affectedRows <= 0) console.log(`Error incrementing for gym ${channel_gym}`);
+
+				return send_chan.send(`🔔🔔🔔\nBONG!\nA raid has just called for the gym \`${channel_gym}\` in ${channel}.\nConsider ye selves notified!\n🔔🔔🔔\n${users_arr.join(',')}\n\nIf you wish to no longer be notified for this gym, please type \`${config.prefix}remove ${channel_gym}\``, { split: true });
 			}, delay);
 		}
 		else {
-			console.log(`Found nothing for ${channel_gym}.`)
+			console.log(`Found nothing for ${channel_gym}.`);
 		}
 	}
 }
