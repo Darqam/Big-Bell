@@ -1,5 +1,3 @@
 
-- add gym info command
 - add capability to recognize raid egg channels
-- fuzzy search for gym name if exact match fails.
 - add a message in new channel with maps

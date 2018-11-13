@@ -3,7 +3,7 @@ const { Command } = require('discord-akairo');
 class StatsCommand extends Command {
 	constructor() {
 		super('stats', {
-			aliases: ['stats', 's', 'stat'],
+			aliases: ['stats', 's', 'stat', 'info'],
 			description: 'stats Gym Name\nShows a few stats for the given gym',
 			args: [
 				{
