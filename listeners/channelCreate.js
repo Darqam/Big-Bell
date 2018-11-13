@@ -1,6 +1,7 @@
 const { Listener } = require('discord-akairo');
 const config = require('../config.json');
-let pokemons = require('../pokemons.json');
+let pokemons = require('../data/pokemons.json');
+const emojiCharacters = require('../data/emojiCharacters.js');
 const FuzzySearch = require('fuzzy-search');
 
 class ChannelCreateListener extends Listener {
@@ -13,13 +14,25 @@ class ChannelCreateListener extends Listener {
 
 	async exec(channel) {
 		pokemons = pokemons.map(p => p.toLowerCase());
+
+		// Figure out which channel to send this to
+		let send_chan = await this.client.Config.findOne({
+			where: { guildId: channel.guild.id },
+		});
+		// If there is nothing configured for this guild, do nothing
+		if(!send_chan) return console.log('No configs set, returning.');
+		else send_chan = this.client.channels.get(send_chan.announcementChan);
+
 		// Let's start isolating channel name here
 
 		// Case 1, regular raid. Assume format pokemonName-gym-name-here
 		let channel_gym = '';
+		let results = [];
 		let egg = false;
 		const delay = 5 * 1000;
 		let found = false;
+		let selection_done = false;
+		const list_max = 5;
 		const channel_array = channel.name.split('-');
 
 		// There is only (so far) a few pokemons with `-` in their name,
@@ -40,7 +53,7 @@ class ChannelCreateListener extends Listener {
 		}
 
 		if(!channel_gym) {
-			console.log(`Could not match a pattern for ${channel.name}`);
+			console.log(`Could not match a gym pattern for ${channel.name}`);
 			return;
 		}
 
@@ -60,12 +73,15 @@ class ChannelCreateListener extends Listener {
 				sort: true,
 			});
 
-			const results = searcher.search(channel_gym);
-			if(results.length > 0) {
+			results = searcher.search(channel_gym);
+			if(results.length == 1) {
 				found = true;
-				// CHANGE THIS
 				gym = results[0];
 				channel_gym = results[0].GymName;
+			}
+			else if(results.length > 1) {
+				found = true;
+				console.log('more than one gym found');
 			}
 		}
 		else {
@@ -73,24 +89,59 @@ class ChannelCreateListener extends Listener {
 		}
 
 		if(found) {
-			// Purely for fun
-			const affectedRows = await this.client.Gyms.update(
-				{ timesPinged: gym.timesPinged + 1 },
-				{ where : { GymName: channel_gym } },
-			);
-			if(affectedRows <= 0) console.log(`Error incrementing for gym ${channel_gym}`);
-
-			// Figure out which channel to send this to
-			const send_chan = await this.client.Config.findOne({
-				where: { guildId: channel.guild.id },
-			});
-			// If there is nothing configured for this guild, do nothing
-			if(!send_chan) return console.log('No configs set, returning.');
-
 			setTimeout(async () => {
 				// This is run X seconds after channel create to give meowth time to post
 				const messages = await channel.messages.fetch();
 				const first = messages.last();
+
+				let author_id = '';
+				let author_mention = '';
+				if(first) {
+					author_id = first.mentions.users.first().id;
+					author_mention = ` <@${author_id}>`;
+				}
+
+				if(results.length > 1) {
+					let react_out = `Hey${author_mention} (or anyone), I found a few options, could you please specify which gym so I can alert those who are watching for this gym?\n`;
+					for(let i = 0; i < list_max; i++) {
+						if(i == results.length) break;
+						react_out += `${i} - ${results[i].GymName}\n`;
+					}
+					const react_msg = await send_chan.send(react_out);
+					let valid_emojis = [];
+
+					for(let j = 0; j < list_max; j++) {
+						if(j == results.length) break;
+						valid_emojis.push(emojiCharacters[j]);
+						await react_msg.react(emojiCharacters[j]);
+					}
+
+					const react_filter = (reaction, user) => {
+						return valid_emojis.includes(reaction.emoji.name) && !user.bot;
+					};
+					try {
+						let collected = await react_msg.awaitReactions(react_filter, {max: 1, time: 120000, errors: ['time'] });
+						console.log('nani');
+						const reaction = collected.first();
+
+						// loop over our emoji numbers to see which index was used
+						for(const key in emojiCharacters) {
+							if(emojiCharacters.hasOwnProperty(key) && emojiCharacters[key] == reaction.emoji.name) {
+									gym = results[key];
+									channel_gym = gym.GymName;
+							}
+						}
+						if(!gym) {
+							gym = results[0];
+							channel_gym = gym.GymName;
+						}
+					}
+					catch(e) {
+						console.log('Got no answer for gym precision, defaulting to highest match');
+						gym = results[0];
+						channel_gym = gym.GymName;
+					}
+				}
 
 				if(!gym.userIds) {
 					console.log(`No users for ${channel_gym}.`)
@@ -99,9 +150,7 @@ class ChannelCreateListener extends Listener {
 
 				// Here we start dealing with building up the mention list
 				let users_arr = gym.userIds.split(',');
-				if(first) {
-					const author_id = first.mentions.users.first().id;
-
+				if(author_id) {
 					users_arr = users_arr.filter(id => id != author_id).map(id => `<@${id}>`);
 				}
 				else {
@@ -113,7 +162,14 @@ class ChannelCreateListener extends Listener {
 					return;
 				}
 
-				return this.client.channels.get('511235860625096726').send(`🔔🔔🔔\nBONG!\nA raid has just called for the gym \`${channel_gym}\` in ${channel}.\nConsider ye selves notified!\n🔔🔔🔔\n${users_arr.join(',')}\n\nIf you wish to no longer be notified for this gym, please type \`${config.prefix}remove ${channel_gym}\``, { split: true });
+				return send_chan.send(`🔔🔔🔔\nBONG!\nA raid has just called for the gym \`${channel_gym}\` in ${channel}.\nConsider ye selves notified!\n🔔🔔🔔\n${users_arr.join(',')}\n\nIf you wish to no longer be notified for this gym, please type \`${config.prefix}remove ${channel_gym}\``, { split: true });
+
+				// Purely for fun
+				const affectedRows = await this.client.Gyms.update(
+					{ timesPinged: gym.timesPinged + 1 },
+					{ where : { GymName: channel_gym } },
+				);
+				if(affectedRows <= 0) console.log(`Error incrementing for gym ${channel_gym}`);
 			}, delay);
 		}
 		else {
