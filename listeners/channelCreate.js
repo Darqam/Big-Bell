@@ -1,8 +1,9 @@
 const { Listener } = require('discord-akairo');
+
 const config = require('../config.json');
-let pokemons = require('../data/pokemons.json');
 const emojiCharacters = require('../data/emojiCharacters.js');
-const FuzzySearch = require('fuzzy-search');
+const chanName = require('../functions/isolateNames.js');
+const chanList = require('../functions/findGyms.js');
 
 class ChannelCreateListener extends Listener {
 	constructor() {
@@ -13,7 +14,6 @@ class ChannelCreateListener extends Listener {
 	}
 
 	async exec(channel) {
-		pokemons = pokemons.map(p => p.toLowerCase());
 
 		// Figure out which channel to send this to
 		let send_chan = await this.client.Config.findOne({
@@ -23,39 +23,14 @@ class ChannelCreateListener extends Listener {
 		if(!send_chan) return console.log('No configs set, returning.');
 		else send_chan = this.client.channels.get(send_chan.announcementChan);
 
-		// Let's start isolating channel name here
-
-		// Case 1, regular raid. Assume format pokemonName-gym-name-here
-		let channel_gym = '';
 		let results = [];
-		let egg = false;
 		const delay = 5 * 1000;
 		let found = false;
 		let selection_done = false;
 		const list_max = 5;
-		const channel_array = channel.name.split('-');
 
-		// There is only (so far) a few pokemons with `-` in their name,
-		// when they do it's only there once
-		if(pokemons.includes(channel_array[0] + '-' + channel_array[1])) {
-			channel_array.splice(0, 2);
-			channel_gym = channel_array.join(' ');
-		}
-		else if(pokemons.includes(channel_array[0])) {
-			channel_array.splice(0, 1);
-			channel_gym = channel_array.join(' ');
-		}
-
-		// Case 2, raid egg. Assume format level-X-egg-park-name
-		if(channel_gym == '' && channel_array[0].toLowerCase() == 'level' && channel_array[2].toLowerCase() == 'egg') {
-			channel_gym = channel_array.slice(3).join(' ');
-			egg = true;
-		}
-
-		// Case 3, hatched raid egg: hatched-level-X-egg-gym-name-here
-		if(channel_gym == '' && channel_array[0].toLowerCase() == 'hatched' && channel_array[1].toLowerCase() == 'level' && channel_array[3].toLowerCase() == 'egg') {
-			channel_gym = channel_array.slice(4).join(' ');
-		}
+		let channel_gym = chanName.getChanGym(channel);
+		console.log(`New channel created with the name ${channel.name}`);
 
 		if(!channel_gym) {
 			console.log(`Could not match a gym pattern for ${channel.name}`);
@@ -69,25 +44,11 @@ class ChannelCreateListener extends Listener {
 			},
 		});
 		if(!gym) {
-			// If the gym wasn't found with an exact match, pull all entries
-			// from the database
-			const gymList = await this.client.Gyms.findAll({ attributes: ['GymName', 'userIds', 'timesPinged', 'gymDirections', 'exRaidNumber', 'exRaidEligibility'] });
-
-			const searcher = new FuzzySearch(gymList, ['GymName'], {
-				caseSensitive: true,
-				sort: true,
-			});
-
-			results = searcher.search(channel_gym);
-			if(results.length == 1) {
-				found = true;
-				gym = results[0];
-				channel_gym = results[0].GymName;
-			}
-			else if(results.length > 1) {
-				found = true;
-				console.log('more than one gym found');
-			}
+			const func_return = await chanList.getGymNames(this.client, channel_gym);
+			results = func_return[0];
+			found = func_return[1];
+			gym = func_return[2];
+			channel_gym = func_return[3];
 		}
 		else {
 			found = true;
