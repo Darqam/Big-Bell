@@ -8,6 +8,7 @@ class StatsCommand extends Command {
 		super('test', {
 			aliases: ['test'],
 			description: 'testing',
+			userPermissions: ['MANAGE_GUILD'],
 		});
 	}
 
@@ -50,15 +51,15 @@ class StatsCommand extends Command {
 				sheet.getRows({
 					offset: 1,
 					orderby: 'col2',
-				}, function(err, rows) {
-					if(!rows) return message.reply("Couldn't load any rows from that sheet.");
+				}, async function(err, rows) {
+					if(!rows) return message.reply('Couldn\'t load any rows from that sheet.');
 					rows.forEach(async row => {
-						//console.log(row);
+						// console.log(row);
 						// row properties of interest
 						// gymname, exraideligibility, mapsurl, directionsurl, ofex
-						const local_gym = gymList.find(gym => gym.GymName == row.gymname);
+						const local_gym = gymList.find(gym => gym.GymName == row.gymname.toLowerCase());
 						if(local_gym) {
-							console.log(`Found local copy of gym for ${row.gymname}`);
+							//console.log(`Found local copy of gym for ${row.gymname}`);
 							if(local_gym.gymMap != row.mapsurl){
 
 							}
@@ -74,23 +75,32 @@ class StatsCommand extends Command {
 						}
 						else {
 							new_gyms.push(row);
-							console.log(`Nope for ${row.gymname}`);
+							// console.log(`Nope for ${row.gymname}`);
 						}
 					});
 					console.log(`Read ${rows.length} rows`);
 
-					if(new_gyms.length > 0){
+					if(new_gyms.length > 0) {
 						// We have some new gyms that weren't in the database before
-						const msg = await message.channel.send(`I found ${new_gyms.length - 1} new gyms. Would you like to add the following gyms to the database?\n\`\`\`\n${new_gyms.join(', ')\n\`\`\``}`, { split: {maxLength: 1900, char: ',', prepend: '```\n', append: '\n```'} });
+						let msg = await message.channel.send(`I found ${new_gyms.length - 1} new gyms. Would you like to add the following gyms to the database?\n\`\`\`\n${new_gyms.map(g => g.gymname).join(', ')}\n\`\`\``, {
+							split: {
+								maxLength: 1900,
+								char: ',',
+								prepend: '```\n',
+								append: ',\n```',
+							},
+						});
+						if(typeof msg == 'object') msg = msg[msg.length - 1];
+
 						await msg.react('511174612323663874'); // check
 						await msg.react('511174899969032193'); // cross/X
-						valid_emojis = ['511174612323663874', '511174899969032193'];
+						const valid_emojis = ['511174612323663874', '511174899969032193'];
 
 						const react_filter = (reaction, user) => {
 							return valid_emojis.includes(reaction.emoji.id) && !user.bot && user.id == message.author.id;
 						};
 						try {
-							const collected = await react_msg.awaitReactions(react_filter, { max: 1, time: 60000, errors: ['time'] });
+							const collected = await msg.awaitReactions(react_filter, { max: 1, time: 60000, errors: ['time'] });
 							const reaction = collected.first();
 
 							if(reaction.emoji.id == '511174612323663874') {
@@ -98,11 +108,10 @@ class StatsCommand extends Command {
 								const error = [];
 								// If it's the check mark
 								for(let i = 0; i < new_gyms.length; i++) {
-
 									const date = new Date();
 									try {
-										const gym = await this.client.Gyms.create({
-											GymName: new_gyms[i].gymname.trim(),
+										const gym = await message.client.Gyms.create({
+											GymName: new_gyms[i].gymname.toLowerCase().trim(),
 											userIds: '',
 											submittedById: message.author.id,
 											submittedOn: date.toString(),
@@ -115,25 +124,29 @@ class StatsCommand extends Command {
 										success.push(gym.GymName);
 									}
 									catch (e) {
-										if (e.name === 'SequelizeUniqueConstraintError') {
-											alreadyExists.push(gym_list[i]);
-										}
-										else {
-											console.log(e);
-											error.push(gym_list[i]);
-										}
+										console.log(e);
+										error.push(new_gyms[i]);
 									}
 								}
 								// End of for loop over new gyms
 								let output = '';
 								if(success.length > 0) {
-									output += `Successfully created ${success.length} instances for: \n\`\`\`\n${success.join('\n')}\`\`\`\n`;
+									output += `Successfully created ${success.length} instances for: \n\`\`\`\n${success.join(',')}\`\`\`\n`;
 								}
 
 								if(error.length > 0) {
-									output += `Could not create the gym instance for the following names: \n\`\`\`\n${error.join('\n')}\`\`\``;
+									output += `Could not create the gym instance for the following names: \n\`\`\`\n${error.join(',')}\`\`\``;
 								}
-								return message.channel.send(output);
+								return message.channel.send(output, {
+									split: {
+										maxLength: 1900,
+										char: ',',
+										prepend: '```\n',
+										append: ',\n```',
+									},
+								}).catch(e => {
+									console.log('Error sending final status', e);
+								});
 							}
 							if(reaction.emoji.id == '511174899969032193') {
 								return message.channel.send('Got it, aborting.');
@@ -141,12 +154,13 @@ class StatsCommand extends Command {
 
 						}
 						catch(e) {
-							console.log('Got no answer for gym precision, defaulting to highest match');
-							gym = results[0];
-							channel_gym = gym.GymName;
+							return message.channel.send('Did not get input within a minute, aborting.');
 						}
 					}
 					// End of "if there are new gyms"
+					if(new_gyms.length == 0) {
+						return message.channel.send('There were no new gyms found.');
+					}
 					step();
 				});
 			},
@@ -155,7 +169,6 @@ class StatsCommand extends Command {
 				console.log(`Error: ${err}`);
 			}
 		});
-		return message.reply('done');
 	}
 }
 
