@@ -151,7 +151,7 @@ class ChannelCreateListener extends Listener {
 				// Generating output text to give better map_info on ex raid for this gym
 				let ex_out = '';
 				if(gym.exRaidNumber) ex_out = `Amount of times this gym has been home to an Ex raid: ${gym.exRaidNumber}`;
-				else if(gym.exRaidEligibility) ex_out = `Status of this gym with ragrds to Ex raids: ${gym.exRaidEligibility}`;
+				else if(gym.exRaidEligibility) ex_out = `Status of this gym with regards to Ex raids: ${gym.exRaidEligibility}`;
 
 				if(ex_out && gym.gymDirections) channel.send(`🔔\nHere is the proper google maps: <${gym.gymDirections}>.\n${ex_out}`);
 				else console.log(`Did not have map and Ex raid info for ${gym.GymName}.`);
