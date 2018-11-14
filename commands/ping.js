@@ -11,7 +11,7 @@ class PingCommand extends Command {
 	exec(message) {
 		return message.channel.send('Pong!').then(sent => {
 			const timeDiff = (sent.editedAt || sent.createdAt) - (message.editedAt || message.createdAt);
-			const text = `🔂\u2000**RTT**: ${timeDiff} ms\n💟\u2000**Heartbeat**: ${Math.round(sent.client.ping)} ms`;
+			const text = `🔂\u2000**RTT**: ${timeDiff} ms\n💟\u2000**Heartbeat**: ${Math.round(sent.client.ws.ping)} ms`;
 			return sent.edit(`Pong!\n${text}`);
 		});
 	}
