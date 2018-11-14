@@ -66,7 +66,7 @@ class ChannelCreateListener extends Listener {
 		if(!gym) {
 			// If the gym wasn't found with an exact match, pull all entries
 			// from the database
-			const gymList = await this.client.Gyms.findAll({ attributes: ['GymName', 'userIds', 'timesPinged'] });
+			const gymList = await this.client.Gyms.findAll({ attributes: ['GymName', 'userIds', 'timesPinged', 'gymDirections', 'exRaidNumber', 'exRaidEligibility'] });
 
 			const searcher = new FuzzySearch(gymList, ['GymName'], {
 				caseSensitive: true,
@@ -143,6 +143,15 @@ class ChannelCreateListener extends Listener {
 					selection_done = true;
 				}
 
+				// Generating output text to give better map_info on ex raid for this gym
+				let ex_out = '';
+				if(gym.exRaidNumber) ex_out = `Amount of times this gym has been home to an Ex raid: ${gym.exRaidNumber}`;
+				else if(gym.exRaidEligibility) ex_out = `Status of this gym with ragrds to Ex raids: ${gym.exRaidEligibility}`;
+
+				if(ex_out && gym.gymDirections) channel.send(`🔔\nHere is the proper google maps: <${gym.gymDirections}>.\n${ex_out}`);
+				else console.log(`Did not have map and Ex raid info for ${gym.GymName}.`);
+
+				// Check if anyone is registered for this gym
 				if(!gym.userIds) {
 					console.log(`No users for ${channel_gym}.`);
 					if(selection_done) send_chan.send('No one has this gym on their watchlist, keeping quiet.');
