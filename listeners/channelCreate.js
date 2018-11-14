@@ -52,6 +52,11 @@ class ChannelCreateListener extends Listener {
 			egg = true;
 		}
 
+		// Case 3, hatched raid egg: hatched-level-X-egg-gym-name-here
+		if(channel_gym == '' && channel_array[0].toLowerCase() == 'hatched' && channel_array[1].toLowerCase() == 'level' && channel_array[3].toLowerCase() == 'egg') {
+			channel_gym = channel_array.slice(4).join(' ');
+		}
+
 		if(!channel_gym) {
 			console.log(`Could not match a gym pattern for ${channel.name}`);
 			return;
