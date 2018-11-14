@@ -59,18 +59,18 @@ class StatsCommand extends Command {
 						// gymname, exraideligibility, mapsurl, directionsurl, ofex
 						const local_gym = gymList.find(gym => gym.GymName == row.gymname.toLowerCase());
 						if(local_gym) {
-							//console.log(`Found local copy of gym for ${row.gymname}`);
-							if(local_gym.gymMap != row.mapsurl){
-
+							// console.log(`Found local copy of gym for ${row.gymname}`);
+							if(local_gym.gymMap != row.mapsurl) {
+								updated_maps.push(row);
 							}
-							if(local_gym.gymDirections != row.directionsurl){
-
+							if(local_gym.gymDirections != row.directionsurl) {
+								updated_directions.push(row);
 							}
-							if(local_gym.exRaidNumber != row.ofex){
-
+							if(local_gym.exRaidNumber != row.ofex) {
+								updated_ex_raid_number.push(row);
 							}
-							if(local_gym.exRaidEligibility != row.exraideligibility){
-
+							if(local_gym.exRaidEligibility != row.exraideligibility) {
+								updated_ex_raid_elig.push(row);
 							}
 						}
 						else {
@@ -160,6 +160,21 @@ class StatsCommand extends Command {
 					// End of "if there are new gyms"
 					if(new_gyms.length == 0) {
 						return message.channel.send('There were no new gyms found.');
+					}
+					if(gymList.length < rows.length - 1) {
+						console.log('Deleted gym?');
+					}
+					if(updated_maps.length > 0) {
+						console.log('maps need updating');
+					}
+					if(updated_directions.length > 0) {
+						console.log('directions need updating');
+					}
+					if(updated_ex_raid_number.length > 0) {
+						console.log('ex raid number needs updating.');
+					}
+					if(updated_ex_raid_elig.length > 0) {
+						console.log('ex raid eligibility needs updating.');
 					}
 					step();
 				});
