@@ -1,5 +1,1 @@
 - track ex gym spawns
-- create command to ping list on queue
-	- Can only be called in raid-looking channels
-	- check creation timestamp to make sure people aren't jumping the gun
-	- fetch messages to make sure ping hasn't happened before.
