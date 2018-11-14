@@ -171,7 +171,10 @@ class ChannelCreateListener extends Listener {
 				);
 				if(affectedRows <= 0) console.log(`Error incrementing for gym ${channel_gym}`);
 
-				return send_chan.send(`🔔🔔🔔\nBONG!\nA raid has just called for the gym \`${channel_gym}\` in ${channel}.\nConsider ye selves notified!\n🔔🔔🔔\n${users_arr.join(',')}\n\nIf you wish to no longer be notified for this gym, please type \`${config.prefix}remove ${channel_gym}\``, { split: true });
+				// Since this has the potential to be a massive message, tell
+				// djs to split the message at ~1900 characters and split by the
+				// comma character which will be in between each mention.
+				return send_chan.send(`🔔🔔🔔\nBONG!\nA raid has just called for the gym \`${channel_gym}\` in ${channel}.\nConsider ye selves notified!\n🔔🔔🔔\n${users_arr.join(',')}\n\nIf you wish to no longer be notified for this gym, please type \`${config.prefix}remove ${channel_gym}\``, { split: {maxLength: 1900, char: ','} });
 			}, delay);
 		}
 		else {
