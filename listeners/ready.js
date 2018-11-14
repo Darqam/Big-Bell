@@ -13,6 +13,7 @@ class ReadyListener extends Listener {
 		// this.client.Gyms.sync({ force:true });
 		this.client.Gyms.sync();
 		this.client.Config.sync();
+		this.client.Announcements.sync();
 		console.log('I\'m ready!');
 	}
 }

@@ -62,4 +62,11 @@ client.Config = sequelize.define('config', {
 	announcementChan: Sequelize.STRING,
 });
 
+client.Announcements = sequelize.define('announcements', {
+	channelId: {
+		type: Sequelize.STRING,
+		unique: true,
+	},
+});
+
 client.login(config.token);

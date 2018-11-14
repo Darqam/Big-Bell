@@ -5,9 +5,9 @@ const creds = require('../saskPokemonGym-5a6d9b796bde.json');
 
 class StatsCommand extends Command {
 	constructor() {
-		super('test', {
-			aliases: ['test'],
-			description: 'testing',
+		super('populate', {
+			aliases: ['populate'],
+			description: 'populate\nWill populate the gym database (admin only)',
 			userPermissions: ['MANAGE_GUILD'],
 		});
 	}
@@ -26,7 +26,6 @@ class StatsCommand extends Command {
 		const updated_directions = [];
 		const updated_ex_raid_number = [];
 		const updated_ex_raid_elig = [];
-
 
 		// Create a document object using the ID of the spreadsheet - obtained from its URL.
 		const doc = new GoogleSpreadsheet('1k6Gt4J323JnEB3oud_vK8gGyELoC0jha4etYXvFSbAk');
