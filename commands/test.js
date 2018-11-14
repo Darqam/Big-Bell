@@ -82,7 +82,7 @@ class StatsCommand extends Command {
 
 					if(new_gyms.length > 0) {
 						// We have some new gyms that weren't in the database before
-						let msg = await message.channel.send(`I found ${new_gyms.length - 1} new gyms. Would you like to add the following gyms to the database?\n\`\`\`\n${new_gyms.map(g => g.gymname).join(', ')}\n\`\`\``, {
+						let msg = await message.channel.send(`I found ${new_gyms.length} new gyms. Would you like to add the following gyms to the database?\n\`\`\`\n${new_gyms.map(g => g.gymname).join(', ')}\n\`\`\``, {
 							split: {
 								maxLength: 1900,
 								char: ',',
@@ -90,7 +90,7 @@ class StatsCommand extends Command {
 								append: ',\n```',
 							},
 						});
-						if(typeof msg == 'object') msg = msg[msg.length - 1];
+						if(Array.isArray(msg)) msg = msg[msg.length - 1];
 
 						await msg.react('511174612323663874'); // check
 						await msg.react('511174899969032193'); // cross/X
