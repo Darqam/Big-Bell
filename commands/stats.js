@@ -1,4 +1,5 @@
 const { Command } = require('discord-akairo');
+const { stripIndent } = require('common-tags');
 
 class StatsCommand extends Command {
 	constructor() {
@@ -27,7 +28,15 @@ class StatsCommand extends Command {
 		if(gym) {
 			const length = gym.userIds.split(',')[0] == '' ? 0 : gym.userIds.split(',').length;
 			const user = await this.client.users.fetch(gym.submittedById);
-			return message.channel.send(`Gym name: ${gym_name}\nAmount of people monitoring this gym: ${length}\nGym submitted by: ${user.tag}\nGym submission done on ${gym.submittedOn}\nGym list was pinged ${gym.timesPinged} times`);
+			return message.channel.send(stripIndent`Gym name: ${gym_name}
+				Amount of people monitoring this gym: ${length}
+				Gym submitted by: ${user.tag}
+				Gym submission done on ${gym.submittedOn}
+				Gym list was pinged ${gym.timesPinged} times
+				Map to the gym: ${gym.gymDirections}
+				Times this gym hosted an Ex Raid: ${gym.exRaidNumber}
+				Eligibility of gym for Ex Raids: ${gym.exRaidEligibility}
+				`);
 		}
 		else {
 			return message.reply(`Could not find a gym by the name of ${gym_name}.`);
