@@ -14,6 +14,8 @@ class ReadyListener extends Listener {
 		this.client.Gyms.sync();
 		this.client.Config.sync();
 		this.client.Announcements.sync();
+
+		this.client.user.setActivity('with bellends', { type: 'PLAYING' });
 		console.log('I\'m ready!');
 	}
 }
