@@ -8,7 +8,7 @@ class PingCommand extends Command {
 	constructor() {
 		super('alert', {
 			aliases: ['alert', 'forcePing'],
-			description: 'alert\nWill alert players about the gym. Must be used in a raid channel.',
+			description: 'alert\nWill alert players about the gym. Must be used in a raid channel. Can only be used 2 minutes after channel creation and only if the ping hasn\'t already occured',
 		});
 	}
 
@@ -24,7 +24,10 @@ class PingCommand extends Command {
 		// Time difference in seconds
 		const time_diff = (new Date() - message.channel.createdAt) / 1000;
 
-		if(time_diff < minimalTime) return console.log('Elapsed time was not long enough.');
+		if(time_diff < minimalTime) {
+			await message.react('⏲');
+			return console.log('Elapsed time was not long enough.');
+		}
 
 		// Check in db if an announcement for this channel was made
 		const is_ann = await this.client.Announcements.findOne({
@@ -32,7 +35,10 @@ class PingCommand extends Command {
 				channelId: message.channel.id,
 			},
 		});
-		if(is_ann) return console.log('Not pinging, ping for this already happened.');
+		if(is_ann) {
+			await message.react('511174899969032193');
+			return console.log('Not pinging, ping for this already happened.');
+		}
 
 		// Now we deal with the logic
 		let found = false;
