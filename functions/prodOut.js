@@ -12,6 +12,23 @@ module.exports = {
 			if(ex_out && gym.gymDirections) channel.send(`🔔\nHere is the proper google maps: <${gym.gymDirections}>.\n${ex_out}`);
 			else console.log(`Did not have map and Ex raid info for ${gym.GymName}.`);
 
+			// Let's make sure this is only ever done once.
+			let disabled = false;
+			try {
+				await channel.client.Announcements.create({
+					channelId: channel.id,
+				});
+				console.log('Saved to DB that channel was pinged');
+			}
+			catch (e) {
+				if (e.name === 'SequelizeUniqueConstraintError') {
+					console.log('Attempt at 2nd list ping disabled.');
+					disabled = true;
+				}
+				console.log('Could not save to DB that channel was pinged');
+				console.log(e);
+			}
+
 			// Check if anyone is registered for this gym
 			if(!gym.userIds) {
 				console.log(`No users for ${channel_gym}.`);
@@ -41,22 +58,6 @@ module.exports = {
 				{ where : { GymName: channel_gym } },
 			);
 			if(affectedRows <= 0) console.log(`Error incrementing for gym ${channel_gym}`);
-
-			let disabled = false;
-			try {
-				await channel.client.Announcements.create({
-					channelId: channel.id,
-				});
-				console.log('Saved to DB that channel was pinged');
-			}
-			catch (e) {
-				if (e.name === 'SequelizeUniqueConstraintError') {
-					console.log('Attempt at 2nd list ping disabled.');
-					disabled = true;
-				}
-				console.log('Could not save to DB that channel was pinged');
-				console.log(e);
-			}
 
 			// Since this has the potential to be a massive message, tell
 			// djs to split the message at ~1900 characters and split by the

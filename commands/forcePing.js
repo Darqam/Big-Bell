@@ -21,14 +21,6 @@ class PingCommand extends Command {
 		let channel_gym = chanName.getChanGym(message.channel);
 		if(!channel_gym) return console.log('Not in a proper channel.');
 
-		// Time difference in seconds
-		const time_diff = (new Date() - message.channel.createdAt) / 1000;
-
-		if(time_diff < minimalTime) {
-			await message.react('⏲');
-			return console.log('Elapsed time was not long enough.');
-		}
-
 		// Check in db if an announcement for this channel was made
 		const is_ann = await this.client.Announcements.findOne({
 			where: {
@@ -38,6 +30,14 @@ class PingCommand extends Command {
 		if(is_ann) {
 			await message.react('511174899969032193');
 			return console.log('Not pinging, ping for this already happened.');
+		}
+
+		// Time difference in seconds
+		const time_diff = (new Date() - message.channel.createdAt) / 1000;
+
+		if(time_diff < minimalTime) {
+			await message.react('⏲');
+			return console.log('Elapsed time was not long enough.');
 		}
 
 		// Now we deal with the logic

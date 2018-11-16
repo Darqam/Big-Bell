@@ -20,12 +20,12 @@ module.exports = {
 		}
 
 		// Case 2, raid egg. Assume format level-X-egg-park-name
-		if(channel_gym == '' && channel_array[0].toLowerCase() == 'level' && channel_array[2].toLowerCase() == 'egg') {
+		if(!channel_gym && channel_array[0].toLowerCase() == 'level' && channel_array[2].toLowerCase() == 'egg') {
 			channel_gym = channel_array.slice(3).join(' ');
 		}
 
 		// Case 3, hatched raid egg: hatched-level-X-egg-gym-name-here
-		if(channel_gym == '' && channel_array[0].toLowerCase() == 'hatched' && channel_array[1].toLowerCase() == 'level' && channel_array[3].toLowerCase() == 'egg') {
+		if(!channel_gym && channel_array[0].toLowerCase() == 'hatched' && channel_array[1].toLowerCase() == 'level' && channel_array[3].toLowerCase() == 'egg') {
 			channel_gym = channel_array.slice(4).join(' ');
 		}
 		return channel_gym;
