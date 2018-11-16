@@ -1,10 +1,14 @@
 const { Command } = require('discord-akairo');
 
-class AddCommand extends Command {
+class RemoveCommand extends Command {
 	constructor() {
-		super('add', {
-			aliases: ['add', 'a'],
-			description: 'add Gym Name 1, Gym Name 2, ...\nAdds user to a list of gyms',
+		super('remove', {
+			aliases: ['remove', 'r'],
+			category: 'general',
+			description: {
+				content: 'Removes the author from the specified gym list.',
+				usage: 'Gym Name 1, Gym Name 2, ...',
+			},
 			args: [
 				{
 					id: 'gym_list',
@@ -22,7 +26,7 @@ class AddCommand extends Command {
 		const errors = [];
 		const success = [];
 		const noName = [];
-		const present = [];
+		const notPresent = [];
 
 		for(let i = 0; i < gym_list.length; i++) {
 			gym_list[i] = gym_list[i].trim();
@@ -31,16 +35,17 @@ class AddCommand extends Command {
 					GymName: gym_list[i],
 				},
 			});
-			if(gym) {
-				const user_list = gym.userIds ? gym.userIds.split(',') : [];
 
-				if(user_list.includes(message.author.id)) {
+			if(gym) {
+				let user_list = gym.userIds ? gym.userIds.split(',') : [];
+
+				if(!user_list.includes(message.author.id)) {
 					// If the user is already in this list, just continue
-					present.push(gym_list[i]);
+					notPresent.push(gym_list[i]);
 					continue;
 				}
 
-				user_list.push(message.author.id);
+				user_list = user_list.filter(e => e != message.author.id);
 
 				const affectedRows = await this.client.Gyms.update(
 					{ userIds: user_list.join(',') },
@@ -62,7 +67,7 @@ class AddCommand extends Command {
 		}
 		// End for loop
 		if(success.length > 0) {
-			output += `Successfully added you to: \n\`\`\`${success.join('\n')}\`\`\`\n`;
+			output += `Successfully removed you from: \n\`\`\`\n${success.join('\n')}\`\`\`\n`;
 			await message.react('511174612323663874');
 		}
 
@@ -71,13 +76,13 @@ class AddCommand extends Command {
 			await message.react('❓');
 		}
 
-		if(present.length > 0) {
-			output += `Could not add you to the following since you are already registered there: \n\`\`\`\n${present.join('\n')}\`\`\`\n`;
+		if(notPresent.length > 0) {
+			output += `Could not remove you from the following since you were not registered there: \n\`\`\`\n${notPresent.join('\n')}\`\`\`\n`;
 			await message.react('❓');
 		}
 
 		if(errors.length > 0) {
-			output += `Could not add you to the following gyms due to an unknown error: \n\`\`\`\n${errors.join('\n')}\`\`\``;
+			output += `Could not remove you to the following gyms due to an unknown error: \n\`\`\`\n${errors.join('\n')}\`\`\``;
 			await message.react('511174899969032193');
 		}
 
@@ -85,4 +90,4 @@ class AddCommand extends Command {
 	}
 }
 
-module.exports = AddCommand;
+module.exports = RemoveCommand;

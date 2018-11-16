@@ -4,7 +4,11 @@ class CreateCommand extends Command {
 	constructor() {
 		super('create', {
 			aliases: ['create', 'c'],
-			description: 'create Gym Name 1, Gym Name 2, ...\nCreates the given gyms in the database (mod only)',
+			category: 'mod',
+			description: {
+				content: 'Creates the given gyms in the database.',
+				usage: 'Gym Name 1, Gym Name 2, ...',
+			},
 			args: [
 				{
 					id: 'gym_list',

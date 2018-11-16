@@ -4,7 +4,11 @@ class DeleteCommand extends Command {
 	constructor() {
 		super('delete', {
 			aliases: ['delete', 'del', 'd'],
-			description: 'delete Gym Name 1, Gym Name 2, ...\nDeletes the given gym from the database (mod only)',
+			category: 'mod',
+			description: {
+				content: 'Deletes the given gyms from the database.',
+				usage: 'Gym Name 1, Gym Name 2, ...',
+			},
 			args: [
 				{
 					id: 'gym_list',

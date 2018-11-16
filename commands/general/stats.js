@@ -5,7 +5,11 @@ class StatsCommand extends Command {
 	constructor() {
 		super('stats', {
 			aliases: ['stats', 's', 'stat', 'info'],
-			description: 'stats Gym Name\nShows a few stats for the given gym.',
+			category: 'general',
+			description: {
+				content: 'Shows a few stats for the given gym.',
+				usage: 'Gym Name',
+			},
 			args: [
 				{
 					id: 'gym_name',

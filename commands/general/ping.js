@@ -4,7 +4,11 @@ class PingCommand extends Command {
 	constructor() {
 		super('ping', {
 			aliases: ['ping'],
-			description: 'ping\nTypical ping command',
+			category: 'general',
+			description: {
+				content: 'Provides round trip and heartbeat ping.',
+				usage: '',
+			},
 		});
 	}
 

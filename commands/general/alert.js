@@ -1,14 +1,18 @@
 const { Command } = require('discord-akairo');
-const chanName = require('../functions/isolateNames.js');
-const multiResult = require('../functions/multiResult.js');
-const chanList = require('../functions/findGyms.js');
-const prodOut = require('../functions/prodOut.js');
+const chanName = require('../../functions/isolateNames.js');
+const multiResult = require('../../functions/multiResult.js');
+const chanList = require('../../functions/findGyms.js');
+const prodOut = require('../../functions/prodOut.js');
 
 class PingCommand extends Command {
 	constructor() {
 		super('alert', {
 			aliases: ['alert', 'forcePing'],
-			description: 'alert\nWill alert players about the gym. Must be used in a raid channel. Can only be used 2 minutes after channel creation and only if the ping hasn\'t already occured',
+			category: 'general',
+			description: {
+				content: 'Will alert players about the gym. Must be used in a raid channel. Can only be used 2 minutes after channel creation and only if the ping hasn\'t already occured.',
+				usage: '',
+			},
 		});
 	}
 

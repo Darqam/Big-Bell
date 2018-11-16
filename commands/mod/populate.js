@@ -1,14 +1,19 @@
 const { Command } = require('discord-akairo');
 const GoogleSpreadsheet = require('google-spreadsheet');
 const async = require('async');
-const creds = require('../saskPokemonGym-5a6d9b796bde.json');
+const creds = require('../../saskPokemonGym-5a6d9b796bde.json');
 
 class StatsCommand extends Command {
 	constructor() {
 		super('populate', {
 			aliases: ['populate'],
-			description: 'populate\nWill populate the gym database (admin only)',
+			category: 'mod',
+			description: {
+				content: 'Will populate the gym database.',
+				usage: '',
+			},
 			userPermissions: ['MANAGE_GUILD'],
+			channelRestriction: 'guild',
 		});
 	}
 

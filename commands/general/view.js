@@ -4,7 +4,11 @@ class ViewCommand extends Command {
 	constructor() {
 		super('view', {
 			aliases: ['view', 'v', 'list'],
-			description: 'view\nLets the user view which gyms they are subscribed to',
+			category: 'general',
+			description: {
+				content: 'Disaplys which gyms the author is monitoring.',
+				usage: '',
+			},
 		});
 	}
 

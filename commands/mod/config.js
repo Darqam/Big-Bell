@@ -4,7 +4,11 @@ class ConfigCommand extends Command {
 	constructor() {
 		super('config', {
 			aliases: ['config'],
-			description: 'config channelId\nAllows for setting of alert channel (mod only)',
+			category: 'mod',
+			description: {
+				content: 'Allows for setting of alert channel.',
+				usage: '#channelName',
+			},
 			args: [
 				{
 					id: 'sendChannel',
@@ -18,6 +22,7 @@ class ConfigCommand extends Command {
 	}
 
 	async exec(message, args) {
+		// This feels stupid but also safe
 		const channel_id = args.sendChannel.id;
 		if(!message.guild.channels.has(channel_id)) return message.channel.send('Could not find a channel by that id in this guild.');
 
