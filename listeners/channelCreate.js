@@ -15,6 +15,7 @@ class ChannelCreateListener extends Listener {
 
 	async exec(channel) {
 
+		if(!channel.guild) return;
 		// Figure out which channel to send this to
 		let send_chan = await this.client.Config.findOne({
 			where: { guildId: channel.guild.id },
