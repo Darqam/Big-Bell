@@ -22,9 +22,6 @@ class ViewCommand extends Command {
 		});
 		if(userGyms.length > 0) return message.reply(`You currently have alerts for the following gyms:\n\`\`\`\n${userGyms.join('\n')}\`\`\``);
 		return message.reply('You currently are registered to recieve no alerts.');
-
-		/* const tagString = tagList.map(t => t.name).join(', ') || 'No tags set.';
-		return message.channel.send(`List of tags: ${tagString}`); */
 	}
 }
 

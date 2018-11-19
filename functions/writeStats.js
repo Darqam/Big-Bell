@@ -2,9 +2,9 @@ module.exports = {
 	writeStats: async function(client, gymName) {
 		const date = new Date().getTime();
 		try {
-			await this.client.Stats.create({
+			await client.Stats.create({
 				timestamp: date,
-				GymName: gymName,
+				gymName: gymName,
 			});
 		}
 		catch (e) {
