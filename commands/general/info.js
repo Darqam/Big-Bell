@@ -1,13 +1,13 @@
 const { Command } = require('discord-akairo');
 const { stripIndents } = require('common-tags');
 
-class StatsCommand extends Command {
+class InfoCommand extends Command {
 	constructor() {
-		super('stats', {
-			aliases: ['stats', 's', 'stat', 'info'],
+		super('info', {
+			aliases: ['info', 'i'],
 			category: 'general',
 			description: {
-				content: 'Shows a few stats for the given gym.',
+				content: 'Shows some info for the given gym.',
 				usage: 'Gym Name',
 			},
 			args: [
@@ -48,4 +48,4 @@ class StatsCommand extends Command {
 	}
 }
 
-module.exports = StatsCommand;
+module.exports = InfoCommand;
