@@ -69,4 +69,13 @@ client.Announcements = sequelize.define('announcements', {
 	},
 });
 
+// timestamp will be in ms for ease of use
+client.Stats = sequelize.define('stats', {
+	timestamp: {
+		type: Sequelize.STRING,
+		unique: true,
+	},
+	gymName: Sequelize.STRING,
+});
+
 client.login(config.token);

@@ -4,6 +4,7 @@ const chanName = require('../functions/isolateNames.js');
 const chanList = require('../functions/findGyms.js');
 const multiResult = require('../functions/multiResult.js');
 const prodOut = require('../functions/prodOut.js');
+const stats = require('../functions/writeStats.js');
 
 class ChannelCreateListener extends Listener {
 	constructor() {
@@ -62,19 +63,23 @@ class ChannelCreateListener extends Listener {
 
 				let author_id = '';
 				let author_mention = '';
-				if(first) {
+				if(first && first.mentions.users.first()) {
 					author_id = first.mentions.users.first().id;
 					author_mention = ` <@${author_id}> `;
 				}
 
 				if(results.length > 1) {
 					const f_r = await multiResult.doQuery(author_mention, results, gym, channel_gym, send_chan, selection_done);
-					// const return_array = [results, gym, channel_gym, selection_done];
+
 					results = f_r[0];
 					gym = f_r[1];
 					channel_gym = f_r[2];
 					selection_done = f_r[3];
 				}
+				// At this point channel_gym will be the 'valid' gym name
+
+				// This doesn't need to resolve before the rest can go, so no await
+				stats.writeStats(this.client, channel_gym);
 
 				const fi_r = await prodOut.produceOut(gym, channel, channel_gym, selection_done, author_id, send_chan);
 				const final_return = fi_r[0];
