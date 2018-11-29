@@ -1,5 +1,4 @@
 - provide manual override on alert for mods to give an option for gym name
-- handle the case where none of the gyms listed are the right one in the embed list.
 - track ex gym spawns
 - make table to track rate of channel/gym use
 	| datetime | gymName |
