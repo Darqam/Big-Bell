@@ -32,7 +32,7 @@ module.exports = {
 					const msg_filter = m => {
 						return reaction.users.some(u => u.id === m.author.id);
 					};
-					await react_msg.channel.send('Aborting choice, please give the exact name of the gym as the following message.');
+					await react_msg.channel.send('Aborting choice, please give the **exact name** of the gym as the following message.');
 					try{
 						const new_gym_coll = await react_msg.channel.awaitMessages(msg_filter, { max: 1, time: 60000, errors: ['time'] });
 						const new_gym = new_gym_coll.first().content.toLowerCase();
