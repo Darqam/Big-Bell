@@ -69,15 +69,15 @@ class ChannelCreateListener extends Listener {
 				}
 
 				if(results.length > 1) {
-					const f_r = await multiResult.doQuery(author_mention, results, gym, channel_gym, send_chan, selection_done);
+					const f_r = await multiResult.doQuery(author_mention, results, gym, channel_gym, send_chan);
 
-					// f_r[4] is basically an abort boolean
-					if(f_r[4] == true) return undefined;
+					// f_r[3] is basically an abort boolean
+					if(f_r[3] == true) return undefined;
 
 					results = f_r[0];
 					gym = f_r[1];
 					channel_gym = f_r[2];
-					selection_done = f_r[3];
+					selection_done = true;
 				}
 				// At this point channel_gym will be the 'valid' gym name
 
