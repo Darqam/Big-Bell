@@ -18,14 +18,16 @@ class ChannelCreateListener extends Listener {
 
 		if(!channel.guild) return;
 		// Figure out which channel to send this to
+
 		/* let send_chan = await this.client.Config.findOne({
 			where: { guildId: channel.guild.id },
-		}); */
-		// Choice is now to send in raid channel, so this is quick bypass.
-		let send_chan = channel;
+		});
 		// If there is nothing configured for this guild, do nothing
 		if(!send_chan) return console.log('No configs set, returning.');
-		else send_chan = this.client.channels.get(send_chan.announcementChan);
+		else send_chan = this.client.channels.get(send_chan.announcementChan); */
+
+		// Choice was made to make it send to raid channel instead, so here is bypass.
+		const send_chan = channel;
 
 		let results = [];
 		const delay = 5 * 1000;
