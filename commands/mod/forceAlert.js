@@ -9,6 +9,7 @@ class ForceAlertCommand extends Command {
 		super('forceAlert', {
 			aliases: ['forceAlert', 'fAlert', 'forcePing', 'fPing'],
 			category: 'mod',
+			channel: 'guild',
 			description: {
 				content: 'Will alert players about the gym. Must be used in a raid channel.',
 				usage: '',
