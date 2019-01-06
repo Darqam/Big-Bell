@@ -4,11 +4,12 @@ const multiResult = require('../../functions/multiResult.js');
 const chanList = require('../../functions/findGyms.js');
 const prodOut = require('../../functions/prodOut.js');
 
-class PingCommand extends Command {
+class AlertCommand extends Command {
 	constructor() {
 		super('alert', {
 			aliases: ['alert'],
 			category: 'general',
+			channel: 'guild',
 			description: {
 				content: 'Will alert players about the gym. Must be used in a raid channel. Can only be used 2 minutes after channel creation and only if the ping hasn\'t already occured.',
 				usage: '',
@@ -91,4 +92,4 @@ class PingCommand extends Command {
 	}
 }
 
-module.exports = PingCommand;
+module.exports = AlertCommand;

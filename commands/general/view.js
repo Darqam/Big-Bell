@@ -6,7 +6,7 @@ class ViewCommand extends Command {
 			aliases: ['view', 'v', 'list'],
 			category: 'general',
 			description: {
-				content: 'Disaplys which gyms the author is monitoring.',
+				content: 'Displays which gyms the author is monitoring.',
 				usage: '',
 			},
 		});
