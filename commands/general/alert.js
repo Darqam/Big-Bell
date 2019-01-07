@@ -11,7 +11,7 @@ class AlertCommand extends Command {
 			category: 'general',
 			channel: 'guild',
 			description: {
-				content: 'Will alert players about the gym. Must be used in a raid channel. Can only be used 2 minutes after channel creation and only if the ping hasn\'t already occured.',
+				content: 'Will alert players about the gym. Must be used in a raid channel. Can only be used 2 minutes after channel creation and only if the ping hasn\'t already occurred.',
 				usage: '',
 			},
 		});

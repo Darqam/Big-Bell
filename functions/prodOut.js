@@ -9,8 +9,19 @@ module.exports = {
 			if(gym.exRaidNumber) ex_out = `Amount of times this gym has been home to an Ex raid: ${gym.exRaidNumber}`;
 			else if(gym.exRaidEligibility) ex_out = `Status of this gym with regards to Ex raids: ${gym.exRaidEligibility}`;
 
-			if(ex_out && gym.gymDirections) channel.send(`🔔\nHere is the proper google maps: <${gym.gymDirections}>.\n${ex_out}`);
-			else console.log(`Did not have map and Ex raid info for ${gym.GymName}.`);
+			if(ex_out && gym.gymDirections) {
+				// Sending without killing embed and extra space after google maps for Meowth to pick up the link
+				const tmpMsg = await channel.send(`🔔\nHere is the proper google maps: ${gym.gymMap} .\nWith directions: <${gym.gymDirections}>.\n${ex_out}`);
+
+				// Wait 10 seconds then edit it to not look ugly
+				setTimeout(() => {
+					tmpMsg.edit(`🔔\nHere is the proper google maps: <${gym.gymMap}>.\nWith directions: <${gym.gymDirections}>.\n${ex_out}`);
+				}, 10000);
+
+			}
+			else {
+				console.log(`Did not have map and Ex raid info for ${gym.GymName}.`);
+			}
 
 			// Let's make sure this is only ever done once.
 			let disabled = false;
