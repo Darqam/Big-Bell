@@ -10,11 +10,13 @@
   "license": "MIT",
   "dependencies": {
     "async": "^2.6.1",
+    "common-tags": "^1.8.0",
     "discord-akairo": "github:1Computer1/discord-akairo",
     "discord.js": "github:discordjs/discord.js",
     "eslint": "^5.9.0",
     "fuzzy-search": "^2.1.0",
     "google-spreadsheet": "^2.0.6",
+    "plotly": "^1.0.6",
     "sequelize": "^4.41.1",
     "sqlite": "^3.0.0"
   }
