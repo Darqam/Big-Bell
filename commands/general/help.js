@@ -50,7 +50,7 @@ class HelpCommand extends Command {
 			embed.addField('Aliases', `\`${command.aliases.join('` `')}\``, true);
 		}
 
-		return message.channel.send({ embed });
+		return message.channel.send({ embed: embed });
 	}
 
 	async execCommandList(message) {
@@ -75,7 +75,7 @@ class HelpCommand extends Command {
 		const shouldReply = message.guild && message.channel.permissionsFor(this.client.user).has('SEND_MESSAGES');
 
 		try {
-			await message.author.send({ embed });
+			await message.author.send('For any issues, feel free to ping Anhim/Daro `@Daroem#3556 `. Response may take a while due to timezones.', { embed: embed });
 			if (shouldReply) return message.reply('I\'ve sent you a DM with the command list.');
 		}
 		catch (err) {
