@@ -34,7 +34,7 @@ class MapCommand extends Command {
 		if(gym) {
 			const ex_out = gym.exRaidNumber > 0 ? `Times this gym hosted an Ex Raid: ${gym.exRaidNumber}` : `Eligibility of gym for Ex Raids: ${gym.exRaidEligibility}`;
 
-			return message.channel.send(`Gym name: ${gym_name}\nMap to the gym: <${gym.gymDirections}>\n${ex_out}`);
+			return message.channel.send(`Gym name: ${gym_name}\nMap to the gym: <${gym.gymMap}>.\nWith directions: <${gym.gymDirections}>\n${ex_out}`);
 		}
 		else {
 			return message.reply(args.gym_name ? `Could not find a gym by the name of ${args.gym_name.trim()}` : `Could not find a gym based on channel name: ${message.channel.name}`);
