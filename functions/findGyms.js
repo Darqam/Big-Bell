@@ -5,7 +5,7 @@ module.exports = {
 		return new Promise(async (resolve) => {
 			// If the gym wasn't found with an exact match, pull all entries
 			// from the database
-			const gymList = await client.Gyms.findAll({ attributes: ['GymName', 'userIds', 'timesPinged', 'gymDirections', 'exRaidNumber', 'exRaidEligibility'] });
+			const gymList = await client.Gyms.findAll({ attributes: ['GymName', 'userIds', 'timesPinged', 'gymDirections', 'gymMap', 'exRaidNumber', 'exRaidEligibility'] });
 			let results = [];
 			let found;
 			let gym;
