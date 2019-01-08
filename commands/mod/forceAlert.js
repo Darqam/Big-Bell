@@ -17,6 +17,15 @@ class ForceAlertCommand extends Command {
 		});
 	}
 
+	userPermissions(message) {
+		if(message.member.permissions.has('MANAGE_GUILD') || message.author.id == '129714945238630400') {
+			return null;
+		}
+		else {
+			return 'Moderator';
+		}
+	}
+
 	async exec(message) {
 		let channel_gym = chanName.getChanGym(message.channel);
 		if(!channel_gym) return console.log('Not in a proper channel.');
