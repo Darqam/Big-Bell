@@ -39,7 +39,7 @@ class DeleteCommand extends Command {
 
 		await message.channel.send('Are you certain you wish to delete all these gyms?This action **cannot** be reversed? Type `y` or `yes` to delete.');
 
-		message.channel.awaitMessages(filter, { max: 1, time: 10000, errors: ['time'] })
+		message.channel.awaitMessages(filter, { max: 1, time: 20000, errors: ['time'] })
 			.then(async collected => {
 				if(collected.first().content.toLowerCase() == 'y' || collected.first().content.toLowerCase() == 'yes') {
 
