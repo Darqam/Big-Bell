@@ -37,7 +37,8 @@ class InfoCommand extends Command {
 				Gym submitted by: ${user.tag}
 				Gym submission done on ${gym.submittedOn}
 				Gym list was pinged ${gym.timesPinged} times
-				Map to the gym: <${gym.gymDirections}>
+				Map for the gym <${gym.gymMap}>
+				Directions to the gym: <${gym.gymDirections}>
 				Times this gym hosted an Ex Raid: ${gym.exRaidNumber}
 				Eligibility of gym for Ex Raids: ${gym.exRaidEligibility}
 				`);
