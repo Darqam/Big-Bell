@@ -75,7 +75,7 @@ module.exports = {
 			// comma character which will be in between each mention.
 			const final_return = stripIndents`🔔🔔🔔
 			BONG!
-			A raid has just called for the gym \`${channel_gym}\` in ${channel}.
+			Raid announced for the gym \`${channel_gym}\` in ${channel}.
 			Consider ye selves notified!
 			🔔🔔🔔
 			${users_arr.join(',')}
