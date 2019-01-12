@@ -1,4 +1,5 @@
 const { Command } = require('discord-akairo');
+const chanList = require('../../functions/findGyms.js');
 
 class AddCommand extends Command {
 	constructor() {
@@ -26,6 +27,7 @@ class AddCommand extends Command {
 		const errors = [];
 		const success = [];
 		const noName = [];
+		const alternatives = [];
 		const present = [];
 
 		for(let i = 0; i < gym_list.length; i++) {
@@ -62,6 +64,10 @@ class AddCommand extends Command {
 			}
 			else {
 				noName.push(gym_list[i]);
+				// Try to find gyms of similar names to suggest them
+				const func_return = await chanList.getGymNames(this.client, gym_list[i]);
+				if(func_return[0]) alternatives.push(func_return[0]);
+				else alternatives.push(['No alternatives found.']);
 			}
 		}
 		// End for loop
@@ -71,7 +77,11 @@ class AddCommand extends Command {
 		}
 
 		if(noName.length > 0) {
-			output += `Could not find gyms by the name of: \n\`\`\`\n${noName.join('\n')}\`\`\`\n`;
+			const tmpOut = [];
+			for(let i = 0; i < noName.length; i++) {
+				tmpOut.push(noName[i] + ' --> ' + alternatives[i].map(a => a.GymName).join(', '));
+			}
+			output += `Could not find the following gyms, check the spelling or it may be one of the following: \n\`\`\`\n${tmpOut.join('\n')}\`\`\`\n`;
 			await message.react('❓');
 		}
 
