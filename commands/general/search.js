@@ -31,7 +31,7 @@ class SearchCommand extends Command {
 			if(func_return[0]) output.push(gym_list[i] + '-->' + func_return[0].map(n => n.GymName));
 			else output.push(gym_list[i] + '-->' + 'No similar gyms found to that name.');
 		}
-		message.channel.send(`The search returned the following: \n\`\`\`\n${output.join('\n\n')}\`\`\`\n`);
+		message.channel.send(`The search returned the following: \n\n\`\`\`\n${output.join('\n\n')}\n\`\`\`\n`);
 	}
 }
 
