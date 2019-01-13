@@ -1,5 +1,4 @@
 const emojiCharacters = require('../data/emojiCharacters.js');
-const chanList = require('./findGyms.js');
 const list_max = 5;
 
 module.exports = {
@@ -46,9 +45,13 @@ module.exports = {
 						const new_gym = new_gym_coll.first().content.toLowerCase();
 
 						// Attempt to fetch the gym object from database via the given name
-						const gym_return = await chanList.getGymNames(react_msg.client, new_gym);
-						if(gym_return[0][0]) {
-							const return_array = [results, gym_return[0][0], gym_return[0][0].GymName];
+						const gym_return = await react_msg.client.Gyms.findOne({
+							where: {
+								GymName: new_gym,
+							},
+						});
+						if(gym_return) {
+							const return_array = [results, gym_return, gym_return.GymName];
 							resolve(return_array);
 						}
 						else {
@@ -58,6 +61,7 @@ module.exports = {
 						}
 					}
 					catch(e) {
+						console.log(e);
 						console.log('Did not recieve new gym name');
 					}
 					// End try catch for X reaction
@@ -79,6 +83,7 @@ module.exports = {
 				}
 			}
 			catch(e) {
+				console.log(e);
 				console.log('Got no answer for gym precision, defaulting to highest match');
 				gym = results[0];
 				channel_gym = gym.GymName;
