@@ -14,6 +14,13 @@ class ForceAlertCommand extends Command {
 				content: 'Will alert players about the gym. Must be used in a raid channel.',
 				usage: '',
 			},
+			args: [
+				{
+					id: 'gym',
+					match: 'content',
+					type: 'lowercase',
+				},
+			],
 		});
 	}
 
@@ -26,8 +33,8 @@ class ForceAlertCommand extends Command {
 		}
 	}
 
-	async exec(message) {
-		let channel_gym = chanName.getChanGym(message.channel);
+	async exec(message, args) {
+		let channel_gym = args.gym ? args.gym : chanName.getChanGym(message.channel);
 		if(!channel_gym) return console.log('Not in a proper channel.');
 
 		// Now we deal with the logic

@@ -14,16 +14,23 @@ class AlertCommand extends Command {
 				content: 'Will alert players about the gym. Must be used in a raid channel. Can only be used 2 minutes after channel creation and only if the ping hasn\'t already occurred.',
 				usage: '',
 			},
+			args: [
+				{
+					id: 'gym',
+					match: 'content',
+					type: 'lowercase',
+				},
+			],
 		});
 	}
 
-	async exec(message) {
+	async exec(message, args) {
 		// Time in seconds
 		const minimalTime = 120;
 		// - Can only be called in raid-looking channels
 		// - check creation timestamp to make sure people aren't jumping the gun
 		// - fetch messages to make sure ping hasn't happened before.
-		let channel_gym = chanName.getChanGym(message.channel);
+		let channel_gym = args.gym ? args.gym : chanName.getChanGym(message.channel);
 		if(!channel_gym) return console.log('Not in a proper channel.');
 
 		// Check in db if an announcement for this channel was made
