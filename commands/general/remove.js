@@ -21,30 +21,44 @@ class RemoveCommand extends Command {
 
 	async exec(message, args) {
 		if(!args.gym_list) return message.reply('No gyms found in query');
-		const gym_list = args.gym_list.split(',');
+
+		let gym_list = args.gym_list.split(',');
+		gym_list = gym_list.map(x => x.trim());
+
+		let user_gyms = [];
 		let output = '';
 		const errors = [];
 		const success = [];
 		const noName = [];
-		const notPresent = [];
+		let notPresent = [];
+		let all = false;
 
-		for(let i = 0; i < gym_list.length; i++) {
-			gym_list[i] = gym_list[i].trim();
-			const gym = await this.client.Gyms.findOne({
-				where: {
-					GymName: gym_list[i],
-				},
-			});
+		const all_gyms = await this.client.Gyms.findAll({ attributes: ['GymName', 'userIds'] });
+		all_gyms.forEach(gym => {
+			if (gym.userIds.split(',').includes(message.author.id)) {
+				user_gyms.push(gym);
+			}
+		});
 
-			if(gym) {
-				let user_list = gym.userIds ? gym.userIds.split(',') : [];
+		if(gym_list[0] !== 'all') {
+			user_gyms = user_gyms.filter(aGym => gym_list.includes(aGym.GymName));
+			notPresent = gym_list.filter(choice => !user_gyms.map(x => x.GymName).includes(choice));
+		}
+		else {
+			gym_list = user_gyms.map(x => x.GymName);
+			all = true;
+			if(user_gyms.length == 0) {
+				await message.react('511174899969032193');
+				return message.reply('I do not have you registered in any gyms');
+			}
+		}
 
-				if(!user_list.includes(message.author.id)) {
-					// If the user is already in this list, just continue
-					notPresent.push(gym_list[i]);
-					continue;
-				}
+		// At this point, user_gyms is either all gym objects the user is subscribed to (for the case of 'all')
+		// or it is limited to the gyms who'se names were typed.
 
+		for(let i = 0; i < user_gyms.length; i++) {
+			if(user_gyms[i]) {
+				let user_list = user_gyms.userIds ? user_gyms.userIds.split(',') : [];
 				user_list = user_list.filter(e => e != message.author.id);
 
 				const affectedRows = await this.client.Gyms.update(
@@ -68,6 +82,7 @@ class RemoveCommand extends Command {
 		// End for loop
 		if(success.length > 0) {
 			output += `Successfully removed you from: \n\`\`\`\n${success.join('\n')}\`\`\`\n`;
+			if(all) output += 'If this was temporary, consider blocking me next time, might be faster than running this and adding them back later.';
 			await message.react('511174612323663874');
 		}
 
@@ -77,7 +92,7 @@ class RemoveCommand extends Command {
 		}
 
 		if(notPresent.length > 0) {
-			output += `Could not remove you from the following since you were not registered there: \n\`\`\`\n${notPresent.join('\n')}\`\`\`\n`;
+			output += `Could not remove you from the following since you were not registered there or the gym was not found: \n\`\`\`\n${notPresent.join('\n')}\`\`\`\n`;
 			await message.react('❓');
 		}
 
@@ -85,7 +100,6 @@ class RemoveCommand extends Command {
 			output += `Could not remove you to the following gyms due to an unknown error: \n\`\`\`\n${errors.join('\n')}\`\`\``;
 			await message.react('511174899969032193');
 		}
-
 		return message.reply(output);
 	}
 }
