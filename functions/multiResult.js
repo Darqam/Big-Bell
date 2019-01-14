@@ -4,6 +4,9 @@ const list_max = 5;
 module.exports = {
 	doQuery: async function(author_mention, results, gym, channel_gym, send_chan) {
 		return new Promise(async (resolve) => {
+
+			const minimalTime = 120;
+
 			// Print out message asking for gym name verification
 			// Loop over the given `results` array which contains all gym objects
 			let react_out = `Hey${author_mention}, I found a few options, could anyone please specify which gym is correct so I can alert those who are watching for this gym? Choose ${send_chan.client.emojis.get('511174899969032193')} if the correct gym was not listed.\n`;
@@ -83,10 +86,11 @@ module.exports = {
 				}
 			}
 			catch(e) {
-				console.log(e);
-				console.log('Got no answer for gym precision, defaulting to highest match');
-				gym = results[0];
-				channel_gym = gym.GymName;
+				console.error(e);
+				console.log('Got no answer for gym precision, tapping out');
+				const time_diff = (new Date() - react_msg.channel.createdAt) / 1000;
+				react_msg.channel.send(`Did not recieve gym name confirmation, please consider using the \`alert\` command after another ${Math.round(minimalTime - time_diff)} seconds.`);
+				resolve([0, 0, 0, true]);
 			}
 
 			const return_array = [results, gym, channel_gym];
