@@ -41,8 +41,9 @@ class StatsCommand extends Command {
 		const updated_ex_raid_elig = [];
 
 		// Create a document object using the ID of the spreadsheet - obtained from its URL.
-		const doc = new GoogleSpreadsheet('1k6Gt4J323JnEB3oud_vK8gGyELoC0jha4etYXvFSbAk');
-
+		// const doc = new GoogleSpreadsheet('1k6Gt4J323JnEB3oud_vK8gGyELoC0jha4etYXvFSbAk');
+		// My copy with a few more gyms, until the main one gets updated.
+		const doc = new GoogleSpreadsheet('1WgNar6otRmRi_ZduBj0H__gV9Qa85bJ1VJpmtK3Puqs');
 		// Authenticate with the Google Spreadsheets API.
 		async.series([
 			function setAuth(step) {
