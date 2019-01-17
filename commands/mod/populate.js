@@ -33,7 +33,6 @@ class StatsCommand extends Command {
 		if(!gymList) return message.channel.send('Could not query database. Aborting.');
 
 		const new_gyms = [];
-		const old_gyms = [];
 
 		const updated_maps = [];
 		const updated_directions = [];
@@ -105,8 +104,9 @@ class StatsCommand extends Command {
 						});
 						if(Array.isArray(msg)) msg = msg[msg.length - 1];
 
-						await msg.react('511174612323663874'); // check
-						await msg.react('511174899969032193'); // cross/X
+						// check mark, and X mark
+						await msg.react('511174612323663874');
+						await msg.react('511174899969032193');
 						const valid_emojis = ['511174612323663874', '511174899969032193'];
 
 						const react_filter = (reaction, user) => {
