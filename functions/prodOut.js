@@ -12,7 +12,7 @@ module.exports = {
 			if(ex_out && gym.gymDirections) {
 				// Sending without killing embed and extra space after google maps for Meowth to pick up the link
 				const tmpMsg = await channel.send(`🔔\nHere is the proper google maps: ${gym.gymMap} .\nWith directions: <${gym.gymDirections}>.\n${ex_out}`);
-
+				console.log(`Sent maps for ${gym.GymName}`);
 				// Wait 10 seconds then edit it to not look ugly
 				setTimeout(() => {
 					tmpMsg.edit(`🔔\nHere is the proper google maps: <${gym.gymMap}>.\nWith directions: <${gym.gymDirections}>.\n${ex_out}`);
