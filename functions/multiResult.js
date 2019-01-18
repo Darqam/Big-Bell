@@ -32,9 +32,26 @@ module.exports = {
 			};
 
 			// Begin awaitReaction block
+			const time_diff = (new Date() - react_msg.channel.createdAt) / 1000;
+			let reaction;
 			try {
-				const collected = await react_msg.awaitReactions(react_filter, { max: 1, time: 120000, errors: ['time'] });
-				const reaction = collected.first();
+				// If a user reacted quickly reaction might already be done,
+				// so first check existig reactions
+				const preReacts = react_msg.reactions.filter(r => r.users.size > 1);
+				// if there is more than one reaction
+				if(preReacts.size > 1) {
+					console.log(`Got too many answers for ${react_msg.channel.name}, aborting.`);
+					react_msg.channel.send(`There was more than one answer selected, please consider using the \`alert\` command after another ${Math.round(minimalTime - time_diff)} seconds with only one answer this time.`);
+					resolve([0, 0, 0, true]);
+				}
+				else if(preReacts.size == 1) {
+					reaction = preReacts.first();
+				}
+				else {
+					// no one has reacted early, so let's wait for reactions.
+					const collected = await react_msg.awaitReactions(react_filter, { max: 1, time: 120000, errors: ['time'] });
+					reaction = collected.first();
+				}
 
 				// If the user reacted with X, abort current process and request an exact gym name
 				if(reaction.emoji.id == '511174899969032193') {
@@ -88,7 +105,6 @@ module.exports = {
 			catch(e) {
 				console.error(e);
 				console.log('Got no answer for gym precision, tapping out');
-				const time_diff = (new Date() - react_msg.channel.createdAt) / 1000;
 				react_msg.channel.send(`Did not recieve gym name confirmation, please consider using the \`alert\` command after another ${Math.round(minimalTime - time_diff)} seconds.`);
 				resolve([0, 0, 0, true]);
 			}
