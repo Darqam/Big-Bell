@@ -17,6 +17,9 @@ class ChannelCreateListener extends Listener {
 	async exec(channel) {
 
 		if(!channel.guild) return;
+
+		// hard code ignore other guilds
+		if(channel.guild.id !== '338745842028511235') return;
 		// Figure out which channel to send this to
 
 		/* let send_chan = await this.client.Config.findOne({
