@@ -9,7 +9,7 @@ module.exports = {
 
 			// Print out message asking for gym name verification
 			// Loop over the given `results` array which contains all gym objects
-			let react_out = `Hey${author_mention}, I found a few options, could anyone please specify which gym is correct so I can alert those who are watching for this gym? Choose ${send_chan.client.emojis.get('511174899969032193')} if the correct gym was not listed.\n`;
+			let react_out = `Hey${author_mention}, I found a few options, could anyone please specify which gym is correct so I can alert those who are watching for this gym? Choose ${send_chan.client.emojis.get(send_chan.client.myEmojiIds.failure)} if the correct gym was not listed.\n`;
 			for(let i = 0; i < list_max; i++) {
 				if(i == results.length) break;
 				react_out += `${i} - ${results[i].GymName}\n`;
@@ -24,11 +24,11 @@ module.exports = {
 				await react_msg.react(emojiCharacters[j]);
 			}
 			// Add the X emoji
-			await react_msg.react('511174899969032193');
+			await react_msg.react(react_msg.client.myEmojiIds.failure);
 
 			// Filter out any emoji reaction that was not initially used by the bot (as done in the few lines above this comment)
 			const react_filter = (reaction, user) => {
-				return (valid_emojis.includes(reaction.emoji.name) || reaction.emoji.id == '511174899969032193') && !user.bot;
+				return (valid_emojis.includes(reaction.emoji.name) || reaction.emoji.id == reaction.message.client.myEmojiIds.failure) && !user.bot;
 			};
 
 			// Begin awaitReaction block
@@ -42,7 +42,7 @@ module.exports = {
 				if(preReacts.size > 1) {
 					console.log(`Got too many answers for ${react_msg.channel.name}, aborting.`);
 					react_msg.channel.send(`There was more than one answer selected, please consider using the \`alert\` command after another ${Math.round(minimalTime - time_diff)} seconds with only one answer this time.`);
-					resolve([0, 0, 0, true]);
+					return resolve([0, 0, 0, true]);
 				}
 				else if(preReacts.size == 1) {
 					reaction = preReacts.first();
@@ -54,7 +54,7 @@ module.exports = {
 				}
 
 				// If the user reacted with X, abort current process and request an exact gym name
-				if(reaction.emoji.id == '511174899969032193') {
+				if(reaction.emoji.id == reaction.message.client.myEmojiIds.failure) {
 					// Create a message filter where only the one who reacted with X can state the gym name
 					const msg_filter = m => {
 						return reaction.users.some(u => u.id === m.author.id);

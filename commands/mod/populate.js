@@ -105,9 +105,9 @@ class StatsCommand extends Command {
 						if(Array.isArray(msg)) msg = msg[msg.length - 1];
 
 						// check mark, and X mark
-						await msg.react('511174612323663874');
-						await msg.react('511174899969032193');
-						const valid_emojis = ['511174612323663874', '511174899969032193'];
+						await msg.react(msg.client.myEmojiIds.success);
+						await msg.react(msg.client.myEmojiIds.failure);
+						const valid_emojis = [msg.client.myEmojiIds.success, msg.client.myEmojiIds.failure];
 
 						const react_filter = (reaction, user) => {
 							return valid_emojis.includes(reaction.emoji.id) && !user.bot && user.id == message.author.id;
@@ -116,7 +116,7 @@ class StatsCommand extends Command {
 							const collected = await msg.awaitReactions(react_filter, { max: 1, time: 60000, errors: ['time'] });
 							const reaction = collected.first();
 
-							if(reaction.emoji.id == '511174612323663874') {
+							if(reaction.emoji.id == msg.client.myEmojiIds.success) {
 								const success = [];
 								const error = [];
 								// If it's the check mark
@@ -161,7 +161,7 @@ class StatsCommand extends Command {
 									console.log('Error sending final status', e);
 								});
 							}
-							if(reaction.emoji.id == '511174899969032193') {
+							if(reaction.emoji.id == msg.client.myEmojiIds.failure) {
 								return message.channel.send('Got it, aborting.');
 							}
 

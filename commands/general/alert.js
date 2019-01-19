@@ -40,7 +40,7 @@ class AlertCommand extends Command {
 			},
 		});
 		if(is_ann) {
-			await message.react('511174899969032193');
+			await message.react(message.client.myEmojiIds.failure);
 			return console.log('Not pinging, ping for this already happened.');
 		}
 

@@ -78,4 +78,10 @@ client.Stats = sequelize.define('stats', {
 	gymName: Sequelize.STRING,
 });
 
+client.myEmojiIds = {
+	'failure': '511174899969032193',
+	'success': '511174612323663874',
+	'question': '❓',
+};
+
 client.login(config.token);

@@ -48,7 +48,7 @@ class RemoveCommand extends Command {
 			gym_list = user_gyms.map(x => x.GymName);
 			all = true;
 			if(user_gyms.length == 0) {
-				await message.react('511174899969032193');
+				await message.react(message.client.myEmojiIds.failure);
 				return message.reply('I do not have you registered in any gyms');
 			}
 		}
@@ -83,7 +83,7 @@ class RemoveCommand extends Command {
 		if(success.length > 0) {
 			output += `Successfully removed you from: \n\`\`\`\n${success.join('\n')}\`\`\`\n`;
 			if(all) output += 'If this was temporary, consider blocking me next time, might be faster than running this and adding them back later.';
-			await message.react('511174612323663874');
+			await message.react(message.client.myEmojiIds.success);
 		}
 
 		if(noName.length > 0) {
@@ -98,7 +98,7 @@ class RemoveCommand extends Command {
 
 		if(errors.length > 0) {
 			output += `Could not remove you to the following gyms due to an unknown error: \n\`\`\`\n${errors.join('\n')}\`\`\``;
-			await message.react('511174899969032193');
+			await message.react(message.client.myEmojiIds.failure);
 		}
 		return message.reply(output);
 	}

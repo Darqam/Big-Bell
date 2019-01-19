@@ -64,7 +64,7 @@ class CreateCommand extends Command {
 		let output = '';
 		if(success.length > 0) {
 			output += `Successfully created ${success.length} instances for: \n\`\`\`\n${success.join('\n')}\`\`\`\n`;
-			await message.react('511174612323663874');
+			await message.react(message.client.myEmojiIds.success);
 		}
 
 		if(alreadyExists.length > 0) {
@@ -74,7 +74,7 @@ class CreateCommand extends Command {
 
 		if(error.length > 0) {
 			output += `Could not create the gym instance for the following names: \n\`\`\`\n${error.join('\n')}\`\`\``;
-			await message.react('511174899969032193');
+			await message.react(message.client.myEmojiIds.failure);
 		}
 
 		return message.reply(output);

@@ -73,7 +73,7 @@ class AddCommand extends Command {
 		// End for loop
 		if(success.length > 0) {
 			output += `Successfully added you to: \n\`\`\`${success.join('\n')}\`\`\`\n`;
-			await message.react('511174612323663874');
+			await message.react(message.client.myEmojiIds.success);
 		}
 
 		if(noName.length > 0) {
@@ -92,7 +92,7 @@ class AddCommand extends Command {
 
 		if(errors.length > 0) {
 			output += `Could not add you to the following gyms due to an unknown error: \n\`\`\`\n${errors.join('\n')}\`\`\``;
-			await message.react('511174899969032193');
+			await message.react(message.client.myEmojiIds.failure);
 		}
 
 		return message.reply(output);

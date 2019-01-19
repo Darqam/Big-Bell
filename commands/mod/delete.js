@@ -55,7 +55,7 @@ class DeleteCommand extends Command {
 					let output = '';
 					if(success.length > 0) {
 						output += `Successfully deleted instances for: \n\`\`\`\n${success.join('\n')}\`\`\`\n`;
-						await message.react('511174612323663874');
+						await message.react(message.client.myEmojiIds.success);
 					}
 					if(notExists.length > 0) {
 						output += `Could not find a gym by the name: \n\`\`\`\n${notExists.join('\n')}\`\`\`\n`;
