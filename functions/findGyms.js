@@ -19,7 +19,6 @@ module.exports = {
 			// https://www.npmjs.com/package/string-similarity#examples-1
 			const sorted_name_list = stringSimilarity.findBestMatch(channel_gym, gymList.map(n=>n.GymName)).ratings
 				.sort((a, b) => b.rating - a.rating)
-				.filter(m=>m.rating > 0.3)
 				.map(sorted => sorted.target);
 
 			for(let i = 0; i < sorted_name_list.length; i++) {
