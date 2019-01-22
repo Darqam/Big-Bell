@@ -4,7 +4,7 @@ const chanList = require('../../functions/findGyms.js');
 class AddCommand extends Command {
 	constructor() {
 		super('add', {
-			aliases: ['add', 'a'],
+			aliases: ['add', 'a', 'want'],
 			category: 'general',
 			description: {
 				content: 'Adds user to a list of gyms.',
