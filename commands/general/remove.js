@@ -58,7 +58,7 @@ class RemoveCommand extends Command {
 
 		for(let i = 0; i < user_gyms.length; i++) {
 			if(user_gyms[i]) {
-				let user_list = user_gyms.userIds ? user_gyms.userIds.split(',') : [];
+				let user_list = user_gyms[i].userIds ? user_gyms[i].userIds.split(',') : [];
 				user_list = user_list.filter(e => e != message.author.id);
 
 				const affectedRows = await this.client.Gyms.update(
