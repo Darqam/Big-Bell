@@ -1,4 +1,5 @@
 const config = require('../config.json');
+const debugList = require('./debugList.js');
 const { stripIndents } = require('common-tags');
 
 module.exports = {
@@ -40,6 +41,15 @@ module.exports = {
 				console.log(e);
 			}
 
+			// for debugging
+			const tmpMsg = {};
+			tmpMsg.content = channel.name;
+			tmpMsg.client = channel.client;
+			tmpMsg.author = channel.client.users.get(author_id);
+			console.log('prodOut.js');
+			debugList.debugList(tmpMsg, channel_gym, 'prodOut.js', true);
+			// end debugging
+
 			// Check if anyone is registered for this gym
 			if(!gym.userIds) {
 				console.log(`No users for ${channel_gym}.`);
@@ -68,6 +78,7 @@ module.exports = {
 				{ timesPinged: gym.timesPinged + 1 },
 				{ where : { GymName: channel_gym } },
 			);
+
 			if(affectedRows <= 0) console.log(`Error incrementing for gym ${channel_gym}`);
 
 			// Since this has the potential to be a massive message, tell

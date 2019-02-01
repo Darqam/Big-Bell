@@ -1,4 +1,6 @@
 const { Command } = require('discord-akairo');
+const { debugList } = require('../../functions/debugList.js');
+
 
 class RemoveCommand extends Command {
 	constructor() {

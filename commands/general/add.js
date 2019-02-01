@@ -1,5 +1,6 @@
 const { Command } = require('discord-akairo');
 const chanList = require('../../functions/findGyms.js');
+const debugList = require('../../functions/debugList.js');
 
 class AddCommand extends Command {
 	constructor() {
@@ -56,6 +57,7 @@ class AddCommand extends Command {
 				if(affectedRows > 0) {
 					// If we managed to save the entry
 					success.push(gym_list[i]);
+					debugList.debugList(message, gym_list[i], 'add.js');
 				}
 				else {
 					// If there was a failure for some reason
