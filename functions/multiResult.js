@@ -6,10 +6,11 @@ module.exports = {
 		return new Promise(async (resolve) => {
 
 			const minimalTime = 120;
+			const prefix = send_chan.client.commandHandler.prefix;
 
 			// Print out message asking for gym name verification
 			// Loop over the given `results` array which contains all gym objects
-			let react_out = `Hey${author_mention}, I found a few options, could anyone please specify which gym is correct so I can alert those who are watching for this gym? Choose ${send_chan.client.emojis.get(send_chan.client.myEmojiIds.failure)} if the correct gym was not listed.\n`;
+			let react_out = `Hey ${author_mention.trim()}, I found a few options, could anyone please specify which gym is correct so I can alert those who are watching for this gym? Choose ${send_chan.client.emojis.get(send_chan.client.myEmojiIds.failure)} if the correct gym was not listed.\n`;
 			for(let i = 0; i < list_max; i++) {
 				if(i == results.length) break;
 				react_out += `${i} - ${results[i].GymName}\n`;
@@ -41,7 +42,7 @@ module.exports = {
 				// if there is more than one reaction
 				if(preReacts.size > 1) {
 					console.log(`Got too many answers for ${react_msg.channel.name}, aborting.`);
-					react_msg.channel.send(`There was more than one answer selected, please consider using the \`alert\` command after another ${Math.round(minimalTime - time_diff)} seconds with only one answer this time.`);
+					react_msg.channel.send(`There was more than one answer selected, please consider using the \`${prefix}alert\` command after another ${Math.round(minimalTime - time_diff)} seconds with only one answer this time.`);
 					return resolve([0, 0, 0, true]);
 				}
 				else if(preReacts.size == 1) {
@@ -75,7 +76,7 @@ module.exports = {
 							resolve(return_array);
 						}
 						else {
-							react_msg.channel.send('Could not find a channel by that name, consider using the `alert` command in the raid channel once 2 minutes has passed.');
+							react_msg.channel.send(`Could not find a channel by that name, consider using the \`${prefix}alert\` command in the raid channel once 2 minutes has passed.`);
 							// pass whatever, and the abort code
 							resolve([0, 0, 0, true]);
 						}
@@ -105,7 +106,7 @@ module.exports = {
 			catch(e) {
 				console.error(e);
 				console.log('Got no answer for gym precision, tapping out');
-				react_msg.channel.send(`Did not recieve gym name confirmation, please consider using the \`alert\` command after another ${Math.round(minimalTime - time_diff)} seconds.`);
+				react_msg.channel.send(`Did not recieve gym name confirmation, please consider using the \`${prefix}alert\` command after another ${Math.round(minimalTime - time_diff)} seconds.`);
 				resolve([0, 0, 0, true]);
 			}
 
