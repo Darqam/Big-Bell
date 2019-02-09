@@ -60,7 +60,7 @@ class StatsCommand extends Command {
 	}
 
 	async exec(message, { gym }) {
-		if(gym.toLowerCase() == 'all') gym = null;
+		if(gym && gym.toLowerCase() == 'all') gym = null;
 
 		let allGyms;
 		if(!gym) {
