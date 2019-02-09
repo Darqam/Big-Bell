@@ -102,7 +102,11 @@ class StatsCommand extends Command {
 
 			let gymTimes;
 			if(option == 0) gymTimes = allGyms.map(y => formatDate((new Date(parseInt(y.timestamp))).toUTCString()));
-			if(option == 1) gymTimes = allGyms.map(y => days[(new Date(parseInt(y.timestamp))).getDay()]);
+			if(option == 1) {
+				const numberDays = allGyms.map(y => (new Date(parseInt(y.timestamp))).getDay());
+				numberDays.sort((a, b) => a - b);
+				gymTimes = numberDays.map(y => days[y]);
+			}
 
 			const compressed = compressArray(gymTimes);
 
