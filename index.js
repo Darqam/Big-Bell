@@ -78,6 +78,18 @@ client.Stats = sequelize.define('stats', {
 	gymName: Sequelize.STRING,
 });
 
+client.LiveRaids = sequelize.define('liveRaids', {
+	guildId: Sequelize.STRING,
+	channelId: Sequelize.STRING,
+	isEgg: Sequelize.BOOLEAN,
+	level: Sequelize.INTEGER,
+	name: Sequelize.STRING,
+	pokemon: Sequelize.STRING,
+	coordinates: Sequelize.STRING,
+	timeEnd: Sequelize.INTEGER,
+	timeHatch: Sequelize.INTEGER,
+});
+
 client.myEmojiIds = {
 	'failure': '511174899969032193',
 	'success': '511174612323663874',
