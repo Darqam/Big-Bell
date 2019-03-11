@@ -11,6 +11,7 @@ class ChannelUpdateListener extends Listener {
 	}
 
 	async exec(oldChannel, newChannel) {
+		if(newChannel.guild.id !== '338745842028511235') return;
 		const liveChannel = await oldChannel.client.LiveRaids.findOne({
 			where: {
 				channelId: oldChannel.id,
@@ -31,7 +32,7 @@ class ChannelUpdateListener extends Listener {
 		const regex = /(\d\d:\d\d)/g;
 		const times = newChannel.topic.match(regex);
 
-		const timeHatch = isEgg ? times[0] : '';
+		const timeHatch = isEgg ? times[1] : '';
 		const timeEnd = times[times.length - 1];
 
 		if(!isEgg && !isHatched) {

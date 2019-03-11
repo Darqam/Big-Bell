@@ -46,7 +46,7 @@ function saveLiveRaids(channel, gymName, gym) {
 		const regex = /(\d\d:\d\d)/g;
 		const times = channel.topic.match(regex);
 
-		if(isEgg) timeHatch = times[0];
+		if(isEgg) timeHatch = times[1];
 		timeEnd = times[times.length - 1];
 	}
 	const gymMap = gym.gymMap.split('/');
