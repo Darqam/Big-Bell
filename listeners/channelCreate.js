@@ -11,6 +11,7 @@ let pokemons = require('../data/pokemons.json');
 function saveLiveRaids(channel, gymName, gym) {
 	const channelArr = channel.name.split('-');
 	pokemons = pokemons.map(p => p.toLowerCase());
+
 	let pokemon = '';
 	let level = 0;
 	let timeEnd = '';
@@ -38,6 +39,9 @@ function saveLiveRaids(channel, gymName, gym) {
 		}
 	}
 
+	// if channel does not start with 'level' or 'pokemonName'
+	if(channelArr[0].toLowerCase() != 'level' && !pokemon) return;
+
 	/* Basically have 2 formats
 	1) Hatches on March 10 at 10:04 AM (10:04) | Ends on March 10 at 10:49 AM (10:49)
 	2)Ends on March 10 at 10:49 AM (10:49) */
@@ -56,6 +60,7 @@ function saveLiveRaids(channel, gymName, gym) {
 		guildId: channel.guild.id,
 		channelId: channel.id,
 		isEgg: isEgg,
+		isExpired: false,
 		level: level,
 		name: gymName,
 		pokemon: pokemon,

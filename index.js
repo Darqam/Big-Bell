@@ -82,6 +82,7 @@ client.LiveRaids = sequelize.define('liveRaids', {
 	guildId: Sequelize.STRING,
 	channelId: Sequelize.STRING,
 	isEgg: Sequelize.BOOLEAN,
+	isExpired: Sequelize.BOOLEAN,
 	level: Sequelize.INTEGER,
 	name: Sequelize.STRING,
 	pokemon: Sequelize.STRING,
