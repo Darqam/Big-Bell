@@ -32,10 +32,10 @@ class ChannelUpdateListener extends Listener {
 		const isExpired = (channelArr[0].toLowerCase() == 'expired') ? true : false;
 
 		const regex = /(\d\d:\d\d)/g;
-		const times = newChannel.topic.match(regex);
+		const times = newChannel.topic ? newChannel.topic.match(regex) : '';
 
-		const timeHatch = isEgg ? times[1] : '';
-		const timeEnd = times[times.length - 1];
+		const timeHatch = (isEgg && times) ? times[1] : '';
+		const timeEnd = times ? times[times.length - 1] : '';
 
 		// If the channel is expired, the word `expired` is pre-pended to channel name
 		// Offset deals with the extra word
