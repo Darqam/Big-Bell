@@ -24,9 +24,10 @@ class ChannelUpdateListener extends Listener {
 
 		pokemons = pokemons.map(p => p.toLowerCase());
 		let pokemon = '';
+		let isEgg = false;
 
 		const channelArr = newChannel.name.split('-');
-		const isEgg = (channelArr[2].toLowerCase() == 'egg') ? true : false;
+		if(channelArr[2]) isEgg = (channelArr[2].toLowerCase() == 'egg') ? true : false;
 		const isHatched = (channelArr[0].toLowerCase() == 'hatched') ? true : false;
 		const isExpired = (channelArr[0].toLowerCase() == 'expired') ? true : false;
 
