@@ -3,6 +3,7 @@ const chanName = require('../../functions/isolateNames.js');
 const multiResult = require('../../functions/multiResult.js');
 const chanList = require('../../functions/findGyms.js');
 const prodOut = require('../../functions/prodOut.js');
+const saveRaids = require('../functions/saveRaids.js');
 
 class AlertCommand extends Command {
 	constructor() {
@@ -90,8 +91,13 @@ class AlertCommand extends Command {
 			channel_gym = fi_r[1];
 			const disabled = fi_r[2];
 
-			if(!disabled) message.channel.send(final_return, { split: { maxLength: 1900, char: ',' } });
-			else return message.channel.send('List was already pinged, let\'s not bother them again.');
+			if(!disabled) {
+				message.channel.send(final_return, { split: { maxLength: 1900, char: ',' } });
+				saveRaids.saveLiveRaids(message.channel, channel_gym, gym);
+			}
+			else {
+				return message.channel.send('List was already pinged, let\'s not bother them again.');
+			}
 		}
 		else {
 			return message.channel.send('Could not find a gym based on the channel name.');
