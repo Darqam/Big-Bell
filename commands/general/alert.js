@@ -3,7 +3,7 @@ const chanName = require('../../functions/isolateNames.js');
 const multiResult = require('../../functions/multiResult.js');
 const chanList = require('../../functions/findGyms.js');
 const prodOut = require('../../functions/prodOut.js');
-const saveRaids = require('../functions/saveRaids.js');
+const saveRaids = require('../../functions/saveRaids.js');
 
 class AlertCommand extends Command {
 	constructor() {
@@ -93,7 +93,7 @@ class AlertCommand extends Command {
 
 			if(!disabled) {
 				message.channel.send(final_return, { split: { maxLength: 1900, char: ',' } });
-				saveRaids.saveLiveRaids(message.channel, channel_gym, gym);
+				saveRaids.saveLiveRaids(message.channel, channel_gym, gym, true);
 			}
 			else {
 				return message.channel.send('List was already pinged, let\'s not bother them again.');

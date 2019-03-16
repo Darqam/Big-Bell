@@ -3,7 +3,7 @@ const chanName = require('../../functions/isolateNames.js');
 const multiResult = require('../../functions/multiResult.js');
 const chanList = require('../../functions/findGyms.js');
 const prodOut = require('../../functions/prodOut.js');
-const saveRaids = require('../functions/saveRaids.js');
+const saveRaids = require('../../functions/saveRaids.js');
 
 class ForceAlertCommand extends Command {
 	constructor() {
@@ -76,7 +76,7 @@ class ForceAlertCommand extends Command {
 			channel_gym = fi_r[1];
 
 			message.channel.send(final_return, { split: { maxLength: 1900, char: ',' } });
-			saveRaids.saveLiveRaids(message.channel, channel_gym, gym);
+			saveRaids.saveLiveRaids(message.channel, channel_gym, gym, true);
 		}
 		else {
 			return message.channel.send('Could not find a gym based on the channel name.');

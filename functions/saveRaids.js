@@ -1,7 +1,7 @@
 let pokemons = require('../data/pokemons.json');
 
 module.exports = {
-	saveLiveRaids: async function(channel, gymName, gym) {
+	saveLiveRaids: async function(channel, gymName, gym, veto = false) {
 		// To be safe, first fetch the db to see if this already exists
 		// If it does, quit the function.
 		const liveChannel = await channel.client.LiveRaids.findOne({
@@ -10,7 +10,7 @@ module.exports = {
 				guildId: channel.guild.id,
 			},
 		});
-		if(liveChannel) return;
+		if(liveChannel && !veto) return;
 
 		const channelArr = channel.name.split('-');
 		pokemons = pokemons.map(p => p.toLowerCase());
