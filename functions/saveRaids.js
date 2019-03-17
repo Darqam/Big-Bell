@@ -27,18 +27,20 @@ module.exports = {
 		*/
 		const isEgg = (channelArr[2].toLowerCase() == 'egg') ? true : false;
 		const isHatched = (channelArr[0].toLowerCase() == 'hatched') ? true : false;
+		const isExpired = (channelArr[0].toLowerCase() == 'expired') ? true : false;
 
 		if(isEgg) level = parseInt(channelArr[1]);
 		else if(isHatched) level = parseInt(channelArr[2]);
 
+		const offset = isExpired ? 1 : 0;
 		// There is only (so far) a few pokemons with `-` in their name,
 		// when they do it's only there once
 		if(!isEgg && !isHatched) {
-			if(pokemons.includes(channelArr[0] + '-' + channelArr[1])) {
-				pokemon = channelArr.slice(0, 2).join('-');
+			if(pokemons.includes(channelArr[0 + offset] + '-' + channelArr[1 + offset])) {
+				pokemon = channelArr.slice(0 + offset, 2).join('-');
 			}
-			else if(pokemons.includes(channelArr[0])) {
-				pokemon = channelArr.slice(0, 1).join('');
+			else if(pokemons.includes(channelArr[0 + offset])) {
+				pokemon = channelArr.slice(0 + offset, 1).join('');
 			}
 		}
 
@@ -63,7 +65,7 @@ module.exports = {
 			guildId: channel.guild.id,
 			channelId: channel.id,
 			isEgg: isEgg,
-			isExpired: false,
+			isExpired: isExpired,
 			level: level,
 			name: gymName,
 			pokemon: pokemon,

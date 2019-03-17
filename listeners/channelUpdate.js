@@ -43,10 +43,10 @@ class ChannelUpdateListener extends Listener {
 
 		if(!isEgg && !isHatched) {
 			if(pokemons.includes(channelArr[0 + offset] + '-' + channelArr[1 + offset])) {
-				pokemon = channelArr.slice(0, 2).join('-');
+				pokemon = channelArr.slice(0 + offset, 2).join('-');
 			}
 			else if(pokemons.includes(channelArr[0 + offset])) {
-				pokemon = channelArr.slice(0, 1).join('');
+				pokemon = channelArr.slice(0 + offset, 1).join('');
 			}
 		}
 		const affectedRows = await oldChannel.client.LiveRaids.update({
@@ -63,13 +63,6 @@ class ChannelUpdateListener extends Listener {
 		});
 		if(affectedRows > 0) return console.log(`Updated live raids entry for ${newChannel.name}`);
 		return console.log(`Could not update live raids entry for ${newChannel.name}`);
-		/*
-		const affectedRows = await Tags.update({ description: tagDescription }, { where: { name: tagName } });
-		if (affectedRows > 0) {
-			return message.reply(`Tag ${tagName} was edited.`);
-		}
-		return message.reply(`Could not find a tag with name ${tagName}.`);
-		*/
 	}
 }
 
