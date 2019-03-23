@@ -25,7 +25,7 @@ module.exports = {
 		2) Hatched Level X egg gym name goes here
 		3) pokemonName gym name goes here
 		*/
-		const isEgg = (channelArr[2].toLowerCase() == 'egg') ? true : false;
+		const isEgg = (channelArr[2] && channelArr[2].toLowerCase() == 'egg') ? true : false;
 		const isHatched = (channelArr[0].toLowerCase() == 'hatched') ? true : false;
 		const isExpired = (channelArr[0].toLowerCase() == 'expired') ? true : false;
 

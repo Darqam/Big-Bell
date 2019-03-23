@@ -30,6 +30,9 @@ class MyClient extends AkairoClient {
 
 const client = new MyClient();
 
+process.on('unhandledRejection', (reason, p) => {
+	console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
+});
 const sequelize = new Sequelize('database', 'user', 'password', {
 	host: 'localhost',
 	dialect: 'sqlite',
