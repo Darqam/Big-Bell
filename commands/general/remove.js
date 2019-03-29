@@ -1,6 +1,4 @@
 const { Command } = require('discord-akairo');
-const { debugList } = require('../../functions/debugList.js');
-
 
 class RemoveCommand extends Command {
 	constructor() {
@@ -71,7 +69,6 @@ class RemoveCommand extends Command {
 				if(affectedRows > 0) {
 					// If we managed to save the entry
 					success.push(gym_list[i]);
-					debugList(message, gym_list[i], 'remove.js');
 				}
 				else {
 					// If there was a failure for some reason

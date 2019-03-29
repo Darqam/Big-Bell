@@ -1,5 +1,4 @@
 const config = require('../config.json');
-const debugList = require('./debugList.js');
 const { stripIndents } = require('common-tags');
 
 module.exports = {
@@ -40,15 +39,6 @@ module.exports = {
 				console.log('Could not save to DB that channel was pinged');
 				console.log(e);
 			}
-
-			// for debugging
-			const tmpMsg = {};
-			tmpMsg.content = channel.name;
-			tmpMsg.client = channel.client;
-			tmpMsg.author = channel.client.users.get(author_id);
-			console.log('prodOut.js');
-			debugList.debugList(tmpMsg, channel_gym, 'prodOut.js', true);
-			// end debugging
 
 			// Check if anyone is registered for this gym
 			if(!gym.userIds) {
