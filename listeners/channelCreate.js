@@ -21,7 +21,7 @@ class ChannelCreateListener extends Listener {
 		if(!channel.guild) return;
 
 		// hard code ignore other guilds
-		// if(channel.guild.id !== '338745842028511235') return;
+		if(channel.guild.id !== '338745842028511235') return;
 		// Figure out which channel to send this to
 
 		/* let send_chan = await this.client.Config.findOne({
@@ -71,10 +71,14 @@ class ChannelCreateListener extends Listener {
 			found = true;
 		}
 		// results is an array of gym objects, let loop through those to see if any "discord sanitized" channel name is found first.
-		results = results.filter(gymMatch => {
+		const filterResults = results.filter(gymMatch => {
 			return gymMatch.GymName.replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
 		});
-		if(results.length == 1) gym = results[0];
+		if(filterResults.length == 1) {
+			gym = filterResults[0];
+			channel_gym = gym.GymName.replace(/[^a-zA-Z0-9\s]+/g, '');
+			selection_done = true;
+		}
 
 		if(found) {
 			setTimeout(async () => {
@@ -89,7 +93,7 @@ class ChannelCreateListener extends Listener {
 					author_mention = ` <@${author_id}> `;
 				}
 
-				if(results.length > 1) {
+				if(results.length > 1 && !gym) {
 					const f_r = await multiResult.doQuery(author_mention, results, gym, channel_gym, send_chan);
 
 					// f_r[3] is basically an abort boolean

@@ -1,6 +1,7 @@
 const { Listener } = require('discord-akairo');
 
 async function deleteLiveRaid(channel) {
+	if(channel.guild.id !== '338745842028511235') return;
 	const liveChannel = await channel.client.LiveRaids.findOne({
 		where: {
 			channelId: channel.id,

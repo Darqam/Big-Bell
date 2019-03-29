@@ -59,13 +59,17 @@ class ForceAlertCommand extends Command {
 			found = true;
 		}
 		// results is an array of gym objects, let loop through those to see if any "discord sanitized" channel name is found first.
-		results = results.filter(gymMatch => {
+		const filterResults = results.filter(gymMatch => {
 			return gymMatch.GymName.replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
 		});
-		if(results.length == 1) gym = results[0];
+		if(filterResults.length == 1) {
+			gym = filterResults[0];
+			channel_gym = gym.GymName.replace(/[^a-zA-Z0-9\s]+/g, '');
+			selection_done = true;
+		}
 
 		if(found) {
-			if(results.length > 1) {
+			if(results.length > 1 && !gym) {
 				const f_r = await multiResult.doQuery(`<@${message.author.id}>`, results, gym, channel_gym, message.channel);
 
 				// Abort
