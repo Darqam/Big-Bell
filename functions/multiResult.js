@@ -84,6 +84,8 @@ module.exports = {
 					catch(e) {
 						console.log(e);
 						console.log('Did not recieve new gym name');
+						react_msg.channel.send('Did not recieve input, full abort.');
+						return;
 					}
 					// End try catch for X reaction
 				}
