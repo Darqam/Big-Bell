@@ -73,6 +73,11 @@ class AlertCommand extends Command {
 		else {
 			found = true;
 		}
+		// results is an array of gym objects, let loop through those to see if any "discord sanitized" channel name is found first.
+		results = results.filter(gymMatch => {
+			return gymMatch.GymName.replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
+		});
+		if(results.length == 1) gym = results[0];
 
 		if(found) {
 			if(results.length > 1) {

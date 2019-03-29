@@ -21,7 +21,7 @@ class ChannelCreateListener extends Listener {
 		if(!channel.guild) return;
 
 		// hard code ignore other guilds
-		if(channel.guild.id !== '338745842028511235') return;
+		// if(channel.guild.id !== '338745842028511235') return;
 		// Figure out which channel to send this to
 
 		/* let send_chan = await this.client.Config.findOne({
@@ -54,6 +54,13 @@ class ChannelCreateListener extends Listener {
 			},
 		});
 		if(!gym) {
+			gym = await this.client.Gyms.findOne({
+				where: {
+					GymName: channel_gym,
+				},
+			});
+		}
+		if(!gym) {
 			const func_return = await chanList.getGymNames(this.client, channel_gym);
 			results = func_return[0];
 			found = func_return[1];
@@ -63,6 +70,11 @@ class ChannelCreateListener extends Listener {
 		else {
 			found = true;
 		}
+		// results is an array of gym objects, let loop through those to see if any "discord sanitized" channel name is found first.
+		results = results.filter(gymMatch => {
+			return gymMatch.GymName.replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
+		});
+		if(results.length == 1) gym = results[0];
 
 		if(found) {
 			setTimeout(async () => {
