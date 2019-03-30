@@ -54,13 +54,6 @@ class ChannelCreateListener extends Listener {
 			},
 		});
 		if(!gym) {
-			gym = await this.client.Gyms.findOne({
-				where: {
-					GymName: channel_gym,
-				},
-			});
-		}
-		if(!gym) {
 			const func_return = await chanList.getGymNames(this.client, channel_gym);
 			results = func_return[0];
 			found = func_return[1];
