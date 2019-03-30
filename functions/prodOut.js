@@ -1,5 +1,4 @@
 const config = require('../config.json');
-const { stripIndents } = require('common-tags');
 
 module.exports = {
 	produceOut: async function(gym, channel, channel_gym, selection_done, author_id, send_chan) {
@@ -9,13 +8,13 @@ module.exports = {
 			if(gym.exRaidNumber) ex_out = `Amount of times this gym has been home to an Ex raid: ${gym.exRaidNumber}`;
 			else if(gym.exRaidEligibility) ex_out = `Status of this gym with regards to Ex raids: ${gym.exRaidEligibility}`;
 
-			if(ex_out && gym.gymDirections) {
+			if(ex_out && gym.gymMap) {
 				// Sending without killing embed and extra space after google maps for Meowth to pick up the link
-				const tmpMsg = await channel.send(`🔔\nHere is the proper google maps: ${gym.gymMap} .\nWith directions: <${gym.gymDirections}>.\n${ex_out}`);
+				const tmpMsg = await channel.send(`Here is the proper google maps: ${gym.gymMap} .\nWith directions: <http://mymeanderingmind.com/pokegoMaps/>.\n${ex_out}`);
 				console.log(`Sent maps for ${gym.GymName}`);
 				// Wait 10 seconds then edit it to not look ugly
 				setTimeout(() => {
-					tmpMsg.edit(`🔔\nHere is the proper google maps: <${gym.gymMap}>.\nWith directions: <${gym.gymDirections}>.\n${ex_out}`);
+					tmpMsg.edit(`🔔\nHere is the proper google maps: <${gym.gymMap}>.\nInteractive map: <http://mymeanderingmind.com/pokegoMaps/>.\n${ex_out}`);
 				}, 10000);
 
 			}
@@ -74,14 +73,7 @@ module.exports = {
 			// Since this has the potential to be a massive message, tell
 			// djs to split the message at ~1900 characters and split by the
 			// comma character which will be in between each mention.
-			const final_return = stripIndents`🔔🔔🔔
-			BONG!
-			Raid announced for the gym \`${channel_gym}\`.
-			Consider ye selves notified!
-			🔔🔔🔔
-			${users_arr.join(',')}
-
-			If you wish to no longer be notified for this gym, please type \`${config.prefix}remove ${channel_gym}\``;
+			const final_return = `🔔🔔🔔 ${users_arr.join(',')} 🔔🔔🔔\nIf you wish to no longer be notified for this gym, please type \`${config.prefix}remove ${channel_gym}\``;
 
 			const return_array = [final_return, channel_gym, disabled];
 			resolve(return_array);
