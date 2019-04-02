@@ -6,7 +6,7 @@ const multiResult = require('../functions/multiResult.js');
 const prodOut = require('../functions/prodOut.js');
 const stats = require('../functions/writeStats.js');
 const saveRaids = require('../functions/saveRaids.js');
-const { getTriggers } = require('../functions/getTriggers.js');
+
 
 class ChannelCreateListener extends Listener {
 	constructor() {
@@ -107,20 +107,7 @@ class ChannelCreateListener extends Listener {
 				const final_return = fi_r[0];
 				channel_gym = fi_r[1];
 
-				send_chan.send(final_return, { split: { maxLength: 1900, char: ',' } });
-
-				const myObj = await getTriggers(send_chan.guild);
-				const triggerRoles = [];
-
-				myObj.forEach(obj => {
-					if(obj.validGymNames.includes(channel_gym)) {
-						triggerRoles.push(obj.role);
-					}
-				});
-				if(triggerRoles.length > 0) {
-					send_chan.send(`Trigger alert: ${triggerRoles}`);
-				}
-				return;
+				return send_chan.send(final_return, { split: { maxLength: 1900, char: ',' } });
 			}, delay);
 		}
 		else {
