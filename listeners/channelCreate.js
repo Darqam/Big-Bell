@@ -65,11 +65,11 @@ class ChannelCreateListener extends Listener {
 		}
 		// results is an array of gym objects, let loop through those to see if any "discord sanitized" channel name is found first.
 		const filterResults = results.filter(gymMatch => {
-			return gymMatch.GymName.replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
+			return gymMatch.GymName.replace(/[-]+/g, ' ').replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
 		});
 		if(filterResults.length == 1) {
 			gym = filterResults[0];
-			channel_gym = gym.GymName.replace(/[^a-zA-Z0-9\s]+/g, '');
+			channel_gym = gym.GymName.replace(/[^a-zA-Z0-9-\s]+/g, '');
 			selection_done = true;
 		}
 
@@ -113,7 +113,6 @@ class ChannelCreateListener extends Listener {
 				const triggerRoles = [];
 
 				myObj.forEach(obj => {
-					console.log(obj.validGymNames);
 					if(obj.validGymNames.includes(channel_gym)) {
 						triggerRoles.push(obj.role);
 					}
