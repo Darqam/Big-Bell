@@ -79,6 +79,7 @@ class StatsCommand extends Command {
 			for(let x = 0; x < valid_emojis.length; x++) {
 				if(valid_emojis[x] == reaction.emoji.name) option = x;
 			}
+			message.channel.startTyping();
 
 			if(gym && gym.toLowerCase() == 'all') gym = null;
 
@@ -97,15 +98,21 @@ class StatsCommand extends Command {
 			}
 			if((gym && !allGyms) || allGyms.length == 0) return message.channel.send('Could not find a gym by that name');
 
-			message.channel.startTyping();
 			const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 			let gymTimes;
-			if(option == 0) gymTimes = allGyms.map(y => formatDate((new Date(parseInt(y.timestamp))).toUTCString()));
+			let rangeMode;
+			if(option == 0) {
+				// Historical
+				gymTimes = allGyms.map(y => formatDate((new Date(parseInt(y.timestamp))).toUTCString()));
+				rangeMode = 'tozero';
+			}
 			if(option == 1) {
+				// Weekly
 				const numberDays = allGyms.map(y => (new Date(parseInt(y.timestamp))).getDay());
 				numberDays.sort((a, b) => a - b);
 				gymTimes = numberDays.map(y => days[y]);
+				rangeMode = 'auto';
 			}
 
 			const compressed = compressArray(gymTimes);
@@ -132,7 +139,7 @@ class StatsCommand extends Command {
 				yaxis: {
 					title: '# of occurences',
 					range: range,
-					rangemode: 'tozero',
+					rangemode: rangeMode,
 					showline: true,
 				},
 				paper_bgcolor: 'rgba(230,230,230,0.9)',
@@ -158,6 +165,7 @@ class StatsCommand extends Command {
 				});
 			});
 			message.channel.stopTyping();
+			collector.stop();
 		});
 	}
 }
