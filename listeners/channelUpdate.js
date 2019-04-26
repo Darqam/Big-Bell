@@ -20,6 +20,17 @@ class ChannelUpdateListener extends Listener {
 		});
 		if(!liveChannel) return;
 		// From here on we should only be treating proper raid channels already in the live raid tracker
+
+		// Check if this update was to archive the channel, if yes, delete.
+		if(newChannel.name.toLowerCase().startsWith('archived')) {
+			const rowCount = await newChannel.client.LiveRaids.destroy({ where:
+				{ channelId: newChannel.id,
+					guildId: newChannel.guild.id,
+				},
+			});
+			if(!rowCount) return console.log(`Could not delete channel ${newChannel.name} from live raid database for some reason.`);
+			else return console.log(`Deleted channel ${newChannel.name} from live raids.`);
+		}
 		// Really the only thing that gets updated is timers and pokemon name
 
 		pokemons = pokemons.map(p => p.toLowerCase());

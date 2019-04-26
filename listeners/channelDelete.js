@@ -14,7 +14,7 @@ async function deleteLiveRaid(channel) {
 				guildId: channel.guild.id,
 			},
 		});
-		if(!rowCount) return console.log(`Could not delete channel ${channel.name} from pinged database for some reason.`);
+		if(!rowCount) return console.log(`Could not delete channel ${channel.name} from live raid database for some reason.`);
 		else return console.log(`Deleted channel ${channel.name} from live raids.`);
 	}
 	return console.log(`Could not find channel ${channel.name} in live raids`);
