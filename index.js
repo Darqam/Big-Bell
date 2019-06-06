@@ -66,7 +66,7 @@ client.Guilds = guilds;
 
 client.Gyms = sequelize.define('gyms', {
 	gymName: Sequelize.TEXT,
-	guildIds: Sequelize.TEXT,
+	guildId: Sequelize.TEXT,
 	timesPinged: Sequelize.INTEGER,
 	gymMap: Sequelize.TEXT,
 	gymDirections: Sequelize.TEXT,

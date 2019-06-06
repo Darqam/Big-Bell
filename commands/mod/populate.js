@@ -66,7 +66,6 @@ class StatsCommand extends Command {
 				}, async function(err, rows) {
 					if(!rows) return message.reply('Couldn\'t load any rows from that sheet.');
 					rows.forEach(async row => {
-						// console.log(row);
 						// row properties of interest
 						// gymname, exraideligibility, mapsurl, directionsurl, ofex
 						const local_gym = gymList.find(gym => gym.GymName == row.gymname.toLowerCase());
@@ -87,7 +86,6 @@ class StatsCommand extends Command {
 						}
 						else {
 							new_gyms.push(row);
-							// console.log(`Nope for ${row.gymname}`);
 						}
 					});
 					console.log(`Read ${rows.length} rows`);
@@ -121,13 +119,10 @@ class StatsCommand extends Command {
 								const error = [];
 								// If it's the check mark
 								for(let i = 0; i < new_gyms.length; i++) {
-									const date = new Date();
 									try {
 										const gym = await message.client.Gyms.create({
-											GymName: new_gyms[i].gymname.toLowerCase().trim(),
-											userIds: '',
-											submittedById: message.author.id,
-											submittedOn: date.toString(),
+											gymName: new_gyms[i].gymname.toLowerCase().trim(),
+											guildId: message.guild.id,
 											timesPinged: 0,
 											gymMap: new_gyms[i].mapsurl,
 											gymDirections: new_gyms[i].directionsurl,
@@ -164,7 +159,6 @@ class StatsCommand extends Command {
 							if(reaction.emoji.id == msg.client.myEmojiIds.failure) {
 								return message.channel.send('Got it, aborting.');
 							}
-
 						}
 						catch(e) {
 							return message.channel.send('Did not get input within a minute, aborting.');
