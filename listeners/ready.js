@@ -12,8 +12,8 @@ class ReadyListener extends Listener {
 	exec() {
 		// this.client.Gyms.sync({ force:true });
 		this.client.Gyms.sync();
-		this.client.Config.sync();
-		this.client.Announcements.sync();
+		this.client.Guilds.sync();
+		this.client.userGyms.sync();
 		this.client.Stats.sync();
 		this.client.LiveRaids.sync();
 

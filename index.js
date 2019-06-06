@@ -2,6 +2,24 @@ const { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } = requ
 const config = require('./config.json');
 const Sequelize = require('sequelize');
 
+const sequelize = new Sequelize('database', 'user', 'password', {
+	host: 'localhost',
+	dialect: 'sqlite',
+	logging: false,
+	operatorsAliases: false,
+	// SQLite only
+	storage: 'database.sqlite',
+});
+
+const guilds = sequelize.define('guilds', {
+	guildId: {
+		type: Sequelize.STRING,
+		unique: true,
+	},
+	timezone: Sequelize.STRING,
+	prefixes: Sequelize.STRING,
+});
+
 class MyClient extends AkairoClient {
 	constructor() {
 		super({
@@ -12,7 +30,17 @@ class MyClient extends AkairoClient {
 
 		this.commandHandler = new CommandHandler(this, {
 			directory: './commands/',
-			prefix: config.prefix,
+			prefix: async msg => {
+				if(!msg.guild) return 'bb!';
+
+				const guildConfigs = await guilds.findOne({
+					where: {
+						guildId: msg.guild.id,
+					},
+				});
+				if(!guildConfigs) return 'bb!';
+				return guildConfigs.prefixes.split(',');
+			},
 		});
 		this.commandHandler.loadAll();
 
@@ -33,23 +61,12 @@ const client = new MyClient();
 process.on('unhandledRejection', (reason, p) => {
 	console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
 });
-const sequelize = new Sequelize('database', 'user', 'password', {
-	host: 'localhost',
-	dialect: 'sqlite',
-	logging: false,
-	operatorsAliases: false,
-	// SQLite only
-	storage: 'database.sqlite',
-});
+
+client.Guilds = guilds;
 
 client.Gyms = sequelize.define('gyms', {
-	GymName: {
-		type: Sequelize.STRING,
-		unique: true,
-	},
-	userIds: Sequelize.TEXT,
-	submittedById: Sequelize.TEXT,
-	submittedOn: Sequelize.TEXT,
+	gymName: Sequelize.TEXT,
+	guildIds: Sequelize.TEXT,
 	timesPinged: Sequelize.INTEGER,
 	gymMap: Sequelize.TEXT,
 	gymDirections: Sequelize.TEXT,
@@ -57,19 +74,15 @@ client.Gyms = sequelize.define('gyms', {
 	exRaidEligibility: Sequelize.TEXT,
 });
 
-client.Config = sequelize.define('config', {
-	guildId: {
-		type: Sequelize.STRING,
-		unique: true,
-	},
-	announcementChan: Sequelize.STRING,
-});
-
-client.Announcements = sequelize.define('announcements', {
-	channelId: {
-		type: Sequelize.STRING,
-		unique: true,
-	},
+client.userGyms = sequelize.define('userGyms', {
+	userId: Sequelize.STRING,
+	gymId: Sequelize.STRING,
+	gymName: Sequelize.TEXT,
+	timeStart: Sequelize.STRING,
+	timeStop: Sequelize.STRING,
+	disabled: Sequelize.INTEGER, // 1 or 0
+	raidLevels: Sequelize.STRING, // "2,4,5"
+	pokemons: Sequelize.TEXT,
 });
 
 // timestamp will be in ms for ease of use
@@ -79,6 +92,7 @@ client.Stats = sequelize.define('stats', {
 		unique: true,
 	},
 	gymName: Sequelize.STRING,
+	pokemon: Sequelize.STRING,
 });
 
 client.LiveRaids = sequelize.define('liveRaids', {
