@@ -7,13 +7,34 @@ class AddCommand extends Command {
 			aliases: ['add', 'a', 'want'],
 			category: 'general',
 			description: {
-				content: 'Adds user to a list of gyms.',
-				usage: 'Gym Name 1, Gym Name 2, ...',
+				content: 'Adds user to a list of gyms. All configurations are optional, but will apply to the entire given list. Time is in 24H format!',
+				usage: 'Gym Name 1, Gym Name 2, ... <start:##:##> <end:##:##> <levels:#,#,#,...>',
+				examples: ['add awesome park, super park start:9:00 end:21:00 levels:2,4,5'],
 			},
 			args: [
 				{
+					id: 'start',
+					match: 'option',
+					flag: 'start:',
+				},
+				{
+					id: 'end',
+					match: 'option',
+					flag: 'end:',
+				},
+				{
+					id: 'levels',
+					match: 'option',
+					flag: 'levels:',
+				},
+				{
+					id: 'pokemons',
+					match: 'option',
+					flag: 'pokemons:',
+				},
+				{
 					id: 'gym_list',
-					match: 'content',
+					match: 'rest',
 					type: 'lowercase',
 				},
 			],
@@ -34,14 +55,19 @@ class AddCommand extends Command {
 			gym_list[i] = gym_list[i].trim();
 			const gym = await this.client.Gyms.findOne({
 				where: {
-					GymName: gym_list[i],
+					gymName: gym_list[i],
 				},
 			});
 			if(gym) {
-				const user_list = gym.userIds ? gym.userIds.split(',') : [];
+				const userGym = await this.client.userGyms.findOne({
+					where: {
+						gymName: gym_list[i],
+						userId: message.author.id,
+					},
+				});
 
-				if(user_list.includes(message.author.id)) {
-					// If the user is already in this list, just continue
+				if(userGym) {
+					// If the user already monitors this gym, continue
 					present.push(gym_list[i]);
 					continue;
 				}
@@ -50,7 +76,7 @@ class AddCommand extends Command {
 
 				const affectedRows = await this.client.Gyms.update(
 					{ userIds: user_list.join(',') },
-					{ where : { GymName: gym_list[i] } },
+					{ where : { gymName: gym_list[i] } },
 				);
 
 				if(affectedRows > 0) {
@@ -79,7 +105,7 @@ class AddCommand extends Command {
 		if(noName.length > 0) {
 			const tmpOut = [];
 			for(let i = 0; i < noName.length; i++) {
-				tmpOut.push(noName[i] + ' --> ' + alternatives[i].map(a => a.GymName).join(', '));
+				tmpOut.push(noName[i] + ' --> ' + alternatives[i].map(a => a.gymName).join(', '));
 			}
 			output += `Could not find the following gyms, check the spelling or it may be one of the following: \n\`\`\`\n${tmpOut.join('\n')}\`\`\`\n`;
 			await message.react('❓');

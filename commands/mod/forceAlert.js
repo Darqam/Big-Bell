@@ -45,7 +45,7 @@ class ForceAlertCommand extends Command {
 
 		let gym = await this.client.Gyms.findOne({
 			where: {
-				GymName: channel_gym,
+				gymName: channel_gym,
 			},
 		});
 		if(!gym) {
@@ -60,11 +60,11 @@ class ForceAlertCommand extends Command {
 		}
 		// results is an array of gym objects, let loop through those to see if any "discord sanitized" channel name is found first.
 		const filterResults = results.filter(gymMatch => {
-			return gymMatch.GymName.replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
+			return gymMatch.gymName.replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
 		});
 		if(filterResults.length == 1) {
 			gym = filterResults[0];
-			channel_gym = gym.GymName.replace(/[^a-zA-Z0-9\s]+/g, '');
+			channel_gym = gym.gymName.replace(/[^a-zA-Z0-9\s]+/g, '');
 			selection_done = true;
 		}
 
