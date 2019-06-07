@@ -6,8 +6,9 @@ class ConfigCommand extends Command {
 			aliases: ['config'],
 			category: 'mod',
 			description: {
-				content: 'Allows for modification of prefixes.',
-				usage: '<add | remove> <relevantPrefix>',
+				content: 'Allows for modification of prefixes and timezone.',
+				usage: '<add:ThePrefix> <remove:ThePrefix> <timezone:+/-##> <--show>',
+				examples: ['add:bb! timezone:-02', 'remove:abc!', 'timezone:+10 --show', '--show'],
 			},
 			args: [
 				{

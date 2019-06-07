@@ -29,7 +29,7 @@ class StatsCommand extends Command {
 		const sheet_position = 6;
 		let sheet;
 
-		const gymList = await this.client.Gyms.findAll({ attributes: ['GymName', 'gymMap', 'gymDirections', 'exRaidNumber', 'exRaidEligibility'] });
+		const gymList = await this.client.Gyms.findAll({ attributes: ['gymName', 'gymMap', 'gymDirections', 'exRaidNumber', 'exRaidEligibility'] });
 		if(!gymList) return message.channel.send('Could not query database. Aborting.');
 
 		const new_gyms = [];
@@ -68,7 +68,7 @@ class StatsCommand extends Command {
 					rows.forEach(async row => {
 						// row properties of interest
 						// gymname, exraideligibility, mapsurl, directionsurl, ofex
-						const local_gym = gymList.find(gym => gym.GymName == row.gymname.toLowerCase());
+						const local_gym = gymList.find(gym => gym.gymName == row.gymname.toLowerCase());
 						if(local_gym) {
 							// console.log(`Found local copy of gym for ${row.gymname}`);
 							if(local_gym.gymMap != row.mapsurl) {
@@ -129,11 +129,11 @@ class StatsCommand extends Command {
 											exRaidNumber: new_gyms[i].ofex,
 											exRaidEligibility: new_gyms[i].exraideligibility,
 										});
-										success.push(gym.GymName);
+										success.push(gym.gymName);
 									}
 									catch (e) {
 										console.log(e);
-										error.push(new_gyms[i]);
+										error.push(new_gyms[i].gymname);
 									}
 								}
 								// End of for loop over new gyms
