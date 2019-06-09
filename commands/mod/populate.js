@@ -1,6 +1,6 @@
 const { Command } = require('discord-akairo');
 const GoogleSpreadsheet = require('google-spreadsheet');
-const async = require('async');
+const util = require('util');
 const creds = require('../../saskPokemonGym-5a6d9b796bde.json');
 
 class StatsCommand extends Command {
@@ -28,7 +28,7 @@ class StatsCommand extends Command {
 	async exec(message) {
 		const sheet_position = 6;
 		let sheet;
-
+		message.channel.startTyping();
 		const gymList = await this.client.Gyms.findAll({ attributes: ['gymName', 'gymMap', 'gymDirections', 'exRaidNumber', 'exRaidEligibility'] });
 		if(!gymList) return message.channel.send('Could not query database. Aborting.');
 
@@ -43,153 +43,145 @@ class StatsCommand extends Command {
 		// const doc = new GoogleSpreadsheet('1k6Gt4J323JnEB3oud_vK8gGyELoC0jha4etYXvFSbAk');
 		// My copy with a few more gyms, until the main one gets updated.
 		const doc = new GoogleSpreadsheet('1WgNar6otRmRi_ZduBj0H__gV9Qa85bJ1VJpmtK3Puqs');
+
+		const auth = util.promisify(doc.useServiceAccountAuth);
+		const gInfo = util.promisify(doc.getInfo);
+
 		// Authenticate with the Google Spreadsheets API.
-		async.series([
-			function setAuth(step) {
-				// see notes below for authentication instructions!
+		await auth(creds);
+		gInfo((err, info) => {
+			console.log(`Loaded doc: ${info.title} by ${info.author.email}`);
+			sheet = info.worksheets[sheet_position];
+			console.log(`sheet 6: ${sheet.title} ${sheet.rowCount}x${sheet.colCount}`);
 
-				doc.useServiceAccountAuth(creds, step);
-			},
-			function getInfoAndWorksheets(step) {
-				doc.getInfo(function(err, info) {
-					console.log(`Loaded doc: ${info.title} by ${info.author.email}`);
-					sheet = info.worksheets[sheet_position];
-					console.log(`sheet 6: ${sheet.title} ${sheet.rowCount}x${sheet.colCount}`);
-					step();
+			message.channel.stopTyping();
+
+			sheet.getRows({
+				offset: 1,
+				orderby: 'col2',
+			}, async function(err, rows) {
+				if(!rows) return message.reply('Couldn\'t load any rows from that sheet.');
+				rows.forEach(async row => {
+					// row properties of interest
+					// gymname, exraideligibility, mapsurl, directionsurl, ofex
+					const local_gym = gymList.find(gym => gym.gymName == row.gymname.toLowerCase());
+					if(local_gym) {
+						// console.log(`Found local copy of gym for ${row.gymname}`);
+						if(local_gym.gymMap != row.mapsurl) {
+							updated_maps.push(row);
+						}
+						if(local_gym.gymDirections != row.directionsurl) {
+							updated_directions.push(row);
+						}
+						if(local_gym.exRaidNumber != row.ofex) {
+							updated_ex_raid_number.push(row);
+						}
+						if(local_gym.exRaidEligibility != row.exraideligibility) {
+							updated_ex_raid_elig.push(row);
+						}
+					}
+					else {
+						new_gyms.push(row);
+					}
 				});
-			},
-			function workingWithRows(step) {
-				// google provides some query options
-				sheet.getRows({
-					offset: 1,
-					orderby: 'col2',
-				}, async function(err, rows) {
-					if(!rows) return message.reply('Couldn\'t load any rows from that sheet.');
-					rows.forEach(async row => {
-						// row properties of interest
-						// gymname, exraideligibility, mapsurl, directionsurl, ofex
-						const local_gym = gymList.find(gym => gym.gymName == row.gymname.toLowerCase());
-						if(local_gym) {
-							// console.log(`Found local copy of gym for ${row.gymname}`);
-							if(local_gym.gymMap != row.mapsurl) {
-								updated_maps.push(row);
-							}
-							if(local_gym.gymDirections != row.directionsurl) {
-								updated_directions.push(row);
-							}
-							if(local_gym.exRaidNumber != row.ofex) {
-								updated_ex_raid_number.push(row);
-							}
-							if(local_gym.exRaidEligibility != row.exraideligibility) {
-								updated_ex_raid_elig.push(row);
-							}
-						}
-						else {
-							new_gyms.push(row);
-						}
+				console.log(`Read ${rows.length} rows`);
+
+				if(new_gyms.length > 0) {
+					// We have some new gyms that weren't in the database before
+					let msg = await message.channel.send(`I found ${new_gyms.length} new gyms. Would you like to add the following gyms to the database?\n\`\`\`\n${new_gyms.map(g => g.gymname).join(', ')}\n\`\`\``, {
+						split: {
+							maxLength: 1900,
+							char: ',',
+							prepend: '```\n',
+							append: ',\n```',
+						},
 					});
-					console.log(`Read ${rows.length} rows`);
+					if(Array.isArray(msg)) msg = msg[msg.length - 1];
 
-					if(new_gyms.length > 0) {
-						// We have some new gyms that weren't in the database before
-						let msg = await message.channel.send(`I found ${new_gyms.length} new gyms. Would you like to add the following gyms to the database?\n\`\`\`\n${new_gyms.map(g => g.gymname).join(', ')}\n\`\`\``, {
-							split: {
-								maxLength: 1900,
-								char: ',',
-								prepend: '```\n',
-								append: ',\n```',
-							},
-						});
-						if(Array.isArray(msg)) msg = msg[msg.length - 1];
+					// check mark, and X mark
+					await msg.react(msg.client.myEmojiIds.success);
+					await msg.react(msg.client.myEmojiIds.failure);
+					const valid_emojis = [msg.client.myEmojiIds.success, msg.client.myEmojiIds.failure];
 
-						// check mark, and X mark
-						await msg.react(msg.client.myEmojiIds.success);
-						await msg.react(msg.client.myEmojiIds.failure);
-						const valid_emojis = [msg.client.myEmojiIds.success, msg.client.myEmojiIds.failure];
+					const react_filter = (reaction, user) => {
+						return valid_emojis.includes(reaction.emoji.id) && !user.bot && user.id == message.author.id;
+					};
+					try {
+						const collected = await msg.awaitReactions(react_filter, { max: 1, time: 60000, errors: ['time'] });
+						const reaction = collected.first();
 
-						const react_filter = (reaction, user) => {
-							return valid_emojis.includes(reaction.emoji.id) && !user.bot && user.id == message.author.id;
-						};
-						try {
-							const collected = await msg.awaitReactions(react_filter, { max: 1, time: 60000, errors: ['time'] });
-							const reaction = collected.first();
-
-							if(reaction.emoji.id == msg.client.myEmojiIds.success) {
-								const success = [];
-								const error = [];
-								// If it's the check mark
-								for(let i = 0; i < new_gyms.length; i++) {
-									try {
-										const gym = await message.client.Gyms.create({
-											gymName: new_gyms[i].gymname.toLowerCase().trim(),
-											guildId: message.guild.id,
-											timesPinged: 0,
-											gymMap: new_gyms[i].mapsurl,
-											gymDirections: new_gyms[i].directionsurl,
-											exRaidNumber: new_gyms[i].ofex,
-											exRaidEligibility: new_gyms[i].exraideligibility,
-										});
-										success.push(gym.gymName);
-									}
-									catch (e) {
-										console.log(e);
-										error.push(new_gyms[i].gymname);
-									}
+						if(reaction.emoji.id == msg.client.myEmojiIds.success) {
+							const success = [];
+							const error = [];
+							// If it's the check mark
+							for(let i = 0; i < new_gyms.length; i++) {
+								try {
+									const gym = await message.client.Gyms.create({
+										gymName: new_gyms[i].gymname.toLowerCase().trim(),
+										guildId: message.guild.id,
+										timesPinged: 0,
+										gymMap: new_gyms[i].mapsurl,
+										gymDirections: new_gyms[i].directionsurl,
+										exRaidNumber: new_gyms[i].ofex,
+										exRaidEligibility: new_gyms[i].exraideligibility,
+									});
+									success.push(gym.gymName);
 								}
-								// End of for loop over new gyms
-								let output = '';
-								if(success.length > 0) {
-									output += `Successfully created ${success.length} instances for: \n\`\`\`\n${success.join(',')}\`\`\`\n`;
+								catch (e) {
+									console.log(e);
+									error.push(new_gyms[i].gymname);
 								}
-
-								if(error.length > 0) {
-									output += `Could not create the gym instance for the following names: \n\`\`\`\n${error.join(',')}\`\`\``;
-								}
-								return message.channel.send(output, {
-									split: {
-										maxLength: 1900,
-										char: ',',
-										prepend: '```\n',
-										append: ',\n```',
-									},
-								}).catch(e => {
-									console.log('Error sending final status', e);
-								});
 							}
-							if(reaction.emoji.id == msg.client.myEmojiIds.failure) {
-								return message.channel.send('Got it, aborting.');
+							// End of for loop over new gyms
+							let output = '';
+							if(success.length > 0) {
+								output += `Successfully created ${success.length} instances for: \n\`\`\`\n${success.join(',')}\`\`\`\n`;
 							}
+
+							if(error.length > 0) {
+								output += `Could not create the gym instance for the following names: \n\`\`\`\n${error.join(',')}\`\`\``;
+							}
+							return message.channel.send(output, {
+								split: {
+									maxLength: 1900,
+									char: ',',
+									prepend: '```\n',
+									append: ',\n```',
+								},
+							}).catch(e => {
+								console.log('Error sending final status', e);
+							});
 						}
-						catch(e) {
-							return message.channel.send('Did not get input within a minute, aborting.');
+						if(reaction.emoji.id == msg.client.myEmojiIds.failure) {
+							return message.channel.send('Got it, aborting.');
 						}
 					}
-					// End of "if there are new gyms"
-					if(new_gyms.length == 0) {
-						return message.channel.send('There were no new gyms found.');
+					catch(e) {
+						return message.channel.send('Did not get input within a minute, aborting.');
 					}
-					if(gymList.length < rows.length - 1) {
-						console.log('Deleted gym?');
-					}
-					if(updated_maps.length > 0) {
-						console.log('maps need updating');
-					}
-					if(updated_directions.length > 0) {
-						console.log('directions need updating');
-					}
-					if(updated_ex_raid_number.length > 0) {
-						console.log('ex raid number needs updating.');
-					}
-					if(updated_ex_raid_elig.length > 0) {
-						console.log('ex raid eligibility needs updating.');
-					}
-					step();
-				});
-			},
-		], function(err) {
-			if(err) {
-				console.log(`Error: ${err}`);
-			}
+				}
+				// End of "if there are new gyms"
+				if(new_gyms.length == 0) {
+					return message.channel.send('There were no new gyms found.');
+				}
+				if(gymList.length < rows.length - 1) {
+					console.log('Deleted gym?');
+				}
+				if(updated_maps.length > 0) {
+					console.log('maps need updating');
+				}
+				if(updated_directions.length > 0) {
+					console.log('directions need updating');
+				}
+				if(updated_ex_raid_number.length > 0) {
+					console.log('ex raid number needs updating.');
+				}
+				if(updated_ex_raid_elig.length > 0) {
+					console.log('ex raid eligibility needs updating.');
+				}
+			});
+		}).catch(err => {
+			console.log('Error in populate.', err);
 		});
 	}
 }

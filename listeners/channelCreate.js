@@ -20,24 +20,10 @@ class ChannelCreateListener extends Listener {
 
 		if(!channel.guild) return;
 
-		// hard code ignore other guilds
-		if(channel.guild.id !== '338745842028511235') return;
-		// Figure out which channel to send this to
-
-		/* let send_chan = await this.client.Config.findOne({
-			where: { guildId: channel.guild.id },
-		});
-		// If there is nothing configured for this guild, do nothing
-		if(!send_chan) return console.log('No configs set, returning.');
-		else send_chan = this.client.channels.get(send_chan.announcementChan); */
-
-		// Choice was made to make it send to raid channel instead, so here is bypass.
-		const send_chan = channel;
 
 		let results = [];
 		const delay = 5 * 1000;
 		let found = false;
-		let selection_done = false;
 
 		let channel_gym = chanName.getChanGym(channel);
 		console.log(`New channel created with the name ${channel.name}`);
@@ -50,27 +36,25 @@ class ChannelCreateListener extends Listener {
 		// From here on, we *should* only have the gym name
 		let gym = await this.client.Gyms.findOne({
 			where: {
-				GymName: channel_gym,
+				guildId: channel.guild.id,
+				gymName: channel_gym,
 			},
 		});
 		if(!gym) {
 			const func_return = await chanList.getGymNames(this.client, channel_gym);
 			results = func_return[0];
 			found = func_return[1];
-			gym = func_return[2];
-			channel_gym = func_return[3];
 		}
 		else {
 			found = true;
 		}
 		// results is an array of gym objects, let loop through those to see if any "discord sanitized" channel name is found first.
 		const filterResults = results.filter(gymMatch => {
-			return gymMatch.GymName.replace(/[-]+/g, ' ').replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
+			return gymMatch.gymName.replace(/[-]+/g, ' ').replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
 		});
 		if(filterResults.length == 1) {
 			gym = filterResults[0];
-			channel_gym = gym.GymName.replace(/[^a-zA-Z0-9-\s]+/g, '');
-			selection_done = true;
+			channel_gym = gym.gymName.replace(/[^a-zA-Z0-9-\s]+/g, '');
 		}
 
 		if(found) {
@@ -87,7 +71,7 @@ class ChannelCreateListener extends Listener {
 				}
 
 				if(results.length > 1 && !gym) {
-					const f_r = await multiResult.doQuery(author_mention, results, gym, channel_gym, send_chan);
+					const f_r = await multiResult.doQuery(author_mention, results, channel_gym, channel);
 
 					// f_r[3] is basically an abort boolean
 					if(f_r[3] == true) return undefined;
@@ -95,7 +79,6 @@ class ChannelCreateListener extends Listener {
 					results = f_r[0];
 					gym = f_r[1];
 					channel_gym = f_r[2];
-					selection_done = true;
 				}
 				// At this point channel_gym will be the 'valid' gym name
 
@@ -103,11 +86,11 @@ class ChannelCreateListener extends Listener {
 				stats.writeStats(this.client, channel_gym);
 				saveRaids.saveLiveRaids(channel, channel_gym, gym);
 
-				const fi_r = await prodOut.produceOut(gym, channel, channel_gym, selection_done, author_id, send_chan);
+				const fi_r = await prodOut.produceOut(gym, channel, channel_gym, author_id);
 				const final_return = fi_r[0];
 				channel_gym = fi_r[1];
 
-				return send_chan.send(final_return, { split: { maxLength: 1900, char: ',' } });
+				return channel.send(final_return, { split: { maxLength: 1900, char: ',' } });
 			}, delay);
 		}
 		else {

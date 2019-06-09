@@ -31,7 +31,11 @@ class MyClient extends AkairoClient {
 		this.commandHandler = new CommandHandler(this, {
 			directory: './commands/',
 			prefix: async msg => {
-				if(!msg.guild) return 'bb!';
+				if(!msg.guild) {
+					const prefixes = await guilds.findAll();
+					// in node V11 could use `prefixes.map(g => g.prefixes.split(',')).flat()` but don't want to depend on that yet
+					return [].concat(...prefixes.map(g => g.prefixes.split(',')));
+				}
 
 				const guildConfigs = await guilds.findOne({
 					where: {
@@ -39,6 +43,7 @@ class MyClient extends AkairoClient {
 					},
 				});
 				if(!guildConfigs) return 'bb!';
+				console.log('2nd', guildConfigs.prefixes.split(','));
 				return guildConfigs.prefixes.split(',');
 			},
 		});
@@ -85,12 +90,20 @@ client.userGyms = sequelize.define('userGyms', {
 	pokemons: Sequelize.TEXT,
 });
 
+client.Announcements = sequelize.define('announcements', {
+	channelId: {
+		type: Sequelize.STRING,
+		unique: true,
+	},
+});
+
 // timestamp will be in ms for ease of use
 client.Stats = sequelize.define('stats', {
 	timestamp: {
 		type: Sequelize.STRING,
 		unique: true,
 	},
+	guildId: Sequelize.STRING,
 	gymName: Sequelize.STRING,
 	pokemon: Sequelize.STRING,
 });

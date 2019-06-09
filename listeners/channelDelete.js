@@ -30,7 +30,6 @@ class ChannelDeleteListener extends Listener {
 
 	async exec(channel) {
 		deleteLiveRaid(channel);
-		if(channel.guild.id !== '338745842028511235') return;
 		const channelConfig = await channel.client.Announcements.findOne({
 			where: {
 				channelId: channel.id,

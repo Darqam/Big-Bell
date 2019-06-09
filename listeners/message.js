@@ -8,12 +8,20 @@ class MessageListener extends Listener {
 		});
 	}
 
-	exec(message) {
-		if(!message.content.startsWith(this.client.commandHandler.prefix)) return;
+	async exec(message) {
+		if(message.author.bot) return;
+		if(!message.guild) return console.log(`DM ran: <@${message.author.id}> => ${message.content}`);
 
-		console.log(`Command ran: <@${message.author.id}> => ${message.content}`);
+		const guildConfigs = await message.client.Guilds.findOne({
+			where: {
+				guildId: message.guild.id,
+			},
+		});
+		const prefixes = guildConfigs ? guildConfigs.prefixes.split(',') : ['bb!'];
 
-		return false;
+		if(!prefixes.some(p => message.content.startsWith(p))) return;
+
+		return console.log(`Command ran: <@${message.author.id}> => ${message.content}`);
 	}
 }
 

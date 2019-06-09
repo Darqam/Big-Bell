@@ -1,7 +1,7 @@
 const config = require('../config.json');
 
 module.exports = {
-	produceOut: async function(gym, channel, channel_gym, selection_done, author_id, send_chan) {
+	produceOut: async function(gym, channel, channel_gym, author_id) {
 		return new Promise(async (resolve) => {
 			// Generating output text to give better map_info on ex raid for this gym
 			let ex_out = '';
@@ -11,7 +11,7 @@ module.exports = {
 			if(ex_out && gym.gymMap) {
 				// Sending without killing embed and extra space after google maps for Meowth to pick up the link
 				const tmpMsg = await channel.send(`Here is the proper google maps: ${gym.gymMap} .\nWith directions: <http://mymeanderingmind.com/pokegoMaps/>.\n${ex_out}`);
-				console.log(`Sent maps for ${gym.GymName}`);
+				console.log(`Sent maps for ${gym.gymName}`);
 				// Wait 10 seconds then edit it to not look ugly
 				setTimeout(() => {
 					tmpMsg.edit(`🔔\nHere is the proper google maps: <${gym.gymMap}>.\nInteractive map: <http://mymeanderingmind.com/pokegoMaps/>.\n${ex_out}`);
@@ -19,7 +19,7 @@ module.exports = {
 
 			}
 			else {
-				console.log(`Did not have map and Ex raid info for ${gym.GymName}.`);
+				console.log(`Did not have map and Ex raid info for ${gym.gymName}.`);
 			}
 
 			// Let's make sure this is only ever done once.
@@ -35,16 +35,14 @@ module.exports = {
 					console.log('Attempt at 2nd list ping disabled.');
 					disabled = true;
 				}
-				console.log('Could not save to DB that channel was pinged');
-				console.log(e);
+				else {
+					console.log('Could not save to DB that channel was pinged');
+					console.log(e);
+				}
 			}
 
 			// Check if anyone is registered for this gym
-			if(!gym.userIds) {
-				console.log(`No users for ${channel_gym}.`);
-				if(selection_done) send_chan.send('No one has this gym on their watchlist, keeping quiet.');
-				return;
-			}
+			if(!gym.userIds) return console.log(`No users for ${channel_gym}.`);
 
 			// Here we start dealing with building up the mention list
 			let users_arr = gym.userIds.split(',');
@@ -55,17 +53,16 @@ module.exports = {
 			else {
 				users_arr = users_arr.map(id => `<@${id}>`);
 			}
-			if(users_arr.length < 1) {
-				// If there are no users for this gym, stop
-				console.log(`No users for ${channel_gym} aside from author.`);
-				if(selection_done) send_chan.send('No one but the author has this gym on their watchlist, keeping quiet.');
-				return;
-			}
+			// If there are no users for this gym, stop
+			if(users_arr.length < 1) return console.log(`No users for ${channel_gym} aside from author.`);
 
 			// Purely for fun
 			const affectedRows = await channel.client.Gyms.update(
 				{ timesPinged: gym.timesPinged + 1 },
-				{ where : { GymName: channel_gym } },
+				{ where : {
+					gymName: channel_gym,
+					guildId: channel.guild,
+				} },
 			);
 
 			if(affectedRows <= 0) console.log(`Error incrementing for gym ${channel_gym}`);

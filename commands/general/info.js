@@ -26,7 +26,7 @@ class InfoCommand extends Command {
 
 		const gym = await this.client.Gyms.findOne({
 			where: {
-				GymName: gym_name,
+				gymName: gym_name,
 			},
 		});
 		if(gym) {

@@ -13,11 +13,11 @@ class ViewCommand extends Command {
 	}
 
 	async exec(message) {
-		const gymList = await this.client.Gyms.findAll({ attributes: ['GymName', 'userIds'] });
+		const gymList = await this.client.Gyms.findAll({ attributes: ['gymName', 'userIds'] });
 		const userGyms = [];
 		gymList.forEach(gym => {
 			if (gym.userIds.split(',').includes(message.author.id)) {
-				userGyms.push(gym.GymName);
+				userGyms.push(gym.gymName);
 			}
 		});
 		if(userGyms.length > 0) return message.reply(`You currently have alerts for the following gyms:\n\`\`\`\n${userGyms.join('\n')}\`\`\``);

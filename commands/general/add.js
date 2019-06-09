@@ -7,20 +7,22 @@ class AddCommand extends Command {
 			aliases: ['add', 'a', 'want'],
 			category: 'general',
 			description: {
-				content: 'Adds user to a list of gyms. All configurations are optional, but will apply to the entire given list. Time is in 24H format!',
+				content: 'Adds user to a list of gyms. All configurations are optional, but will apply to the entire given list. Time is in 24H format! Time will default to all times if nothing is provided.',
 				usage: 'Gym Name 1, Gym Name 2, ... <start:##:##> <end:##:##> <levels:#,#,#,...>',
-				examples: ['add awesome park, super park start:9:00 end:21:00 levels:2,4,5'],
+				examples: ['add awesome park, super park start:9:00 end:21:00 levels:2,4,5', 'add Awesome Park, sucky park, ex raid magnet'],
 			},
 			args: [
 				{
 					id: 'start',
 					match: 'option',
 					flag: 'start:',
+					default: '00:00',
 				},
 				{
 					id: 'end',
 					match: 'option',
 					flag: 'end:',
+					default: '23:59',
 				},
 				{
 					id: 'levels',
@@ -51,10 +53,35 @@ class AddCommand extends Command {
 		const alternatives = [];
 		const present = [];
 
+		const start = args.start.match(/^[0-2]?[0-9]:[0-5][0-9]$/)[0];
+		const end = args.end.match(/^[0-2]?[0-9]:[0-5][0-9]$/)[0];
+		let levels = args.levels ? args.levels.split(',') : [];
+		const pokemons = args.pokemons ? args.pokemons.match(/['a-zA-Z\s\-\u00C0-\u017F.]+/g) : [];
+
+		// Lets get some input checks in here
+		if(!start) return message.channel.send('I could not match your start time in the format ##:##, aborting. Please try again.');
+		if(!end) return message.channel.send('I could not match your end time in the format ##:##, aborting. Please try again.');
+
+		// Remove duplicates
+		levels = [...new Set(levels)];
+		// Keep only 1-5 values
+		if(levels.filter(n => parseInt(n) < 1 || parseInt(n) > 5 || isNaN(parseInt(n))).length > 0) levels = null;
+		if(!levels) return message.channel.send('I could not match your levels format in the format `#,#,#`, aborting. Please try again.');
+
+		if(!pokemons) return message.channel.send('I could not match the pokemon name formats (alphabetical, with accents, spaces, and `.-` allowed), aborting. Please try again.');
+
+		const endSplit = end.split(':');
+		const startSplit = start.split(':');
+		if(endSplit[0] < startSplit[0] || (endSplit[0] == startSplit[0] && endSplit[1] <= startSplit[1])) {
+			return message.channel.send('Got an end time before or equal to start time, aborting. Please try again.');
+		}
+
+		// End input sanitation
 		for(let i = 0; i < gym_list.length; i++) {
 			gym_list[i] = gym_list[i].trim();
 			const gym = await this.client.Gyms.findOne({
 				where: {
+					guildId: message.guild.id,
 					gymName: gym_list[i],
 				},
 			});
@@ -65,27 +92,29 @@ class AddCommand extends Command {
 						userId: message.author.id,
 					},
 				});
-
 				if(userGym) {
 					// If the user already monitors this gym, continue
 					present.push(gym_list[i]);
 					continue;
 				}
 
-				user_list.push(message.author.id);
+				try{
+					await this.client.userGyms.create({
+						userId: message.author.id,
+						gymId: gym.id,
+						gymName: gym.gymName,
+						timeStart: start,
+						timeStop: end,
+						disabled: 0, // 1 or 0
+						raidLevels: levels.join(), // "2,4,5"
+						pokemons: pokemons.join(),
+					});
 
-				const affectedRows = await this.client.Gyms.update(
-					{ userIds: user_list.join(',') },
-					{ where : { gymName: gym_list[i] } },
-				);
-
-				if(affectedRows > 0) {
-					// If we managed to save the entry
 					success.push(gym_list[i]);
 				}
-				else {
-					// If there was a failure for some reason
+				catch(e) {
 					errors.push(gym_list[i]);
+					console.log(e);
 				}
 			}
 			else {

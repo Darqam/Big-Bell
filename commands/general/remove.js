@@ -33,7 +33,7 @@ class RemoveCommand extends Command {
 		let notPresent = [];
 		let all = false;
 
-		const all_gyms = await this.client.Gyms.findAll({ attributes: ['GymName', 'userIds'] });
+		const all_gyms = await this.client.Gyms.findAll({ attributes: ['gymName', 'userIds'] });
 		all_gyms.forEach(gym => {
 			if (gym.userIds.split(',').includes(message.author.id)) {
 				user_gyms.push(gym);
@@ -41,11 +41,11 @@ class RemoveCommand extends Command {
 		});
 
 		if(gym_list[0] !== 'all') {
-			user_gyms = user_gyms.filter(aGym => gym_list.includes(aGym.GymName));
-			notPresent = gym_list.filter(choice => !user_gyms.map(x => x.GymName).includes(choice));
+			user_gyms = user_gyms.filter(aGym => gym_list.includes(aGym.gymName));
+			notPresent = gym_list.filter(choice => !user_gyms.map(x => x.gymName).includes(choice));
 		}
 		else {
-			gym_list = user_gyms.map(x => x.GymName);
+			gym_list = user_gyms.map(x => x.gymName);
 			all = true;
 			if(user_gyms.length == 0) {
 				await message.react(message.client.myEmojiIds.failure);
@@ -63,7 +63,7 @@ class RemoveCommand extends Command {
 
 				const affectedRows = await this.client.Gyms.update(
 					{ userIds: user_list.join(',') },
-					{ where : { GymName: gym_list[i] } },
+					{ where : { gymName: gym_list[i] } },
 				);
 
 				if(affectedRows > 0) {
