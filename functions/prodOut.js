@@ -1,5 +1,3 @@
-const config = require('../config.json');
-
 module.exports = {
 	produceOut: async function(gym, channel, channel_gym, author_id) {
 		return new Promise(async (resolve) => {
@@ -41,36 +39,87 @@ module.exports = {
 				}
 			}
 
+			// Purely for fun
+			if(!disabled) {
+				try {
+					await channel.client.Gyms.update(
+						{ timesPinged: gym.timesPinged ? gym.timesPinged + 1 : 1 },
+						{ where : {
+							gymName: channel_gym,
+							guildId: channel.guild.id,
+						} },
+					);
+				}
+				catch (e) {
+					console.log(`Error incrementing for gym ${channel_gym}`, e);
+				}
+			}
+
+			const userGyms = await channel.client.userGyms.findAll({
+				where: {
+					gymId: gym.id,
+				},
+			});
+
 			// Check if anyone is registered for this gym
-			if(!gym.userIds) return console.log(`No users for ${channel_gym}.`);
+			if(userGyms.length == 0) return console.log(`No users for ${channel_gym}.`);
 
 			// Here we start dealing with building up the mention list
-			let users_arr = gym.userIds.split(',');
+			// Go through the fetched userGyms
+			// Fetch timezone from the guild settings
+			// If nothing is set, alert people and abort
+			// With timezone, grab current date and check if between start and end
+			// Next check if egg level or pokemon matches selection
+			const config = await channel.client.Guilds.findOne(
+				{ where: { guildId: channel.guild.id } }
+			);
+			const timezone = config.timezone;
+
+			const d = new Date();
+			const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+			const nd = new Date(utc + (3600000 * timezone));
+			const curHour = nd.getHours();
+			const curMin = nd.getMinutes();
+			console.log(`${nd.getHours()}:${nd.getMinutes()}`);
+
+			let userArr = [];
+			userGyms.forEach(uGym => {
+				// If this user+gym cobo was disabled, don't go further
+				if(uGym.disabled == 1) return;
+
+				// Grab requested start and end times
+				const start = uGym.timeStart.split(':');
+				const stop = uGym.timeStop.split(':');
+				// check if start time is *after* "now"
+				// so is start hours greater than now hours
+				// or is start hours the same as now hours but start minutes is "later"
+				if(start[0] > curHour || (start[0] == curHour && start[1] > curMin)) return;
+				// Oposite check for stop time
+				if(stop[0] < curHour || (stop[0] == curHour && stop[1] < curMin)) return;
+				userArr.push(uGym.userId);
+			});
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 			if(author_id) {
-				users_arr = users_arr.filter(id => id != author_id).map(id => `<@${id}>`);
+				userArr = userArr.filter(id => id != author_id).map(id => `<@${id}>`);
 			}
 			else {
-				users_arr = users_arr.map(id => `<@${id}>`);
+				userArr = userArr.map(id => `<@${id}>`);
 			}
 			// If there are no users for this gym, stop
-			if(users_arr.length < 1) return console.log(`No users for ${channel_gym} aside from author.`);
-
-			// Purely for fun
-			const affectedRows = await channel.client.Gyms.update(
-				{ timesPinged: gym.timesPinged + 1 },
-				{ where : {
-					gymName: channel_gym,
-					guildId: channel.guild,
-				} },
-			);
-
-			if(affectedRows <= 0) console.log(`Error incrementing for gym ${channel_gym}`);
+			if(userArr.length < 1) return console.log(`No users to ping for ${channel_gym}.`);
 
 			// Since this has the potential to be a massive message, tell
 			// djs to split the message at ~1900 characters and split by the
 			// comma character which will be in between each mention.
-			const final_return = `🔔🔔🔔 ${users_arr.join(',')} 🔔🔔🔔\nIf you wish to no longer be notified for this gym, please type \`${config.prefix}remove ${channel_gym}\``;
+			const final_return = `🔔🔔🔔 ${userArr.join(',')} 🔔🔔🔔\nIf you wish to no longer be notified for this gym, please type \`${config.prefixes.split(',')[0]}remove ${channel_gym}\``;
 
 			const return_array = [final_return, channel_gym, disabled];
 			resolve(return_array);
