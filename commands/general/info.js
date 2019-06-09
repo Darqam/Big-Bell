@@ -22,20 +22,23 @@ class InfoCommand extends Command {
 
 	async exec(message, args) {
 		if(!args.gym_name) return message.reply('No gyms found in query');
-		const gym_name = args.gym_name.split(',')[0].trim();
+		const gym_name = args.gym_name.trim();
 
 		const gym = await this.client.Gyms.findOne({
 			where: {
+				guildId: message.guild.id,
 				gymName: gym_name,
 			},
 		});
+		const userGyms = await this.client.userGyms.findAll({
+			where: {
+				gymId: gym.id,
+			},
+		});
 		if(gym) {
-			const length = gym.userIds.split(',')[0] == '' ? 0 : gym.userIds.split(',').length;
-			const user = await this.client.users.fetch(gym.submittedById);
+			const length = userGyms.length;
 			return message.channel.send(stripIndents`Gym name: ${gym_name}
 				Amount of people monitoring this gym: ${length}
-				Gym submitted by: ${user.tag}
-				Gym submission done on ${gym.submittedOn}
 				Gym list was pinged ${gym.timesPinged} times
 				Map for the gym <${gym.gymMap}>
 				Directions to the gym: <${gym.gymDirections}>

@@ -43,7 +43,6 @@ class MyClient extends AkairoClient {
 					},
 				});
 				if(!guildConfigs) return 'bb!';
-				console.log('2nd', guildConfigs.prefixes.split(','));
 				return guildConfigs.prefixes.split(',');
 			},
 		});
