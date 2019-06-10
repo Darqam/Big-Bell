@@ -28,6 +28,7 @@ class AddCommand extends Command {
 					id: 'levels',
 					match: 'option',
 					flag: 'levels:',
+					default: '1,2,3,4,5',
 				},
 				{
 					id: 'pokemons',
