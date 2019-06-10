@@ -31,7 +31,7 @@ class AlertCommand extends Command {
 		// - Can only be called in raid-looking channels
 		// - check creation timestamp to make sure people aren't jumping the gun
 		// - fetch messages to make sure ping hasn't happened before.
-		let channel_gym = args.gym ? args.gym : chanName.getChanGym(message.channel);
+		let channel_gym = args.gym ? args.gym : chanName.getChanGym(message.channel)[0];
 		if(!channel_gym) return console.log('Not in a proper channel.');
 
 		// Check in db if an announcement for this channel was made

@@ -18,14 +18,14 @@ class ChannelCreateListener extends Listener {
 
 	async exec(channel) {
 
-		if(!channel.guild) return;
+		if(!channel.guild || channel.type != 'text') return;
 
 
 		let results = [];
 		const delay = 5 * 1000;
 		let found = false;
 
-		let channel_gym = chanName.getChanGym(channel);
+		let channel_gym = chanName.getChanGym(channel)[0];
 		console.log(`New channel created with the name ${channel.name}`);
 
 		if(!channel_gym) {

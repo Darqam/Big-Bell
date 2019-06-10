@@ -24,7 +24,7 @@ class MapCommand extends Command {
 	}
 
 	async exec(message, args) {
-		const gym_name = args.gym_name ? args.gym_name.trim() : chanName.getChanGym(message.channel);
+		const gym_name = args.gym_name ? args.gym_name.trim() : chanName.getChanGym(message.channel)[0];
 
 		const gym = await this.client.Gyms.findOne({
 			where: {
