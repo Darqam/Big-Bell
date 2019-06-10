@@ -8,8 +8,8 @@ class AddCommand extends Command {
 			category: 'general',
 			description: {
 				content: 'Adds user to a list of gyms. All configurations are optional, but will apply to the entire given list. Time is in 24H format! Time will default to all times if nothing is provided.',
-				usage: 'Gym Name 1, Gym Name 2, ... <start:##:##> <end:##:##> <levels:#,#,#,...>',
-				examples: ['add awesome park, super park start:9:00 end:21:00 levels:2,4,5', 'add Awesome Park, sucky park, ex raid magnet'],
+				usage: 'Gym Name 1, Gym Name 2, ... <start:##:##> <end:##:##> <levels:#,#,#,...> <pokemons:name1,name2,...>',
+				examples: ['add awesome park, super park start:9:00 end:21:00 levels:2,4,5 pokemons:cresselia,breloom', 'add Awesome Park, sucky park, ex raid magnet'],
 			},
 			args: [
 				{
@@ -34,6 +34,7 @@ class AddCommand extends Command {
 					id: 'pokemons',
 					match: 'option',
 					flag: 'pokemons:',
+					default: '',
 				},
 				{
 					id: 'gym_list',
