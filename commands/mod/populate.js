@@ -61,7 +61,7 @@ class StatsCommand extends Command {
 				orderby: 'col2',
 			}, async function(err, rows) {
 				if(!rows) return message.reply('Couldn\'t load any rows from that sheet.');
-				rows.forEach(async row => {
+				rows.forEach(row => {
 					// row properties of interest
 					// gymname, exraideligibility, mapsurl, directionsurl, ofex
 					const local_gym = gymList.find(gym => gym.gymName == row.gymname.toLowerCase());
