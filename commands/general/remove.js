@@ -70,7 +70,7 @@ class RemoveCommand extends Command {
 
 		if(success.length > 0) {
 			output += `Successfully removed you from: \n\`\`\`\n${success.join('\n')}\`\`\`\n`;
-			if(gymList[0] === 'all') output += 'If this was temporary, consider blocking me next time, might be faster than running this and adding them back later.';
+			if(gymList[0] === 'all') output += 'If this was temporary, consider using the disable command next time, might be faster than running this and adding them back later.';
 			await message.react(message.client.myEmojiIds.success);
 		}
 
