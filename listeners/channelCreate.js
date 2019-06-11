@@ -25,7 +25,8 @@ class ChannelCreateListener extends Listener {
 		const delay = 5 * 1000;
 		let found = false;
 
-		let channel_gym = chanName.getChanGym(channel)[0];
+		// eslint-disable-next-line prefer-const
+		let [channel_gym, pokemon] = chanName.getChanGym(channel);
 		console.log(`New channel created with the name ${channel.name}`);
 
 		if(!channel_gym) {
@@ -83,7 +84,7 @@ class ChannelCreateListener extends Listener {
 				// At this point channel_gym will be the 'valid' gym name
 
 				// This doesn't need to resolve before the rest can go, so no await
-				stats.writeStats(this.client, channel_gym);
+				stats.writeStats(this.client, channel_gym, channel.guild.id, pokemon);
 				saveRaids.saveLiveRaids(channel, channel_gym, gym);
 
 				const fi_r = await prodOut.produceOut(gym, channel, channel_gym, author_id);

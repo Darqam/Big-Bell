@@ -1,10 +1,12 @@
 module.exports = {
-	writeStats: async function(client, gymName) {
+	writeStats: async function(client, gymName, guildId, pokemon) {
 		const date = new Date().getTime();
 		try {
 			await client.Stats.create({
 				timestamp: date,
 				gymName: gymName,
+				guildId: guildId,
+				pokemon: pokemon,
 			});
 		}
 		catch (e) {
