@@ -62,43 +62,44 @@ class ChannelCreateListener extends Listener {
 		}
 
 		if(found) {
-			setTimeout(async () => {
-				// This is run X seconds after channel create to give meowth time to post
-				const messages = await channel.messages.fetch();
-				const first = messages.last();
+			// Wait a given time to make sure Meowth has time to post
+			await waitUp(delay);
 
-				// If there is still no first message, wait the delayed amount again
-				if(!first || !first.author.bot) await waitUp(delay);
+			// The below runs only after the delay
+			const messages = await channel.messages.fetch();
+			const first = messages.last();
 
-				let author_id = '';
-				let author_mention = '';
-				if(first && first.mentions.users.first()) {
-					author_id = first.mentions.users.first().id;
-					author_mention = ` <@${author_id}> `;
-				}
+			// If there is still no first message, wait the delayed amount again
+			if(!first || !first.author.bot) await waitUp(delay);
 
-				if(results.length > 1 && !gym) {
-					const f_r = await multiResult.doQuery(author_mention, results, channel_gym, channel);
+			let author_id = '';
+			let author_mention = '';
+			if(first && first.mentions.users.first()) {
+				author_id = first.mentions.users.first().id;
+				author_mention = ` <@${author_id}> `;
+			}
 
-					// f_r[3] is basically an abort boolean
-					if(f_r[3] == true) return undefined;
+			if(results.length > 1 && !gym) {
+				const f_r = await multiResult.doQuery(author_mention, results, channel_gym, channel);
 
-					results = f_r[0];
-					gym = f_r[1];
-					channel_gym = f_r[2];
-				}
-				// At this point channel_gym will be the 'valid' gym name
+				// f_r[3] is basically an abort boolean
+				if(f_r[3] == true) return undefined;
 
-				// This doesn't need to resolve before the rest can go, so no await
-				stats.writeStats(this.client, channel_gym, channel.guild.id, pokemon);
-				saveRaids.saveLiveRaids(channel, channel_gym, gym);
+				results = f_r[0];
+				gym = f_r[1];
+				channel_gym = f_r[2];
+			}
+			// At this point channel_gym will be the 'valid' gym name
 
-				const fi_r = await prodOut.produceOut(gym, channel, channel_gym, author_id);
-				const final_return = fi_r[0];
-				channel_gym = fi_r[1];
+			// This doesn't need to resolve before the rest can go, so no await
+			stats.writeStats(this.client, channel_gym, channel.guild.id, pokemon);
+			saveRaids.saveLiveRaids(channel, channel_gym, gym);
 
-				return channel.send(final_return, { split: { maxLength: 1900, char: ',' } });
-			}, delay);
+			const fi_r = await prodOut.produceOut(gym, channel, channel_gym, author_id);
+			const final_return = fi_r[0];
+			channel_gym = fi_r[1];
+
+			return channel.send(final_return, { split: { maxLength: 1900, char: ',' } });
 		}
 		else {
 			console.log(`Found nothing for ${channel_gym}.`);
