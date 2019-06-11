@@ -3,7 +3,7 @@ const { Command } = require('discord-akairo');
 class DeleteCommand extends Command {
 	constructor() {
 		super('delete', {
-			aliases: ['delete', 'del', 'd'],
+			aliases: ['delete', 'del'],
 			category: 'mod',
 			description: {
 				content: 'Deletes the given gyms from the database.',
