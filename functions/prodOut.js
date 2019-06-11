@@ -137,11 +137,11 @@ module.exports = {
 				userArr.push(uGym.userId);
 			});
 
-			// If there are no users for this gym, stop
-			if(userArr.length < 1) return console.log(`No users to ping for ${channel_gym}.`);
-
 			if(author_id) userArr = userArr.filter(id => id != author_id).map(id => `<@${id}>`);
 			else userArr = userArr.map(id => `<@${id}>`);
+
+			// If there are no users for this gym, stop
+			if(userArr.length < 1) return console.log(`No users to ping for ${channel_gym}.`);
 
 			// Since this has the potential to be a massive message, tell
 			// djs to split the message at ~1900 characters and split by the
