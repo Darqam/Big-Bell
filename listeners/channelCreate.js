@@ -7,6 +7,9 @@ const prodOut = require('../functions/prodOut.js');
 const stats = require('../functions/writeStats.js');
 const saveRaids = require('../functions/saveRaids.js');
 
+function waitUp(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 class ChannelCreateListener extends Listener {
 	constructor() {
@@ -63,6 +66,9 @@ class ChannelCreateListener extends Listener {
 				// This is run X seconds after channel create to give meowth time to post
 				const messages = await channel.messages.fetch();
 				const first = messages.last();
+
+				// If there is still no first message, wait the delayed amount again
+				if(!first || !first.author.bot) await waitUp(delay);
 
 				let author_id = '';
 				let author_mention = '';
