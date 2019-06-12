@@ -38,7 +38,7 @@ class EditCommand extends Command {
 					flag: 'disabled:',
 				},
 				{
-					id: 'gym_list',
+					id: 'gymList',
 					match: 'rest',
 					type: 'lowercase',
 				},
@@ -47,10 +47,15 @@ class EditCommand extends Command {
 	}
 
 	async exec(message, args) {
-		if(!args.gym_list) return message.reply('No gyms found in query');
-		const gym_list = args.gym_list.tolLowerCase().split(',');
+		if(!args.gymList) return message.reply('No gyms found in query');
+		const gymList = args.gymList.tolLowerCase().split(',');
 		const allUserGyms = await this.client.userGyms.findAll({ where: { userId: message.author.id } });
 		const updateObj = {};
+
+		const errors = [];
+		const success = [];
+		const notFound = [];
+		let output = '';
 
 		const [sanitized, errorM, parsedArgs] = sanitize.sanitizeArgs(args);
 		if(sanitized == 1) return message.channel.send(errorM);
@@ -62,15 +67,47 @@ class EditCommand extends Command {
 		if(parsedArgs.start) updateObj.timeStart = parsedArgs.start;
 		if(parsedArgs.end) updateObj.timeStop = parsedArgs.end;
 
+		if(args.level) updateObj.raidLevels = parsedArgs.levels.join();
+		if(args.pokemons) updateObj.pokemons = parsedArgs.pokemons.join();
 
+		for(let i = 0; i < gymList.length; i++) {
+			if(!allUserGyms.some(g => g.gymName == gymList[i])) {
+				notFound.push(gymList);
+				continue;
+			}
+			const affectedRows = await this.client.userGyms.update(updateObj,
+				{ where :
+					{
+						userId: message.author.id,
+						gymName: gymList[i],
+					},
+				},
+			);
 
-		/*
-		timeStart: Sequelize.STRING,
-		timeStop: Sequelize.STRING,
-		disabled: Sequelize.INTEGER, // 1 or 0
-		raidLevels: Sequelize.STRING, // "2,4,5"
-		pokemons: Sequelize.TEXT,
-		*/
+			if(affectedRows > 0) {
+				success.push(gymList[i]);
+			}
+			else {
+				errors.push(gymList[i]);
+			}
+		}
+		// End for loop
+		if(success.length > 0) {
+			output += `Successfully edited the following gyms: \n\`\`\`${success.join('\n')}\`\`\`\n`;
+			await message.react(message.client.myEmojiIds.success);
+		}
+
+		if(notFound.length > 0) {
+			output += `Could not find the following gyms associated with your id: \n\`\`\`\n${notFound.join('\n')}\`\`\`\n`;
+			await message.react('❓');
+		}
+
+		if(errors.length > 0) {
+			output += `Could not edit the following gyms due to an unknown error: \n\`\`\`\n${errors.join('\n')}\`\`\``;
+			await message.react(message.client.myEmojiIds.failure);
+		}
+
+		return message.reply(output);
 
 	}
 }
