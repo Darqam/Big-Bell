@@ -73,10 +73,15 @@ class ViewCommand extends Command {
 			userGyms = output;
 		}
 
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!
-		//!!!!!!!!!!!!!!!!
-		// This 100% needs to have a split parameter.
-		return message.reply(`You currently have alerts for the following gyms:\n\`\`\`\n${userGyms.join('\n')}\`\`\``);
+
+		return message.reply(`You currently have alerts for the following gyms:\n\`\`\`\n${userGyms.join('\n')}\`\`\``, {
+			split: {
+				maxLength: 1900,
+				char: '\n',
+				prepend: '*cntd*...\n```',
+				append: '```',
+			},
+		});
 
 	}
 }
