@@ -14,6 +14,7 @@
     "discord.js": "github:discordjs/discord.js#d92ee2ff999954899c891c093f5f107dd686b64f",
     "eslint": "^5.9.0",
     "google-spreadsheet": "^2.0.6",
+    "node-fetch": "^2.6.0",
     "plotly": "^1.0.6",
     "sequelize": "^5.8.7",
     "sqlite": "^3.0.3",
