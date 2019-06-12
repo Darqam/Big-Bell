@@ -1,5 +1,6 @@
 const { Command } = require('discord-akairo');
 const chanList = require('../../functions/findGyms.js');
+const sanitize = require('../../functions/sanitize.js');
 
 class AddCommand extends Command {
 	constructor() {
@@ -55,30 +56,10 @@ class AddCommand extends Command {
 		const alternatives = [];
 		const present = [];
 
-		const start = args.start.match(/^[0-2]?[0-9]:[0-5][0-9]$/)[0];
-		const end = args.end.match(/^[0-2]?[0-9]:[0-5][0-9]$/)[0];
-		let levels = args.levels ? args.levels.split(',') : [];
-		const pokemons = args.pokemons ? args.pokemons.match(/['a-zA-Z\s\-\u00C0-\u017F.]+/g) : [];
+		const [sanitized, errorM, parsedArgs] = sanitize.sanitizeArgs(args);
+		if(sanitized == 1) return message.channel.send(errorM);
 
-		// Lets get some input checks in here
-		if(!start) return message.channel.send('I could not match your start time in the format ##:##, aborting. Please try again.');
-		if(!end) return message.channel.send('I could not match your end time in the format ##:##, aborting. Please try again.');
-
-		// Remove duplicates
-		levels = [...new Set(levels)];
-		// Keep only 1-5 values
-		if(levels.filter(n => parseInt(n) < 1 || parseInt(n) > 5 || isNaN(parseInt(n))).length > 0) levels = null;
-		if(!levels) return message.channel.send('I could not match your levels format in the format `#,#,#`, aborting. Please try again.');
-
-		if(!pokemons) return message.channel.send('I could not match the pokemon name formats (alphabetical, with accents, spaces, and `.-` allowed), aborting. Please try again.');
-
-		const endSplit = end.split(':');
-		const startSplit = start.split(':');
-		if(endSplit[0] < startSplit[0] || (endSplit[0] == startSplit[0] && endSplit[1] <= startSplit[1])) {
-			return message.channel.send('Got an end time before or equal to start time, aborting. Please try again.');
-		}
-
-		// End input sanitation
+		// At this point, inputs should be good
 		for(let i = 0; i < gym_list.length; i++) {
 			gym_list[i] = gym_list[i].trim();
 			const gym = await this.client.Gyms.findOne({
@@ -105,11 +86,11 @@ class AddCommand extends Command {
 						userId: message.author.id,
 						gymId: gym.id,
 						gymName: gym.gymName,
-						timeStart: start,
-						timeStop: end,
+						timeStart: parsedArgs.start,
+						timeStop: parsedArgs.end,
 						disabled: 0, // 1 or 0
-						raidLevels: levels.join(), // "2,4,5"
-						pokemons: pokemons.join(),
+						raidLevels: parsedArgs.levels.join(), // "2,4,5"
+						pokemons: parsedArgs.pokemons.join(),
 					});
 
 					success.push(gym_list[i]);
