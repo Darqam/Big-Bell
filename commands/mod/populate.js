@@ -29,7 +29,7 @@ class StatsCommand extends Command {
 		const sheet_position = 6;
 		let sheet;
 		message.channel.startTyping();
-		const gymList = await this.client.Gyms.findAll({ attributes: ['gymName', 'gymMap', 'gymDirections', 'exRaidNumber', 'exRaidEligibility'] });
+		const gymList = await this.client.Gyms.findAll({ where: { guildId: message.channel.guild.id } });
 		if(!gymList) return message.channel.send('Could not query database. Aborting.');
 
 		const new_gyms = [];
@@ -141,7 +141,7 @@ class StatsCommand extends Command {
 							if(error.length > 0) {
 								output += `Could not create the gym instance for the following names: \n\`\`\`\n${error.join(',')}\`\`\``;
 							}
-							return message.channel.send(output, {
+							message.channel.send(output, {
 								split: {
 									maxLength: 1900,
 									char: ',',
@@ -162,23 +162,93 @@ class StatsCommand extends Command {
 				}
 				// End of "if there are new gyms"
 				if(new_gyms.length == 0) {
-					return message.channel.send('There were no new gyms found.');
+					message.channel.send('There were no new gyms found.');
 				}
 				if(gymList.length < rows.length - 1) {
-					console.log('Deleted gym?');
+					message.channel.send('Deleted gym?');
 				}
+				let updateOut = '';
+				const updateObj = {};
 				if(updated_maps.length > 0) {
-					console.log('maps need updating');
+					updateOut += `maps need updating (${updated_maps.length}).\n`;
 				}
 				if(updated_directions.length > 0) {
-					console.log('directions need updating');
+					updateOut += 'directions need updating.\n';
 				}
 				if(updated_ex_raid_number.length > 0) {
-					console.log('ex raid number needs updating.');
+					updateOut += `EX Raid numbers to update (${updated_ex_raid_number.length}):\n\`\`\``;
+					for(const sheetGym of updated_ex_raid_number) {
+						const curGym = gymList.find(g => g.gymName.toLowerCase() == sheetGym.gymname.toLowerCase());
+						if(!updateObj[curGym.id]) updateObj[curGym.id] = {};
+
+						updateObj[curGym.id].exRaidNumber = sheetGym.ofex;
+						updateOut += `${curGym.gymName}: ${curGym.exRaidNumber} -> ${sheetGym.ofex}\n`;
+					}
+					updateOut += '```\n';
 				}
 				if(updated_ex_raid_elig.length > 0) {
-					console.log('ex raid eligibility needs updating.');
+					updateOut += `EX Raid eligibility to update (${updated_ex_raid_elig.length}).\n\`\`\``;
+					for(const sheetGym of updated_ex_raid_elig) {
+						const curGym = gymList.find(g => g.gymName.toLowerCase() == sheetGym.gymname.toLowerCase());
+						if(!updateObj[curGym.id]) updateObj[curGym.id] = {};
+
+						updateObj[curGym.id].exRaidEligibility = sheetGym.exraideligibility;
+						updateOut += `${curGym.gymName}: ${curGym.exRaidNumber} -> ${sheetGym.ofex}\n`;
+					}
+					updateOut += '```\n';
 				}
+
+				// If there are values to update
+				const success = [];
+				const errors = [];
+				let output = '';
+				if(Object.keys(updateObj).length > 0) {
+					console.log(Object.keys(updateObj).length);
+					message.channel.send(updateOut, {
+						split: {
+							maxLength: 1900,
+							char: ',',
+							prepend: '```\n',
+							append: ',\n```',
+						},
+					}).catch(e => {
+						console.log('Error sending updateOut', e);
+					});
+
+					for(const [key, value] of Object.entries(updateObj)) {
+						const curGym = gymList.find(g => g.id == key);
+						const affectedRows = await message.client.Gyms.update(value,
+							{ where : {	id: key }	}
+						);
+
+						if(affectedRows > 0) {
+							success.push(curGym.gymName);
+						}
+						else {
+							errors.push(curGym.gymName);
+						}
+					}
+					if(success.length > 0) {
+						output += `Successfully updated ${success.length} instances for: \n\`\`\`\n${success.join(',')}\`\`\`\n`;
+					}
+
+					if(errors.length > 0) {
+						output += `Could not create the gym instance for the following names: \n\`\`\`\n${errors.join(',')}\`\`\``;
+					}
+					if(output) {
+						return message.channel.send(output, {
+							split: {
+								maxLength: 1900,
+								char: ',',
+								prepend: '```\n',
+								append: ',\n```',
+							},
+						}).catch(e => {
+							console.log('Error sending final status', e);
+						});
+					}
+				}
+				return message.channel.send('There were no updates to perform.');
 			});
 		}).catch(err => {
 			console.log('Error in populate.', err);
