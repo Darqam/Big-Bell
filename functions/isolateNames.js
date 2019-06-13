@@ -21,16 +21,18 @@ module.exports = {
 			channel_gym = channel_array.join(' ');
 		}
 
-		// Case 2, raid egg. Assume format level-X-egg-park-name
-		if(!channel_gym && channel_array[0].toLowerCase() == 'level' && channel_array[2].toLowerCase() == 'egg') {
-			eggLvl = channel_array[1];
-			channel_gym = channel_array.slice(3).join(' ');
+		// Case 2, raid egg. Assume format X-park-name
+		let num = parseInt(channel_array[0]);
+		if(!channel_gym && num && (num >= 1 && num <= 5)) {
+			eggLvl = channel_array[0];
+			channel_gym = channel_array.slice(1).join(' ');
 		}
 
 		// Case 3, hatched raid egg: hatched-level-X-egg-gym-name-here
-		if(!channel_gym && channel_array[0].toLowerCase() == 'hatched' && channel_array[1].toLowerCase() == 'level' && channel_array[3].toLowerCase() == 'egg') {
-			eggLvl = channel_array[2];
-			channel_gym = channel_array.slice(4).join(' ');
+		num = parseInt(channel_array[1]);
+		if(!channel_gym && channel_array[0].toLowerCase() == 'hatched' && num && (num >= 1 && num <= 5)) {
+			eggLvl = channel_array[1];
+			channel_gym = channel_array.slice(2).join(' ');
 		}
 		return [channel_gym, channelMon.join('-'), eggLvl];
 	},
