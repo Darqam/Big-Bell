@@ -7,18 +7,42 @@ class ChangeCommand extends Command {
 			category: 'general',
 			description: {
 				content: 'Allows to edit which gym is recognized by Victreebel.',
-				usage: '',
+				usage: 'gym name',
 			},
+			args: [
+				{
+					id: 'gym',
+					match: 'content',
+					type: 'lowercase',
+				},
+			],
 			channelRestriction: 'guild',
 		});
 	}
 
-	exec(message) {
-		return message.channel.send('Pong!').then(sent => {
-			const timeDiff = (sent.editedAt || sent.createdAt) - (message.editedAt || message.createdAt);
-			const text = `🔂\u2000**RTT**: ${timeDiff} ms\n💟\u2000**Heartbeat**: ${Math.round(sent.client.ws.ping)} ms`;
-			return sent.edit(`Pong!\n${text}`);
+	async exec(message, args) {
+		if(!args.gym) return message.channel.send('There was no provided gym name, aborting.');
+
+		const ann = await this.client.Announcements.findOne({
+			where: {
+				channelId: message.channel.id,
+			},
 		});
+		if(!ann) return message.channel.send('This channel was not alerted before, please use the `alert` command instead.');
+
+		const gym = await this.client.Gyms.findOne({
+			where: {
+				guildId: message.guild.id,
+				gymName: args.gym.toLowerCase(),
+			},
+		});
+		if(!gym) return message.channel.send(`Could not find a gym by the name of ${args.gym}.`);
+
+		// Now we have a valid gym name, and gym object.
+		// We need to fix liveRaids
+		// We should probably edit stats
+		// We need to fetch user list to ping.
+		// Need to output maps + info for the right gym
 	}
 }
 
