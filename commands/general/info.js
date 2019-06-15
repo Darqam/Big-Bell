@@ -17,6 +17,7 @@ class InfoCommand extends Command {
 					type: 'lowercase',
 				},
 			],
+			channelRestriction: 'guild',
 		});
 	}
 
