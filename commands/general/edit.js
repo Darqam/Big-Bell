@@ -48,7 +48,7 @@ class EditCommand extends Command {
 
 	async exec(message, args) {
 		if(!args.gymList) return message.reply('No gyms found in query');
-		const gymList = args.gymList.tolLowerCase().split(',');
+		const gymList = args.gymList.toLowerCase().split(',');
 		const allUserGyms = await this.client.userGyms.findAll({ where: { userId: message.author.id } });
 		const updateObj = {};
 
