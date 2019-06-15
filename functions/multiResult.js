@@ -38,7 +38,6 @@ module.exports = {
 			};
 
 			// Begin awaitReaction block
-			const time_diff = (new Date() - react_msg.channel.createdAt) / 1000;
 			let reaction;
 			let gym;
 			try {
@@ -48,7 +47,7 @@ module.exports = {
 				// if there is more than one reaction
 				if(preReacts.size > 1) {
 					console.log(`Got too many answers for ${react_msg.channel.name}, aborting.`);
-					react_msg.channel.send(`There was more than one answer selected, please consider using the \`${prefix}alert\` command after another ${Math.round(minimalTime - time_diff)} seconds with only one answer this time.`);
+					react_msg.channel.send(`There was more than one answer selected, please consider using the \`${prefix}alert\` command with only one answer this time.`);
 					return resolve([0, 0, 0, true]);
 				}
 				else if(preReacts.size == 1) {
@@ -114,7 +113,7 @@ module.exports = {
 			catch(e) {
 				console.error(e);
 				console.log('Got no answer for gym precision, tapping out');
-				react_msg.channel.send(`Did not recieve gym name confirmation, please consider using the \`${prefix}alert\` command after another ${Math.round(minimalTime - time_diff)} seconds.`);
+				react_msg.channel.send(`Did not recieve gym name confirmation, please consider using the \`${prefix}alert\` command.`);
 				resolve([0, 0, 0, true]);
 			}
 
