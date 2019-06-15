@@ -20,6 +20,7 @@ class MapCommand extends Command {
 					optional: true,
 				},
 			],
+			channelRestriction: 'guild',
 		});
 	}
 

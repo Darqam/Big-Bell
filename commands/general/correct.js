@@ -9,6 +9,7 @@ class ChangeCommand extends Command {
 				content: 'Allows to edit which gym is recognized by Victreebel.',
 				usage: '',
 			},
+			channelRestriction: 'guild',
 		});
 	}
 

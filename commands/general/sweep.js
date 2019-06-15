@@ -9,6 +9,7 @@ class SweepCommand extends Command {
 				content: 'Sweeps through existing live raids in database and checks if they are still valid.',
 				usage: '',
 			},
+			channelRestriction: 'guild',
 		});
 	}
 

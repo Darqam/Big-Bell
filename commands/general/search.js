@@ -17,6 +17,7 @@ class SearchCommand extends Command {
 					type: 'lowercase',
 				},
 			],
+			channelRestriction: 'guild',
 		});
 	}
 

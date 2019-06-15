@@ -22,6 +22,7 @@ class AlertCommand extends Command {
 					type: 'lowercase',
 				},
 			],
+			channelRestriction: 'guild',
 		});
 	}
 
