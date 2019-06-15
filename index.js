@@ -120,6 +120,16 @@ client.LiveRaids = sequelize.define('liveRaids', {
 	timeHatch: Sequelize.INTEGER,
 });
 
+client.Memory = sequelize.define('memory', {
+	timestamp: {
+		type: Sequelize.DOUBLE,
+		unique: true,
+	},
+	memory: Sequelize.DOUBLE,
+	botUptime: Sequelize.DOUBLE,
+	processUptime: Sequelize.DOUBLE,
+});
+
 client.myEmojiIds = {
 	'failure': '511174899969032193',
 	'success': '511174612323663874',
