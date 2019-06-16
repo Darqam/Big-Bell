@@ -61,9 +61,8 @@ class SystemCommand extends Command {
 			}
 			yAxisTitle = 'Hours';
 			rangemode = 'tozero';
-			return entry[args.detail] / 360000;
+			return entry[args.detail] / 3600000;
 		});
-		console.log(yAxis);
 
 		// https://github.com/plotly/plotly-nodejs
 		const trace1 = {

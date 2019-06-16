@@ -29,7 +29,7 @@ class ReadyListener extends Listener {
 					timestamp: new Date().getTime(),
 					memory: process.memoryUsage().heapUsed,
 					botUptime: client.uptime,
-					processUptime: process.uptime() * 100,
+					processUptime: process.uptime() * 1000,
 				});
 			}
 			catch(e) {
