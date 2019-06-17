@@ -80,7 +80,6 @@ class AddCommand extends Command {
 					present.push(gym_list[i]);
 					continue;
 				}
-
 				try{
 					await this.client.userGyms.create({
 						userId: message.author.id,
@@ -90,7 +89,7 @@ class AddCommand extends Command {
 						timeStop: parsedArgs.end,
 						disabled: 0, // 1 or 0
 						raidLevels: parsedArgs.levels.join(), // "2,4,5"
-						pokemons: parsedArgs.pokemons.join(),
+						pokemons: args.pokemons ? parsedArgs.pokemons.join() : '',
 					});
 
 					success.push(gym_list[i]);
