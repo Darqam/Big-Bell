@@ -60,6 +60,17 @@ class ChannelCreateListener extends Listener {
 			gym = filterResults[0];
 			channel_gym = gym.gymName.replace(/[^a-zA-Z0-9-\s]+/g, '');
 		}
+		else {
+			const tmp = results.filter(gymMatch => {
+				const temp = channel_gym.split(' ');
+				temp.shift();
+				return gymMatch.gymName.replace(/[-\\]+/g, ' ').replace(/[^a-zA-Z0-9\s]+/g, '') == temp.join(' ');
+			});
+			if(tmp.length == 1) {
+				gym = tmp[0];
+				channel_gym = gym.gymName.replace(/[^a-zA-Z0-9-\s]+/g, '');
+			}
+		}
 
 		if(found) {
 			// Wait a given time to make sure Meowth has time to post
