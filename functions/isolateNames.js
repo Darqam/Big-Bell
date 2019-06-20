@@ -28,7 +28,7 @@ module.exports = {
 			channel_gym = channel_array.slice(1).join(' ');
 		}
 
-		// Case 3, hatched raid egg: hatched-level-X-egg-gym-name-here
+		// Case 3, hatched raid egg: hatched-X-gym-name-here
 		num = parseInt(channel_array[1]);
 		if(!channel_gym && channel_array[0].toLowerCase() == 'hatched' && num && (num >= 1 && num <= 5)) {
 			eggLvl = channel_array[1];
