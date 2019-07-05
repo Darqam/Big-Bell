@@ -10,16 +10,11 @@ module.exports = {
 			else if(gym.exRaidEligibility) ex_out = `Status of this gym with regards to Ex raids: ${gym.exRaidEligibility}`;
 
 			if(ex_out && gym.gymMap) {
-				// Sending without killing embed and extra space after google maps for Meowth to pick up the link
-				await channel.send(`Here is the proper google maps: <${gym.gymMap}>.\nInteractive map: <http://mymeanderingmind.com/pokegoMaps/>.\n${ex_out}`);
-				console.log(`Sent maps for ${gym.gymName}`);
-				// Wait 10 seconds then edit it to not look ugly
-				/*
-				setTimeout(() => {
-					tmpMsg.edit(`🔔\nHere is the proper google maps: <${gym.gymMap}>.\nInteractive map: <http://mymeanderingmind.com/pokegoMaps/>.\n${ex_out}`);
-				}, 10000);
-				*/
+				const gymMap = gym.gymMap.split('/');
+				const coordinates = gymMap[gymMap.length - 1];
 
+				await channel.send(`Here is the proper google maps: <${gym.gymMap}>.\nInteractive map: <http://pogoyxe.xyz?coord=${coordinates}>.\n${ex_out}`);
+				console.log(`Sent maps for ${gym.gymName}`);
 			}
 			else {
 				console.log(`Did not have map and Ex raid info for ${gym.gymName}.`);
