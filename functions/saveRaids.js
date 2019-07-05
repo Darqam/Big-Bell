@@ -13,7 +13,7 @@ module.exports = {
 		});
 		if(liveChannel && !veto) return;
 
-		// eslint-disable-next-line prefer-const
+		// eslint-disable-next-line
 		let [channel_gym, pokemon, eggLevel] = chanName.getChanGym(channel);
 		const channelArr = channel.name.split('-');
 
@@ -21,8 +21,8 @@ module.exports = {
 		let timeHatch = '';
 		/*
 		The channel names will be in one of the following forms
-		1) Level X egg gym name goes here
-		2) Hatched Level X egg gym name goes here
+		1) # gym name goes here
+		2) Hatched # gym name goes here
 		3) pokemonName gym name goes here
 		*/
 		const isHatched = (channelArr[0].toLowerCase() == 'hatched') ? true : false;
