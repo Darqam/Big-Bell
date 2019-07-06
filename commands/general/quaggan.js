@@ -7,7 +7,7 @@ class QuagganCommand extends Command {
 			aliases: ['quaggan', 'coo'],
 			category: 'general',
 			description: {
-				content: 'Provides round trip and heartbeat quaggan.',
+				content: 'Coo!',
 				usage: '',
 			},
 		});
