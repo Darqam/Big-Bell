@@ -39,7 +39,12 @@ class DisableCommand extends Command {
 
 		if(gymList[0] === 'all') {
 			try {
-				await this.client.userGyms.Destroy({ where: { userId: message.author.id } });
+				await this.client.userGyms.update(
+					{ disabled: 1 },
+					{ where : {
+						userId: message.author.id,
+					} }
+				);
 				return message.channel.send(`Succesfully disabled your gym list of ${allGyms.length}.`);
 			}
 			catch(e) {
