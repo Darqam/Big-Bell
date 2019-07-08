@@ -1,9 +1,9 @@
 const { Command } = require('discord-akairo');
 const prodOut = require('../../functions/prodOut.js');
 
-class ChangeCommand extends Command {
+class CorrectCommand extends Command {
 	constructor() {
-		super('change', {
+		super('correct', {
 			aliases: ['correct', 'fix'],
 			category: 'general',
 			description: {
@@ -39,6 +39,7 @@ class ChangeCommand extends Command {
 		});
 		if(!gym) return message.channel.send(`Could not find a gym by the name of ${args.gym}.`);
 
+		// Use the built in output production
 		const fi_r = await prodOut.produceOut(gym, message.channel, gym.gymName, message.author.id);
 		const final_return = fi_r[0];
 		message.channel.send(final_return, { split: { maxLength: 1900, char: ',' } });
@@ -62,4 +63,4 @@ class ChangeCommand extends Command {
 	}
 }
 
-module.exports = ChangeCommand;
+module.exports = CorrectCommand;
