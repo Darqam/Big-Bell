@@ -1,4 +1,5 @@
 const { Command } = require('discord-akairo');
+const prodOut = require('../../functions/prodOut.js');
 
 class ChangeCommand extends Command {
 	constructor() {
@@ -38,11 +39,26 @@ class ChangeCommand extends Command {
 		});
 		if(!gym) return message.channel.send(`Could not find a gym by the name of ${args.gym}.`);
 
-		// Now we have a valid gym name, and gym object.
-		// We need to fix liveRaids
-		// We should probably edit stats
-		// We need to fetch user list to ping.
-		// Need to output maps + info for the right gym
+		const fi_r = await prodOut.produceOut(gym, message.channel, gym.gymName, message.author.id);
+		const final_return = fi_r[0];
+		message.channel.send(final_return, { split: { maxLength: 1900, char: ',' } });
+
+		// Now we update LiveRaids
+		const gymMap = gym.gymMap.split('/');
+		const coordinates = gymMap[gymMap.length - 1];
+		try{
+			await this.client.LiveRaids.update({
+				name: gym.gymName,
+				coordinates: coordinates,
+			}, {
+				where: {
+					channelId: message.channel.id,
+				},
+			});
+		}
+		catch(e) {
+			console.log(`Could not updae liveRaids for ${gym.gymName}, ${message.channel}`);
+		}
 	}
 }
 
