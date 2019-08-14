@@ -39,7 +39,7 @@ class RemoveCommand extends Command {
 
 		if(gymList[0] === 'all') {
 			try {
-				await this.client.userGyms.Destroy({ where: { userId: message.author.id } });
+				await this.client.userGyms.destroy({ where: { userId: message.author.id } });
 				return message.channel.send(`Succesfully removed you from ${allGyms.length}.`);
 			}
 			catch(e) {
@@ -52,10 +52,10 @@ class RemoveCommand extends Command {
 		// Go through the specified gym list and remove the associated ones.
 		for(let i = 0; i < allGyms.length; i++) {
 			try {
-				await this.client.userGyms.Destroy({
+				await this.client.userGyms.destroy({
 					where: {
 						userId: message.author.id,
-						gymName: allGyms[i],
+						gymName: allGyms[i].gymName,
 					},
 				});
 				success.push(gymList[i]);
