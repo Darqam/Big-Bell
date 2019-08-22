@@ -1,4 +1,5 @@
 const { Listener } = require('discord-akairo');
+const { Permissions } = require('discord.js');
 
 const chanName = require('../functions/isolateNames.js');
 const chanList = require('../functions/findGyms.js');
@@ -22,6 +23,8 @@ class ChannelCreateListener extends Listener {
 	async exec(channel) {
 
 		if(!channel.guild || channel.type != 'text') return;
+		const perm = new Permissions(channel.permissionsFor(channel.guild.me));
+		if(!perm.has('VIEW_CHANNEL')) return console.log(`Channel ${channel.name} created in ${channel.guild.name} without view channel perms, aborting.`);
 
 
 		let results = [];
