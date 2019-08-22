@@ -3,7 +3,7 @@ const GoogleSpreadsheet = require('google-spreadsheet');
 const util = require('util');
 const creds = require('../../saskPokemonGym-5a6d9b796bde.json');
 
-class StatsCommand extends Command {
+class PopulateCommand extends Command {
 	constructor() {
 		super('populate', {
 			aliases: ['populate'],
@@ -256,4 +256,4 @@ class StatsCommand extends Command {
 	}
 }
 
-module.exports = StatsCommand;
+module.exports = PopulateCommand;
