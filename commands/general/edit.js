@@ -67,7 +67,7 @@ class EditCommand extends Command {
 		if(parsedArgs.start) updateObj.timeStart = parsedArgs.start;
 		if(parsedArgs.end) updateObj.timeStop = parsedArgs.end;
 
-		if(args.level) updateObj.raidLevels = parsedArgs.levels.join();
+		if(args.levels) updateObj.raidLevels = parsedArgs.levels.join();
 		if(args.pokemons) updateObj.pokemons = parsedArgs.pokemons.join();
 
 		for(let i = 0; i < gymList.length; i++) {
