@@ -113,6 +113,8 @@ module.exports = {
 				if(!channelInfo[2] && channelInfo[1]) {
 					let valid = false;
 					const userMons = uGym.pokemons.split(',').map(p => p.toLowerCase());
+					// If the user has no pokemon list, then the raid is valid.
+					if(userMons[0] == '') valid = true;
 
 					// Loop over raidMons to see what level we have
 					for(const [key, value] of Object.entries(raidMons)) {
