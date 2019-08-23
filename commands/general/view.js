@@ -6,20 +6,20 @@ class ViewCommand extends Command {
 			aliases: ['view', 'v', 'list', 'details'],
 			category: 'general',
 			description: {
-				content: 'Displays which gyms the author is monitoring. Use the `--details` flag time and enabled status, the `--all` to view all info',
-				usage: '<--details>',
-				examples:['list', 'list --details', 'list --all'],
+				content: 'Displays which gyms the author is monitoring. Use the `-details` flag time and enabled status, the `-all` to view all info',
+				usage: '<-details> <--all>',
+				examples:['list', 'list -details', 'list -all'],
 			},
 			args: [
 				{
 					id: 'details',
 					match: 'flag',
-					flag: '--details',
+					flag: '-details',
 				},
 				{
 					id: 'all',
 					match: 'flag',
-					flag: '--all',
+					flag: '-all',
 				},
 			],
 		});
