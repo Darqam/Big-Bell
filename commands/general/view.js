@@ -8,7 +8,7 @@ class ViewCommand extends Command {
 			description: {
 				content: 'Displays which gyms the author is monitoring. Use the `-details` flag time and enabled status, the `-all` to view all info',
 				usage: '<-details> <--all>',
-				examples:['list', 'list -details', 'list -all'],
+				examples:['', '-details', '-all'],
 			},
 			args: [
 				{
