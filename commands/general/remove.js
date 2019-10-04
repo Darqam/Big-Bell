@@ -51,6 +51,7 @@ class RemoveCommand extends Command {
 
 		// Go through the specified gym list and remove the associated ones.
 		for(let i = 0; i < allGyms.length; i++) {
+			if(!gymList.includes(allGyms[i].gymName.toLowerCase())) continue;
 			try {
 				await this.client.userGyms.destroy({
 					where: {
@@ -58,7 +59,7 @@ class RemoveCommand extends Command {
 						gymName: allGyms[i].gymName,
 					},
 				});
-				success.push(gymList[i]);
+				success.push(allGyms[i].gymName.toLowerCase());
 			}
 			catch(e) {
 				console.log(`Error removing ${gymList[i]} for ${message.author.tag}`, e);
