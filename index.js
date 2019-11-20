@@ -120,6 +120,23 @@ client.LiveRaids = sequelize.define('liveRaids', {
 	timeHatch: Sequelize.INTEGER,
 });
 
+client.pokestops = sequelize.define('pokestops', {
+	stopName: Sequelize.TEXT,
+	guildId: Sequelize.TEXT,
+	coordinates: Sequelize.TEXT,
+	stopMap: Sequelize.TEXT,
+	stopDirections: Sequelize.TEXT,
+});
+
+client.rocketLeaders = sequelize.define('rocketLeaders', {
+	guildId: Sequelize.TEXT,
+	messageURL: Sequelize.STRING,
+	stopId: Sequelize.TEXT,
+	leaderName: Sequelize.TEXT,
+	leaderLineup: Sequelize.TEXT,
+	spawnDate: Sequelize.STRING,
+});
+
 client.Memory = sequelize.define('memory', {
 	timestamp: {
 		type: Sequelize.DOUBLE,

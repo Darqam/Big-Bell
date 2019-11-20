@@ -18,9 +18,11 @@ class ReadyListener extends Listener {
 		client.Announcements.sync();
 		client.Stats.sync();
 		client.LiveRaids.sync();
+		client.pokestops.sync();
+		client.rocketLeaders.sync();
 		client.Memory.sync();
 
-		client.user.setActivity('with bellends', { type: 'PLAYING' });
+		client.user.setActivity('with Samerz\'s head', { type: 'PLAYING' });
 		console.log('I\'m ready!');
 
 		setInterval(async () => {
