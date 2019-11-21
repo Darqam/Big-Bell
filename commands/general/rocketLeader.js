@@ -72,8 +72,10 @@ class DisableCommand extends Command {
 				guildId: message.guild.id,
 				messageURL: message.url,
 				stopId: stopObj.id,
+				stopCoordinates: stopObj.coordinates,
+				stopName: stopObj.stopName,
 				leaderName: leaderInfo[0].trim(),
-				leaderLineup: leaderInfo[2],
+				leaderLineup: leaderInfo[2].trim(),
 				spawnDate: date.toString(),
 			});
 			if(defaulted) return message.channel.send(`Rocket leader encounter added to database!\n**Please Note**: An exact pokestop name could not be matched, a close match was found with \`${stopName}\`. The encounter was slotted on this stop instead.`);

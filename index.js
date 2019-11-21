@@ -132,6 +132,8 @@ client.rocketLeaders = sequelize.define('rocketLeaders', {
 	guildId: Sequelize.TEXT,
 	messageURL: Sequelize.STRING,
 	stopId: Sequelize.TEXT,
+	stopCoordinates: Sequelize.TEXT,
+	stopName: Sequelize.TEXT,
 	leaderName: Sequelize.TEXT,
 	leaderLineup: Sequelize.TEXT,
 	spawnDate: Sequelize.STRING,
