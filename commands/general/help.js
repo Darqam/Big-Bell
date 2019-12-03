@@ -23,10 +23,22 @@ class HelpCommand extends Command {
 		});
 	}
 
-	exec(message, { command }) {
+	async exec(message, { command }) {
 		if (!command) return this.execCommandList(message);
 
-		const prefix = this.client.commandHandler.prefix;
+		let prefix;
+		if(!message.guild) {
+			prefix = 'bb!';
+		}
+		else {
+			const guildConfigs = await message.client.Guilds.findOne({
+				where: {
+					guildId: message.guild.id,
+				},
+			});
+			prefix = guildConfigs ? guildConfigs.prefixes.split(',')[0] : 'bb!';
+		}
+
 		const description = Object.assign({
 			content: 'No description available.',
 			usage: '',
@@ -54,7 +66,19 @@ class HelpCommand extends Command {
 	}
 
 	async execCommandList(message) {
-		const prefix = this.client.commandHandler.prefix;
+		let prefix;
+		if(!message.guild) {
+			prefix = 'bb!';
+		}
+		else {
+			const guildConfigs = await message.client.Guilds.findOne({
+				where: {
+					guildId: message.guild.id,
+				},
+			});
+			prefix = guildConfigs ? guildConfigs.prefixes.split(',')[0] : 'bb!';
+		}
+
 		const embed = new MessageEmbed()
 			.setColor(0xFFAC33)
 			.addField('Command List',

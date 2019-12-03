@@ -3,7 +3,7 @@ const { Command } = require('discord-akairo');
 class DeleteCommand extends Command {
 	constructor() {
 		super('delete', {
-			aliases: ['delete', 'del', 'd'],
+			aliases: ['delete', 'del'],
 			category: 'mod',
 			description: {
 				content: 'Deletes the given gyms from the database.',
@@ -37,7 +37,7 @@ class DeleteCommand extends Command {
 
 		const filter = m => m.author.id == message.author.id;
 
-		await message.channel.send('Are you certain you wish to delete all these gyms?This action **cannot** be reversed? Type `y` or `yes` to delete.');
+		await message.channel.send('Are you certain you wish to delete all these gyms? This action **cannot** be reversed. Type `y` or `yes` to delete.');
 
 		message.channel.awaitMessages(filter, { max: 1, time: 20000, errors: ['time'] })
 			.then(async collected => {
@@ -47,10 +47,18 @@ class DeleteCommand extends Command {
 						gym_list[i] = gym_list[i].trim();
 
 						const rowCount = await message.client.Gyms.destroy({ where:
-							{ GymName: gym_list[i] },
+							{ gymName: gym_list[i] },
 						});
-						if(!rowCount) notExists.push(gym_list[i]);
-						else success.push(gym_list[i]);
+						if(!rowCount) {
+							notExists.push(gym_list[i]);
+						}
+						else {
+							// Now we also remove this gym from the pinging list of userGyms
+							await message.client.userGyms.destroy({ where:
+								{ gymName: gym_list[i] },
+							});
+							success.push(gym_list[i]);
+						}
 					}
 					let output = '';
 					if(success.length > 0) {

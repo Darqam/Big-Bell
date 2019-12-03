@@ -20,15 +20,16 @@ class MapCommand extends Command {
 					optional: true,
 				},
 			],
+			channelRestriction: 'guild',
 		});
 	}
 
 	async exec(message, args) {
-		const gym_name = args.gym_name ? args.gym_name.trim() : chanName.getChanGym(message.channel);
+		const gym_name = args.gym_name ? args.gym_name.trim() : chanName.getChanGym(message.channel)[0];
 
 		const gym = await this.client.Gyms.findOne({
 			where: {
-				GymName: gym_name,
+				gymName: gym_name,
 			},
 		});
 		if(gym) {

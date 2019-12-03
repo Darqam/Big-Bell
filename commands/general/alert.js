@@ -22,16 +22,14 @@ class AlertCommand extends Command {
 					type: 'lowercase',
 				},
 			],
+			channelRestriction: 'guild',
 		});
 	}
 
 	async exec(message, args) {
-		// Time in seconds
-		const minimalTime = 120;
 		// - Can only be called in raid-looking channels
-		// - check creation timestamp to make sure people aren't jumping the gun
 		// - fetch messages to make sure ping hasn't happened before.
-		let channel_gym = args.gym ? args.gym : chanName.getChanGym(message.channel);
+		let channel_gym = args.gym ? args.gym : chanName.getChanGym(message.channel)[0];
 		if(!channel_gym) return console.log('Not in a proper channel.');
 
 		// Check in db if an announcement for this channel was made
@@ -40,17 +38,13 @@ class AlertCommand extends Command {
 				channelId: message.channel.id,
 			},
 		});
-		if(is_ann) {
-			await message.react(message.client.myEmojiIds.failure);
-			return console.log('Not pinging, ping for this already happened.');
-		}
 
-		// Time difference in seconds
-		const time_diff = (new Date() - message.channel.createdAt) / 1000;
-
-		if(time_diff < minimalTime) {
-			await message.react('⏲');
-			return console.log('Elapsed time was not long enough.');
+		// Impose restrictions on non-mods
+		if(!message.member.permissions.has('MANAGE_GUILD') || message.author.id !== '129714945238630400') {
+			if(is_ann) {
+				await message.react(message.client.myEmojiIds.failure);
+				return console.log('Not pinging, ping for this already happened.');
+			}
 		}
 
 		// Now we deal with the logic
@@ -60,26 +54,24 @@ class AlertCommand extends Command {
 
 		let gym = await this.client.Gyms.findOne({
 			where: {
-				GymName: channel_gym,
+				gymName: channel_gym,
 			},
 		});
 		if(!gym) {
 			const func_return = await chanList.getGymNames(this.client, channel_gym);
 			results = func_return[0];
 			found = func_return[1];
-			gym = func_return[2];
-			channel_gym = func_return[3];
 		}
 		else {
 			found = true;
 		}
 		// results is an array of gym objects, let loop through those to see if any "discord sanitized" channel name is found first.
 		const filterResults = results.filter(gymMatch => {
-			return gymMatch.GymName.replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
+			return gymMatch.gymName.replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
 		});
 		if(filterResults.length == 1) {
 			gym = filterResults[0];
-			channel_gym = gym.GymName.replace(/[^a-zA-Z0-9\s]+/g, '');
+			channel_gym = gym.gymName.replace(/[^a-zA-Z0-9\s]+/g, '');
 			selection_done = true;
 		}
 
@@ -100,7 +92,7 @@ class AlertCommand extends Command {
 			channel_gym = fi_r[1];
 			const disabled = fi_r[2];
 
-			if(!disabled) {
+			if(!disabled || (message.member.permissions.has('MANAGE_GUILD') || message.author.id === '129714945238630400')) {
 				message.channel.send(final_return, { split: { maxLength: 1900, char: ',' } });
 				saveRaids.saveLiveRaids(message.channel, channel_gym, gym, true);
 			}

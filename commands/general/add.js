@@ -1,5 +1,6 @@
 const { Command } = require('discord-akairo');
 const chanList = require('../../functions/findGyms.js');
+const sanitize = require('../../functions/sanitize.js');
 
 class AddCommand extends Command {
 	constructor() {
@@ -7,13 +8,38 @@ class AddCommand extends Command {
 			aliases: ['add', 'a', 'want'],
 			category: 'general',
 			description: {
-				content: 'Adds user to a list of gyms.',
-				usage: 'Gym Name 1, Gym Name 2, ...',
+				content: 'Adds user to a list of gyms. All configurations are optional, but will apply to the entire given list. Time is in 24H format! Time will default to all times if nothing is provided.',
+				usage: 'Gym Name 1, Gym Name 2, ... <start:##:##> <end:##:##> <levels:#,#,#,...> <pokemons:name1,name2,...>',
+				examples: ['add awesome park, super park start:9:00 end:21:00 levels:2,4,5 pokemons:cresselia,breloom', 'add Awesome Park, sucky park, ex raid magnet'],
 			},
 			args: [
 				{
+					id: 'start',
+					match: 'option',
+					flag: 'start:',
+					default: '00:00',
+				},
+				{
+					id: 'end',
+					match: 'option',
+					flag: 'end:',
+					default: '23:59',
+				},
+				{
+					id: 'levels',
+					match: 'option',
+					flag: 'levels:',
+					default: '1,2,3,4,5',
+				},
+				{
+					id: 'pokemons',
+					match: 'option',
+					flag: 'pokemons:',
+					default: '',
+				},
+				{
 					id: 'gym_list',
-					match: 'content',
+					match: 'rest',
 					type: 'lowercase',
 				},
 			],
@@ -30,36 +56,47 @@ class AddCommand extends Command {
 		const alternatives = [];
 		const present = [];
 
+		const [sanitized, errorM, parsedArgs] = sanitize.sanitizeArgs(args);
+		if(sanitized == 1) return message.channel.send(errorM);
+
+		// At this point, inputs should be good
 		for(let i = 0; i < gym_list.length; i++) {
 			gym_list[i] = gym_list[i].trim();
 			const gym = await this.client.Gyms.findOne({
 				where: {
-					GymName: gym_list[i],
+					guildId: message.guild.id,
+					gymName: gym_list[i],
 				},
 			});
 			if(gym) {
-				const user_list = gym.userIds ? gym.userIds.split(',') : [];
-
-				if(user_list.includes(message.author.id)) {
-					// If the user is already in this list, just continue
+				const userGym = await this.client.userGyms.findOne({
+					where: {
+						gymName: gym_list[i],
+						userId: message.author.id,
+					},
+				});
+				if(userGym) {
+					// If the user already monitors this gym, continue
 					present.push(gym_list[i]);
 					continue;
 				}
+				try{
+					await this.client.userGyms.create({
+						userId: message.author.id,
+						gymId: gym.id,
+						gymName: gym.gymName,
+						timeStart: parsedArgs.start,
+						timeStop: parsedArgs.end,
+						disabled: 0, // 1 or 0
+						raidLevels: parsedArgs.levels.join(), // "2,4,5"
+						pokemons: args.pokemons ? parsedArgs.pokemons.join() : '',
+					});
 
-				user_list.push(message.author.id);
-
-				const affectedRows = await this.client.Gyms.update(
-					{ userIds: user_list.join(',') },
-					{ where : { GymName: gym_list[i] } },
-				);
-
-				if(affectedRows > 0) {
-					// If we managed to save the entry
 					success.push(gym_list[i]);
 				}
-				else {
-					// If there was a failure for some reason
+				catch(e) {
 					errors.push(gym_list[i]);
+					console.log(e);
 				}
 			}
 			else {
@@ -79,7 +116,7 @@ class AddCommand extends Command {
 		if(noName.length > 0) {
 			const tmpOut = [];
 			for(let i = 0; i < noName.length; i++) {
-				tmpOut.push(noName[i] + ' --> ' + alternatives[i].map(a => a.GymName).join(', '));
+				tmpOut.push(noName[i] + ' --> ' + alternatives[i].map(a => a.gymName).join(', '));
 			}
 			output += `Could not find the following gyms, check the spelling or it may be one of the following: \n\`\`\`\n${tmpOut.join('\n')}\`\`\`\n`;
 			await message.react('❓');

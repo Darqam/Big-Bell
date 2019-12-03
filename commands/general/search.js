@@ -17,6 +17,7 @@ class SearchCommand extends Command {
 					type: 'lowercase',
 				},
 			],
+			channelRestriction: 'guild',
 		});
 	}
 
@@ -28,7 +29,7 @@ class SearchCommand extends Command {
 		for(let i = 0; i < gym_list.length; i++) {
 			gym_list[i] = gym_list[i].trim();
 			const func_return = await chanList.getGymNames(this.client, gym_list[i]);
-			if(func_return[0]) output.push(gym_list[i] + '-->' + func_return[0].map(n => ' ' + n.GymName).slice(0, 5));
+			if(func_return[0]) output.push(gym_list[i] + '-->' + func_return[0].map(n => ' ' + n.gymName).slice(0, 5));
 			else output.push(gym_list[i] + '-->' + 'No similar gyms found to that name.');
 		}
 		message.channel.send(`The search returned the following: \n\n\`\`\`\n${output.join('\n\n')}\n\`\`\`\n`);

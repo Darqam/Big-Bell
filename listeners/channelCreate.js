@@ -1,4 +1,5 @@
 const { Listener } = require('discord-akairo');
+const { Permissions } = require('discord.js');
 
 const chanName = require('../functions/isolateNames.js');
 const chanList = require('../functions/findGyms.js');
@@ -7,6 +8,9 @@ const prodOut = require('../functions/prodOut.js');
 const stats = require('../functions/writeStats.js');
 const saveRaids = require('../functions/saveRaids.js');
 
+function waitUp(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 class ChannelCreateListener extends Listener {
 	constructor() {
@@ -18,28 +22,17 @@ class ChannelCreateListener extends Listener {
 
 	async exec(channel) {
 
-		if(!channel.guild) return;
+		if(!channel.guild || channel.type != 'text') return;
+		const perm = new Permissions(channel.permissionsFor(channel.guild.me));
+		if(!perm.has('VIEW_CHANNEL')) return console.log(`Channel ${channel.name} created in ${channel.guild.name} without view channel perms, aborting.`);
 
-		// hard code ignore other guilds
-		if(channel.guild.id !== '338745842028511235') return;
-		// Figure out which channel to send this to
-
-		/* let send_chan = await this.client.Config.findOne({
-			where: { guildId: channel.guild.id },
-		});
-		// If there is nothing configured for this guild, do nothing
-		if(!send_chan) return console.log('No configs set, returning.');
-		else send_chan = this.client.channels.get(send_chan.announcementChan); */
-
-		// Choice was made to make it send to raid channel instead, so here is bypass.
-		const send_chan = channel;
 
 		let results = [];
 		const delay = 5 * 1000;
 		let found = false;
-		let selection_done = false;
 
-		let channel_gym = chanName.getChanGym(channel);
+		// eslint-disable-next-line prefer-const
+		let [channel_gym, pokemon] = chanName.getChanGym(channel);
 		console.log(`New channel created with the name ${channel.name}`);
 
 		if(!channel_gym) {
@@ -50,65 +43,77 @@ class ChannelCreateListener extends Listener {
 		// From here on, we *should* only have the gym name
 		let gym = await this.client.Gyms.findOne({
 			where: {
-				GymName: channel_gym,
+				guildId: channel.guild.id,
+				gymName: channel_gym,
 			},
 		});
 		if(!gym) {
 			const func_return = await chanList.getGymNames(this.client, channel_gym);
 			results = func_return[0];
 			found = func_return[1];
-			gym = func_return[2];
-			channel_gym = func_return[3];
 		}
 		else {
 			found = true;
 		}
 		// results is an array of gym objects, let loop through those to see if any "discord sanitized" channel name is found first.
 		const filterResults = results.filter(gymMatch => {
-			return gymMatch.GymName.replace(/[-]+/g, ' ').replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
+			return gymMatch.gymName.replace(/[-]+/g, ' ').replace(/[^a-zA-Z0-9\s]+/g, '') == channel_gym;
 		});
 		if(filterResults.length == 1) {
 			gym = filterResults[0];
-			channel_gym = gym.GymName.replace(/[^a-zA-Z0-9-\s]+/g, '');
-			selection_done = true;
+			channel_gym = gym.gymName.replace(/[^a-zA-Z0-9-\s]+/g, '');
+		}
+		else {
+			const tmp = results.filter(gymMatch => {
+				const temp = channel_gym.split(' ');
+				temp.shift();
+				return gymMatch.gymName.replace(/[-\\]+/g, ' ').replace(/[^a-zA-Z0-9\s]+/g, '') == temp.join(' ');
+			});
+			if(tmp.length == 1) {
+				gym = tmp[0];
+				channel_gym = gym.gymName.replace(/[^a-zA-Z0-9-\s]+/g, '');
+			}
 		}
 
 		if(found) {
-			setTimeout(async () => {
-				// This is run X seconds after channel create to give meowth time to post
-				const messages = await channel.messages.fetch();
-				const first = messages.last();
+			// Wait a given time to make sure Meowth has time to post
+			await waitUp(delay);
 
-				let author_id = '';
-				let author_mention = '';
-				if(first && first.mentions.users.first()) {
-					author_id = first.mentions.users.first().id;
-					author_mention = ` <@${author_id}> `;
-				}
+			// The below runs only after the delay
+			const messages = await channel.messages.fetch();
+			const first = messages.last();
 
-				if(results.length > 1 && !gym) {
-					const f_r = await multiResult.doQuery(author_mention, results, gym, channel_gym, send_chan);
+			// If there is still no first message, wait the delayed amount again
+			if(!first || !first.author.bot) await waitUp(delay);
 
-					// f_r[3] is basically an abort boolean
-					if(f_r[3] == true) return undefined;
+			let author_id = '';
+			let author_mention = '';
+			if(first && first.mentions.users.first()) {
+				author_id = first.mentions.users.first().id;
+				author_mention = ` <@${author_id}> `;
+			}
 
-					results = f_r[0];
-					gym = f_r[1];
-					channel_gym = f_r[2];
-					selection_done = true;
-				}
-				// At this point channel_gym will be the 'valid' gym name
+			if(results.length > 1 && !gym) {
+				const f_r = await multiResult.doQuery(author_mention, results, channel_gym, channel);
 
-				// This doesn't need to resolve before the rest can go, so no await
-				stats.writeStats(this.client, channel_gym);
-				saveRaids.saveLiveRaids(channel, channel_gym, gym);
+				// f_r[3] is basically an abort boolean
+				if(f_r[3] == true) return undefined;
 
-				const fi_r = await prodOut.produceOut(gym, channel, channel_gym, selection_done, author_id, send_chan);
-				const final_return = fi_r[0];
-				channel_gym = fi_r[1];
+				results = f_r[0];
+				gym = f_r[1];
+				channel_gym = f_r[2];
+			}
+			// At this point channel_gym will be the 'valid' gym name
 
-				return send_chan.send(final_return, { split: { maxLength: 1900, char: ',' } });
-			}, delay);
+			// This doesn't need to resolve before the rest can go, so no await
+			stats.writeStats(this.client, channel_gym, channel.guild.id, pokemon);
+			saveRaids.saveLiveRaids(channel, channel_gym, gym);
+
+			const fi_r = await prodOut.produceOut(gym, channel, channel_gym, author_id);
+			const final_return = fi_r[0];
+			channel_gym = fi_r[1];
+
+			return channel.send(final_return, { split: { maxLength: 1900, char: ',' } });
 		}
 		else {
 			console.log(`Found nothing for ${channel_gym}.`);

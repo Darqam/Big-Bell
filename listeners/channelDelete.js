@@ -1,4 +1,5 @@
 const { Listener } = require('discord-akairo');
+const { Permissions } = require('discord.js');
 
 async function deleteLiveRaid(channel) {
 	if(channel.guild.id !== '338745842028511235') return;
@@ -29,8 +30,9 @@ class ChannelDeleteListener extends Listener {
 	}
 
 	async exec(channel) {
+		const perm = new Permissions(channel.permissionsFor(channel.guild.me));
+		if(!perm.has('VIEW_CHANNEL')) return;
 		deleteLiveRaid(channel);
-		if(channel.guild.id !== '338745842028511235') return;
 		const channelConfig = await channel.client.Announcements.findOne({
 			where: {
 				channelId: channel.id,

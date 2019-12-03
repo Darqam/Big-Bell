@@ -9,16 +9,35 @@ class ReadyListener extends Listener {
 		});
 	}
 
-	exec() {
+	async exec() {
 		// this.client.Gyms.sync({ force:true });
-		this.client.Gyms.sync();
-		this.client.Config.sync();
-		this.client.Announcements.sync();
-		this.client.Stats.sync();
-		this.client.LiveRaids.sync();
+		const client = this.client;
+		client.Gyms.sync();
+		client.Guilds.sync();
+		client.userGyms.sync();
+		client.Announcements.sync();
+		client.Stats.sync();
+		client.LiveRaids.sync();
+		client.pokestops.sync();
+		client.rocketLeaders.sync();
+		client.Memory.sync();
 
-		this.client.user.setActivity('with bellends', { type: 'PLAYING' });
+		client.user.setActivity('with Samerz\'s head', { type: 'PLAYING' });
 		console.log('I\'m ready!');
+
+		setInterval(async () => {
+			try{
+				await client.Memory.create({
+					timestamp: new Date().getTime(),
+					memory: process.memoryUsage().heapUsed,
+					botUptime: client.uptime,
+					processUptime: process.uptime() * 1000,
+				});
+			}
+			catch(e) {
+				console.log(e);
+			}
+		}, 900000);
 	}
 }
 

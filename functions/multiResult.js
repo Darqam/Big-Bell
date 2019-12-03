@@ -2,18 +2,23 @@ const emojiCharacters = require('../data/emojiCharacters.js');
 const list_max = 5;
 
 module.exports = {
-	doQuery: async function(author_mention, results, gym, channel_gym, send_chan) {
+	doQuery: async function(author_mention, results, channel_gym, send_chan) {
 		return new Promise(async (resolve) => {
 
 			const minimalTime = 120;
-			const prefix = send_chan.client.commandHandler.prefix;
+			const guildConfigs = await send_chan.client.Guilds.findOne({
+				where: {
+					guildId: send_chan.guild.id,
+				},
+			});
+			const prefix = guildConfigs.prefixes.split(',')[0];
 
 			// Print out message asking for gym name verification
 			// Loop over the given `results` array which contains all gym objects
 			let react_out = `Hey ${author_mention.trim()}, I found a few options, could anyone please specify which gym is correct so I can alert those who are watching for this gym? Choose ${send_chan.client.emojis.get(send_chan.client.myEmojiIds.failure)} if the correct gym was not listed.\n`;
 			for(let i = 0; i < list_max; i++) {
 				if(i == results.length) break;
-				react_out += `${i} - ${results[i].GymName}\n`;
+				react_out += `${i} - ${results[i].gymName}\n`;
 			}
 
 			// Send the message, and loop over the proper emojis to react with
@@ -33,8 +38,8 @@ module.exports = {
 			};
 
 			// Begin awaitReaction block
-			const time_diff = (new Date() - react_msg.channel.createdAt) / 1000;
 			let reaction;
+			let gym;
 			try {
 				// If a user reacted quickly reaction might already be done,
 				// so first check existig reactions
@@ -42,7 +47,7 @@ module.exports = {
 				// if there is more than one reaction
 				if(preReacts.size > 1) {
 					console.log(`Got too many answers for ${react_msg.channel.name}, aborting.`);
-					react_msg.channel.send(`There was more than one answer selected, please consider using the \`${prefix}alert\` command after another ${Math.round(minimalTime - time_diff)} seconds with only one answer this time.`);
+					react_msg.channel.send(`There was more than one answer selected, please consider using the \`${prefix}alert\` command with only one answer this time.`);
 					return resolve([0, 0, 0, true]);
 				}
 				else if(preReacts.size == 1) {
@@ -68,11 +73,11 @@ module.exports = {
 						// Attempt to fetch the gym object from database via the given name
 						const gym_return = await react_msg.client.Gyms.findOne({
 							where: {
-								GymName: new_gym,
+								gymName: new_gym,
 							},
 						});
 						if(gym_return) {
-							const return_array = [results, gym_return, gym_return.GymName];
+							const return_array = [results, gym_return, gym_return.gymName];
 							resolve(return_array);
 						}
 						else {
@@ -95,20 +100,20 @@ module.exports = {
 				for(const key in emojiCharacters) {
 					if(emojiCharacters.hasOwnProperty(key) && emojiCharacters[key] == reaction.emoji.name) {
 						gym = results[key];
-						channel_gym = gym.GymName;
+						channel_gym = gym.gymName;
 					}
 				}
 				// This if should never trigger, but it's there just in case
 				// Forces gym to default to the best option returned by fuzzySearch
 				if(!gym) {
 					gym = results[0];
-					channel_gym = gym.GymName;
+					channel_gym = gym.gymName;
 				}
 			}
 			catch(e) {
 				console.error(e);
 				console.log('Got no answer for gym precision, tapping out');
-				react_msg.channel.send(`Did not recieve gym name confirmation, please consider using the \`${prefix}alert\` command after another ${Math.round(minimalTime - time_diff)} seconds.`);
+				react_msg.channel.send(`Did not recieve gym name confirmation, please consider using the \`${prefix}alert\` command.`);
 				resolve([0, 0, 0, true]);
 			}
 

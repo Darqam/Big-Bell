@@ -1,4 +1,5 @@
 const { Listener } = require('discord-akairo');
+const { Permissions } = require('discord.js');
 
 let pokemons = require('../data/pokemons.json');
 
@@ -12,6 +13,8 @@ class ChannelUpdateListener extends Listener {
 
 	async exec(oldChannel, newChannel) {
 		if(newChannel.guild.id !== '338745842028511235') return;
+		const perm = new Permissions(newChannel.permissionsFor(newChannel.guild.me));
+		if(!perm.has('VIEW_CHANNEL')) return;
 		const liveChannel = await oldChannel.client.LiveRaids.findOne({
 			where: {
 				channelId: oldChannel.id,
