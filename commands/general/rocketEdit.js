@@ -1,13 +1,13 @@
 const { Command } = require('discord-akairo');
 const stringSimilarity = require('string-similarity');
 
-class RocketLeaderCommand extends Command {
+class RocketEditCommand extends Command {
 	constructor() {
-		super('rocketLeader', {
-			aliases: ['rocket', 'leader', 'rl'],
+		super('rocketEdit', {
+			aliases: ['rocketedit', 'redit', 're'],
 			category: 'general',
 			description: {
-				content: 'Adds an entry for a rocket leader battle.',
+				content: 'Edits an entry for a rocket encounter.',
 				usage: 'leader name; Pokestop name; pokemon 1, pokemon 2, pokemon 3',
 				examples: ['North Park; Cliff; Meowth, Snorlax, Tyranitar', 'North Park; Cliff'],
 			},
@@ -22,7 +22,7 @@ class RocketLeaderCommand extends Command {
 
 	async exec(message, args) {
 		if(!args.leaderInfo) return message.reply('No stops found in query');
-		const leaderNames = ['giovanni', 'cliff', 'sierra', 'arlo', 'unknown', 'decoy'];
+		const leaderNames = ['giovanni?', 'giovanni', 'cliff', 'sierra', 'arlo', 'unknown', 'decoy'];
 		const leaderInfo = args.leaderInfo.trim().split(';');
 
 		// Here we check leader name info
@@ -32,7 +32,7 @@ class RocketLeaderCommand extends Command {
 		// Now we check pokestop name
 		if(!leaderInfo[1] || !leaderInfo[1].trim()) return message.channel.send('Missing pokestop name');
 
-		const stopList = await message.client.pokestops.findAll();
+		const stopList = await message.client.rocketLeaders.findAll();
 		const ARBITRARY_LIMIT = 5;
 		let stopName = '';
 		const topStops = [];
@@ -43,7 +43,8 @@ class RocketLeaderCommand extends Command {
 
 		const sorted_lowercase_names_list = stringSimilarity.findBestMatch(leaderInfo[1].toLowerCase().trim(), stopList.map(n=>n.stopName.toLowerCase())).ratings
 			.sort((a, b) => b.rating - a.rating);
-		if(sorted_name_list[0].rating == 1) {
+
+		if(sorted_name_list[0].rating == 1 || (sorted_name_list.length == 1 && sorted_name_list[0].rating > 0.5)) {
 			stopName = sorted_name_list[0].target;
 		}
 		else if(sorted_name_list[0].rating > 0.7 && sorted_name_list[1].rating < 0.6) {
@@ -68,10 +69,6 @@ class RocketLeaderCommand extends Command {
 			return message.channel.send(`Could not find a unique stop name close to what was given, please try again. Close contestants were: \`${topStops.join(', ')}\``);
 		}
 
-		// Let's deal with the pokemonList
-		if(!leaderInfo[2]) leaderInfo[2] = '';
-
-		// Let's start adding to the database
 		let stopObj = stopList.filter(stop => stop.stopName == stopName);
 		if(!stopObj[0]) {
 			stopObj = stopList.filter(stop => stop.stopName.toLowerCase() == stopName.toLowerCase());
@@ -81,30 +78,26 @@ class RocketLeaderCommand extends Command {
 		}
 
 		stopObj = stopObj[0];
-		const date = new Date();
+		// At this point we have a confirmed leader and stop name
 
-		const curr = await this.client.rocketLeaders.findAll();
-		const currentStops = curr.map(x => x.stopName);
-
-		if(currentStops.includes(stopObj.stopName)) {
-			return message.channel.send(`There is already a leader called out at \`${stopObj.stopName}\`, did not add this request to the database.`);
-		}
+		// Let's deal with the pokemonList
+		// If nothing is given, grab existing list
+		if(!leaderInfo[2]) leaderInfo[2] = stopObj.leaderLineup;
 
 		const niceLeader = `${stopLeader[0].toUpperCase()}${stopLeader.substring(1)}`;
 		try{
-			await this.client.rocketLeaders.create({
-				guildId: message.guild.id,
+			await this.client.rocketLeaders.update({
 				messageURL: message.url,
-				stopId: stopObj.id,
-				stopCoordinates: stopObj.coordinates,
-				stopName: stopObj.stopName,
 				leaderName: niceLeader,
 				leaderLineup: leaderInfo[2].trim(),
-				spawnDate: date.toString(),
+			}, {
+				where: {
+					stopName: stopObj.stopName,
+				},
 			});
 			const details = `\nLeader: \`${niceLeader}\`, Pokestop: \`${stopObj.stopName}\`, Extra info: \`${leaderInfo[2].trim()}\``;
-			if(defaulted) return message.channel.send(`Rocket leader encounter added to database!\n**Please Note**: An exact pokestop name could not be matched, a close match was found with \`${stopName}\`. The encounter was slotted on this stop instead.${details}`);
-			return message.channel.send(`Rocket leader encounter added to database!${details}`);
+			if(defaulted) return message.channel.send(`Rocket leader encounter was updated!\n**Please Note**: An exact pokestop name could not be matched, a close match was found with \`${stopName}\`. The encounter was updated for this stop instead.${details}`);
+			return message.channel.send(`Rocket leader encounter was updated${details}`);
 		}
 		catch(e) {
 			console.log(e);
@@ -113,4 +106,4 @@ class RocketLeaderCommand extends Command {
 	}
 }
 
-module.exports = RocketLeaderCommand;
+module.exports = RocketEditCommand;
