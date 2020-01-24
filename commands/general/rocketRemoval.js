@@ -24,20 +24,15 @@ class RemoveRocketCommand extends Command {
 		if(!args.stopName) return message.reply('No stop given');
 
 		if(args.stopName.toLowerCase() == 'all') {
-			if(message.member.permissions.has('MANAGE_GUILD') || message.author.id == '129714945238630400' || message.author.id == '485526376682881024') {
-				try {
-					await this.client.rocketLeaders.destroy({
-						where: {},
-					});
-					return message.channel.send('*poof*');
-				}
-				catch(e) {
-					console.log(e);
-					return message.channel.send('Error in cleaning up.');
-				}
+			try {
+				await this.client.rocketLeaders.destroy({
+					where: {},
+				});
+				return message.channel.send('*Team rocket\'s blasting off agaaaaain!*🌠');
 			}
-			else {
-				return message.channel.send('Only mods and select users may clear all leaders from the map.');
+			catch(e) {
+				console.log(e);
+				return message.channel.send('Error in cleaning up.');
 			}
 		}
 
