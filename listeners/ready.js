@@ -1,4 +1,5 @@
 const { Listener } = require('discord-akairo');
+const cron = require('node-cron');
 
 class ReadyListener extends Listener {
 	constructor() {
@@ -38,6 +39,33 @@ class ReadyListener extends Listener {
 				console.log(e);
 			}
 		}, 900000);
+
+		cron.schedule('00 00 * * *', async () => {
+			try {
+				await client.rocketLeaders.destroy({
+					where: {},
+				});
+				console.log('cleared rocket leaders at midnight');
+			}
+			catch(e) {
+				console.log(e);
+				console.log('Error in cleaning up rocket leaders.');
+			}
+			// ----------------------------------------------
+
+			const liveRaids = await client.LiveRaids.findAll();
+
+			// Grab channels that no longer exist, or are now archived
+			const invalidChannels = liveRaids.map(x => x.dataValues.channelId).filter(chan => {
+				if(!client.channels.has(chan) || (client.channels.get(chan).name.startsWith('archived'))) return;
+			});
+
+			// Said channels (raids) are now removed from live db
+			invalidChannels.forEach(chan => {
+				client.LiveRaids.destroy({ where:{ channelId:chan } });
+			});
+			console.log(`Removed ${invalidChannels.length} entries from live raids database.`);
+		});
 	}
 }
 
