@@ -13,7 +13,7 @@ module.exports = {
 				const gymMap = gym.gymMap.split('/');
 				const coordinates = gymMap[gymMap.length - 1];
 
-				await channel.send(`Here is the proper google maps: <${gym.gymMap}>.\nInteractive map: <http://pogoyxe.xyz?coord=${coordinates}>.\n${ex_out}`);
+				await channel.send(`Here is the proper google maps: <${gym.gymMap}>.\nInteractive map: <http://pogoyxe.xyz?coord=${coordinates}> .\n${ex_out}`);
 				console.log(`Sent maps for ${gym.gymName}`);
 			}
 			else {
