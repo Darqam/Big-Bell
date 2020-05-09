@@ -38,22 +38,11 @@ class RocketEditCommand extends Command {
 		const topStops = [];
 		let defaulted = false;
 
-		const sorted_name_list = stringSimilarity.findBestMatch(leaderInfo[1].trim(), stopList.map(n=>n.stopName)).ratings
-			.sort((a, b) => b.rating - a.rating);
-
+		let sorted_name_list;
 		const sorted_lowercase_names_list = stringSimilarity.findBestMatch(leaderInfo[1].toLowerCase().trim(), stopList.map(n=>n.stopName.toLowerCase())).ratings
 			.sort((a, b) => b.rating - a.rating);
 
-		if(sorted_name_list[0].rating == 1 || (sorted_name_list.length == 1 && sorted_name_list[0].rating > 0.5)) {
-			stopName = sorted_name_list[0].target;
-		}
-		else if(sorted_name_list[0].rating > 0.7 && sorted_name_list[1].rating < 0.6) {
-			// If we hit here, we default to top choice since we have 70% match or above on one, and less than 70% on any further stop.
-			// Basically this is a "best guess".
-			defaulted = true;
-			stopName = sorted_name_list[0].target;
-		}
-		else if(sorted_lowercase_names_list[0].rating == 1) {
+		if(sorted_lowercase_names_list.filter(x => x.rating == 1).length == 1) {
 			stopName = sorted_lowercase_names_list[0].target;
 		}
 		else if(sorted_lowercase_names_list[0].rating > 0.7 && sorted_lowercase_names_list[1].rating < 0.6) {
@@ -62,7 +51,23 @@ class RocketEditCommand extends Command {
 			defaulted = true;
 			stopName = sorted_lowercase_names_list[0].target;
 		}
-		else {
+
+		if(!stopName) {
+			sorted_name_list = stringSimilarity.findBestMatch(leaderInfo[1].trim(), stopList.map(n=>n.stopName)).ratings
+				.sort((a, b) => b.rating - a.rating);
+
+			if(sorted_name_list[0].rating == 1) {
+				stopName = sorted_name_list[0].target;
+			}
+			else if(sorted_name_list[0].rating > 0.7 && sorted_name_list[1].rating < 0.6) {
+				// If we hit here, we default to top choice since we have 70% match or above on one, and less than 70% on any further stop.
+				// Basically this is a "best guess".
+				defaulted = true;
+				stopName = sorted_name_list[0].target;
+			}
+		}
+
+		if(!stopName) {
 			for(let i = 0; i < ARBITRARY_LIMIT; i++) {
 				topStops.push(sorted_name_list[i].target);
 			}

@@ -22,7 +22,7 @@ class RocketLeaderCommand extends Command {
 
 	async exec(message, args) {
 		if(!args.leaderInfo) return message.reply('No stops found in query');
-		const leaderNames = ['giovanni', 'cliff', 'sierra', 'arlo', 'unknown', 'decoy'];
+		const leaderNames = ['giovanni?', 'giovanni', 'cliff', 'sierra', 'arlo', 'unknown', 'decoy'];
 		const leaderInfo = args.leaderInfo.trim().split(';');
 
 		// Here we check leader name info
