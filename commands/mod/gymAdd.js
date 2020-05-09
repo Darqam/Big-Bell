@@ -4,12 +4,12 @@ const fetch = require('node-fetch');
 
 class StopAddCommand extends Command {
 	constructor() {
-		super('stopAdd', {
-			aliases: ['stop', 'addStop'],
+		super('gymAdd', {
+			aliases: ['gym', 'addGym'],
 			split: 'quoted',
 			category: 'mod',
 			description: {
-				content: 'Adds pokestops to the db',
+				content: 'Adds gyms to the db',
 				usage: '',
 			},
 			args: [
@@ -33,7 +33,6 @@ class StopAddCommand extends Command {
 
 	async exec(message, args) {
 		if(!args.link) return message.channel.send('Need message link, k?');
-
 		const dup = [];
 		const err = [];
 		const suc = [];
@@ -72,17 +71,17 @@ class StopAddCommand extends Command {
 		// Since we can't read the csv directly, grab it and download
 		await fetch(linkMsg.attachments.first().attachment)
 			.then(res => {
-				const dest = fs.createWriteStream('./temp_stops_list.csv');
+				const dest = fs.createWriteStream('./temp_gym_list.csv');
 				res.body.pipe(dest);
 			}).catch(e => {
 				console.log(e);
 				return message.channel.send('Errored on file fetch.');
 			});
 
-		const stops = await message.client.pokestops.findAll();
-		const currentNames = stops.map(x => x.stopName);
+		const stops = await message.client.Gyms.findAll();
+		const currentNames = stops.map(x => x.gymName);
 
-		const content = fs.readFileSync('./temp_stops_list.csv', 'UTF8');
+		const content = fs.readFileSync('./temp_gym_list.csv', 'UTF8');
 		// File structure is:
 		// name, nickname, lat, lon
 		const lines = content.split('\n');
@@ -93,6 +92,9 @@ class StopAddCommand extends Command {
 			try {
 
 				const arr = lines[i].split(',');
+
+				const exStatus = arr[arr.length - 1].trim();
+				arr.splice(-1, 1);
 
 				// Grab lon and remove, then lat
 				const lon = arr[arr.length - 1].trim();
@@ -105,7 +107,7 @@ class StopAddCommand extends Command {
 
 				// Now merge all remaining for full name (can include comma)
 				// Remove the quotation marks from some names
-				name = arr.join(',').trim().replace(/"/g, '');
+				name = arr.join(',').trim().replace(/"/g, '').toLowerCase();
 
 				// If this stop already exists...
 				if(currentNames.includes(name)) {
@@ -115,12 +117,14 @@ class StopAddCommand extends Command {
 
 				const coords = `${lat},${lon}`;
 
-				await message.client.pokestops.create({
-					stopName: name,
+				await message.client.Gyms.create({
+					gymName: name.toLowerCase(),
 					guildId: message.guild.id,
-					coordinates: coords,
-					stopMap: `https://www.google.com/maps/place/${coords}`,
-					stopDirections: `https://www.google.com/maps/dir/Current+Location/${coords}`,
+					timesPinged: 0,
+					gymMap: `https://www.google.com/maps/place/${coords}`,
+					gymDirections: `https://www.google.com/maps/dir/Current+Location/${coords}`,
+					exRaidNumber: 0,
+					exRaidEligibility: exStatus == 'FALSE' ? 'Possible' : 'n/a',
 				});
 				suc.push(name);
 			}
@@ -143,7 +147,7 @@ class StopAddCommand extends Command {
 		}
 
 		if(dup.length > 0) {
-			output += ` Ignored ${dup.length} stops already existing in DB`;
+			output += ` Ignored ${dup.length} gyms already existing in DB`;
 		}
 		message.channel.send(output, {
 			split: {
