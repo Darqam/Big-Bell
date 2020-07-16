@@ -59,6 +59,19 @@ class AddCommand extends Command {
 		const [sanitized, errorM, parsedArgs] = sanitize.sanitizeArgs(args);
 		if(sanitized == 1) return message.channel.send(errorM);
 
+		const gyms_that_make_me_angry = ['ice cream, anyone?'];
+
+		for(let i = 0; i < gym_list.length; i++) {
+			if(!gym_list[i] || !gym_list[i + 1]) break;
+
+			const merged_name = `${gym_list[i].trim()}, ${gym_list[i + 1].trim()}`;
+
+			if(gyms_that_make_me_angry.some(g => g == merged_name)) {
+				gym_list.splice(i + 1, 1);
+				gym_list[i] = merged_name;
+			}
+		}
+
 		// At this point, inputs should be good
 		for(let i = 0; i < gym_list.length; i++) {
 			gym_list[i] = gym_list[i].trim();
