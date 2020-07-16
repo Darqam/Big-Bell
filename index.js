@@ -139,6 +139,25 @@ client.rocketLeaders = sequelize.define('rocketLeaders', {
 	spawnDate: Sequelize.STRING,
 });
 
+client.PvPSeason = sequelize.define('PvPSeason', {
+	seasonId: Sequelize.INTEGER,
+	guildId: Sequelize.TEXT,
+	leaderboardMessageId: Sequelize.TEXT,
+	leaderboardChannelId: Sequelize.TEXT,
+	seasonActive: Sequelize.BOOLEAN,
+	seasonStart: Sequelize.TEXT,
+	seasonEnd: Sequelize.TEXT,
+});
+
+client.MMR = sequelize.define('mmr', {
+	guildId: Sequelize.TEXT,
+	userId: Sequelize.TEXT,
+	seasonId: Sequelize.INTEGER,
+	mmrValue: Sequelize.INTEGER,
+	userHistory: Sequelize.TEXT,
+	lastUpdate: Sequelize.TEXT,
+});
+
 client.Memory = sequelize.define('memory', {
 	timestamp: {
 		type: Sequelize.DOUBLE,

@@ -21,6 +21,8 @@ class ReadyListener extends Listener {
 		client.LiveRaids.sync();
 		client.pokestops.sync();
 		client.rocketLeaders.sync();
+		client.PvPSeason.sync();
+		client.MMR.sync();
 		client.Memory.sync();
 
 		client.user.setActivity('with Samerz\'s head', { type: 'PLAYING' });
