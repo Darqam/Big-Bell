@@ -33,13 +33,21 @@ module.exports = {
 		/* Basically have 2 formats
 		1) Hatches on March 10 at 10:04 AM | Ends on March 10 at 10:49 AM
 		2)Ends on March 10 at 10:49 AM */
-		if(channel.topic) {
-			const regex = /(\d\d:\d\d)/g;
-			const times = channel.topic.match(regex);
-
+		const regex = /(\d\d:\d\d)/g;
+		let times;
+		if(channel.topic) times = channel.topic.match(regex);
+		// If time is not in the topic, check message embed footer
+		if(!times) {
+			const msg = channel.messages.first();
+			if(msg.embeds[0]) {
+				times = msg.embeds[0].footer.text.match(regex);
+			}
+		}
+		if(times) {
 			if(eggLevel) timeHatch = times[0];
 			timeEnd = times[times.length - 1];
 		}
+
 		const gymMap = gym.gymMap.split('/');
 		const coordinates = gymMap[gymMap.length - 1];
 
