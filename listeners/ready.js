@@ -59,7 +59,7 @@ class ReadyListener extends Listener {
 
 			// Grab channels that no longer exist, or are now archived
 			const invalidChannels = liveRaids.map(x => x.dataValues.channelId).filter(chan => {
-				if(!client.channels.has(chan) || (client.channels.get(chan).name.startsWith('archived'))) return;
+				if(!client.channels.cache.has(chan) || (client.channels.cache.get(chan).name.startsWith('archived'))) return;
 			});
 
 			// Said channels (raids) are now removed from live db

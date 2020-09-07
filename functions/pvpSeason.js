@@ -16,7 +16,7 @@ module.exports = {
 			season = entries[0];
 		}
 
-		const message = await client.channels.get(season.leaderboardChannelId).messages.fetch(season.leaderboardMessageId);
+		const message = await client.channels.cache.get(season.leaderboardChannelId).messages.fetch(season.leaderboardMessageId);
 
 		// Grab all MMR values for current season
 		const user_mmrs = await client.MMR.findAll({

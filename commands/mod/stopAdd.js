@@ -45,9 +45,9 @@ class StopAddCommand extends Command {
 			const messageId = linkArr[linkArr.length - 1];
 			const channelId = linkArr[linkArr.length - 2];
 
-			if(message.client.channels.has(channelId)) {
+			if(message.client.channels.cache.has(channelId)) {
 				try {
-					linkMsg = await message.client.channels.get(channelId).messages.fetch(messageId);
+					linkMsg = await message.client.channels.cache.get(channelId).messages.fetch(messageId);
 				}
 				catch(e) {
 					console.log(e);
