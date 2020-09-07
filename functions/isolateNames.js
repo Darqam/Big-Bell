@@ -37,7 +37,7 @@ module.exports = {
 
 		// Case 2.5, mega raid egg. m-park-name
 		if(!channel_gym && channel_array[0] == 'm') {
-			eggLvl = 7;
+			eggLvl = '7';
 			channel_gym = channel_array.slice(1).join(' ');
 		}
 

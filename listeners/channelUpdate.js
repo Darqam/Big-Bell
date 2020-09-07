@@ -42,9 +42,11 @@ class ChannelUpdateListener extends Listener {
 		let isMega = false;
 
 		const channelArr = newChannel.name.split('-');
+		// return because current setup is weird
+		if(channelArr[0] == 'm' && (oldChannel.name == newChannel.name)) return;
 
 		// If we have a mega, toggle flag and remove mega prefix
-		if(channelArr[0].toLowerCase() == 'mega' || channelArr[0].toLowerCase() == 'm') {
+		if(channelArr[0].toLowerCase() == 'mega') {
 			isMega = true;
 			channelArr.shift();
 		}

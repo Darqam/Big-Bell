@@ -97,7 +97,6 @@ module.exports = {
 				if(stop[0] < curHour || (stop[0] == curHour && stop[1] < curMin)) return;
 
 				// So from here on, we are in a valid time slot for relevant user
-
 				// Now, second filter, check if they have a limit of which raid levels
 				const raidLevels = uGym.raidLevels.split(',');
 
@@ -108,7 +107,6 @@ module.exports = {
 
 				// If user raid level choices are not part of current raid level, abort
 				if(channelInfo[2] && !raidLevels.includes(channelInfo[2])) return;
-
 				// If there is no egg level but there is a pokemon name
 				if(!channelInfo[2] && channelInfo[1]) {
 					let valid = false;
