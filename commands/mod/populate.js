@@ -1,7 +1,9 @@
 const { Command } = require('discord-akairo');
+/*
 const GoogleSpreadsheet = require('google-spreadsheet');
 const util = require('util');
 const creds = require('../../saskPokemonGym-5a6d9b796bde.json');
+*/
 
 class PopulateCommand extends Command {
 	constructor() {
@@ -26,6 +28,8 @@ class PopulateCommand extends Command {
 	}
 
 	async exec(message) {
+		return message.channel.send('Command disabled');
+		/*
 		const sheet_position = 6;
 		let sheet;
 		message.channel.startTyping();
@@ -253,6 +257,7 @@ class PopulateCommand extends Command {
 		}).catch(err => {
 			console.log('Error in populate.', err);
 		});
+		*/
 	}
 }
 
