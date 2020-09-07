@@ -78,7 +78,11 @@ class StopAddCommand extends Command {
 				return message.channel.send('Errored on file fetch.');
 			});
 
-		const stops = await message.client.Gyms.findAll();
+		const stops = await message.client.Gyms.findAll({
+			where:{
+				guildId:message.guild.id,
+			},
+		});
 		const currentNames = stops.map(x => x.gymName);
 
 		const content = fs.readFileSync('./temp_gym_list.csv', 'UTF8');

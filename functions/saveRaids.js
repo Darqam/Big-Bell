@@ -38,7 +38,7 @@ module.exports = {
 		if(channel.topic) times = channel.topic.match(regex);
 		// If time is not in the topic, check message embed footer
 		if(!times) {
-			const msg = channel.messages.first();
+			const msg = channel.messages.cache.first();
 			if(msg.embeds[0]) {
 				times = msg.embeds[0].footer.text.match(regex);
 			}

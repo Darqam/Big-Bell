@@ -58,7 +58,7 @@ class ChannelUpdateListener extends Listener {
 		const regex = /(\d\d:\d\d)/g;
 		let times;
 		await newChannel.messages.fetch();
-		const msg = newChannel.messages.first();
+		const msg = newChannel.messages.cache.first();
 		if(msg.embeds[0]) {
 			times = msg.embeds[0].footer.text.match(regex);
 		}
