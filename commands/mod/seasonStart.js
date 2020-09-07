@@ -27,6 +27,7 @@ class SeasonStartCommand extends Command {
 		if(entries[0] && entries[0].seasonActive) {
 			return message.channel.send('Latest season is still active, aborting.');
 		}
+		await message.channel.send('New season started!');
 		const date = new Date();
 		const embed = new MessageEmbed();
 		embed.setTitle('Current MMR leaderboard');
@@ -46,7 +47,7 @@ class SeasonStartCommand extends Command {
 				seasonEnd: null,
 			});
 
-			return message.channel.send('New season started!');
+			return;
 		}
 		catch(e) {
 			console.log(e);
