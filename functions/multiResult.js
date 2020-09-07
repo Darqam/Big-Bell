@@ -5,7 +5,6 @@ module.exports = {
 	doQuery: async function(author_mention, results, channel_gym, send_chan) {
 		return new Promise(async (resolve) => {
 
-			const minimalTime = 120;
 			const guildConfigs = await send_chan.client.Guilds.findOne({
 				where: {
 					guildId: send_chan.guild.id,
