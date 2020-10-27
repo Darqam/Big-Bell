@@ -14,13 +14,17 @@ class SweepCommand extends Command {
 	}
 
 	async exec(message) {
-		const liveRaids = await this.client.LiveRaids.findAll();
+		const liveRaids = await this.client.LiveRaids.findAll({
+			where: {
+				guildId: message.guild.id,
+			},
+		});
 
 		// Grab all the ids from the liveRaids into an array then,
 		// if the channel doesn't exist, or it exists but starts with 'archived' sort it as invalid
-		const invalidChannels = liveRaids.map(x => x.dataValues.channelId).filter(chan => {
-			if(!message.guild.channels.has(chan) || (message.guild.channels.get(chan).name.startsWith('archived'))) return;
-		});
+		const invalidChannels = liveRaids.map(x => x.dataValues.channelId).filter(chan =>
+			!message.guild.channels.cache.has(chan) || message.guild.channels.cache.get(chan).name.startsWith('archived')
+		);
 
 		invalidChannels.forEach(chan => {
 			this.client.LiveRaids.destroy({ where:{ channelId:chan } });

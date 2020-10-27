@@ -16,7 +16,7 @@ module.exports = {
 			season = entries[0];
 		}
 
-		const message = await client.channels.get(season.leaderboardChannelId).messages.fetch(season.leaderboardMessageId);
+		const message = await client.channels.cache.get(season.leaderboardChannelId).messages.fetch(season.leaderboardMessageId);
 
 		// Grab all MMR values for current season
 		const user_mmrs = await client.MMR.findAll({
@@ -33,8 +33,14 @@ module.exports = {
 
 		const user_placement = [];
 		for(let i = 0; i < user_mmrs.length; i++) {
-			const member = await guild.members.fetch(user_mmrs[i].userId);
-			user_placement.push(`#${i + 1} ${member.displayName} - ${user_mmrs[i].mmrValue}`);
+			try {
+				const member = await guild.members.fetch(user_mmrs[i].userId);
+				user_placement.push(`#${i + 1} ${member.displayName} - ${user_mmrs[i].mmrValue}`);
+			}
+			catch (e) {
+				const user = await client.users.fetch(user_mmrs[i].userId);
+				user_placement.push(`#${i + 1} ${user.username} - ${user_mmrs[i].mmrValue}`);
+			}
 		}
 
 		const new_value = message.embeds[0].fields[0].value = user_placement.join('\n');

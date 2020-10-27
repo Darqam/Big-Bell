@@ -1,5 +1,5 @@
 {
-  "name": "Big_Bell_Bot",
+  "name": "big_bell_bot",
   "version": "1.0.0",
   "description": "A notification bot",
   "main": "index.js",
@@ -10,17 +10,27 @@
   "license": "MIT",
   "dependencies": {
     "common-tags": "^1.8.0",
-    "discord-akairo": "^8.0.0-beta.8",
-    "discord.js": "github:discordjs/discord.js#d92ee2ff999954899c891c093f5f107dd686b64f",
+    "discord-akairo": "^8.1.0",
+    "discord.js": "^12.3.1",
     "eslint": "^5.9.0",
-    "google-spreadsheet": "^2.0.6",
-    "node-fetch": "^2.6.0",
+    "node-cron": "^2.0.3",
+    "node-fetch": "^2.6.1",
     "plotly": "^1.0.6",
-    "sequelize": "^5.15.1",
-    "sqlite": "^3.0.3",
+    "pokemon": "^2.0.2",
+    "sequelize": "^5.21.7",
+    "sqlite": "^3.0.6",
+    "sqlite3": "^4.2.0",
     "string-similarity": "^3.0.0"
   },
   "devDependencies": {
-    "js-yaml": "^3.13.1"
-  }
+    "js-yaml": "^3.14.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Darqam/Big-Bell.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Darqam/Big-Bell/issues"
+  },
+  "homepage": "https://github.com/Darqam/Big-Bell#readme"
 }

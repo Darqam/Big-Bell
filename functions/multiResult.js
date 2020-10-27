@@ -5,7 +5,6 @@ module.exports = {
 	doQuery: async function(author_mention, results, channel_gym, send_chan) {
 		return new Promise(async (resolve) => {
 
-			const minimalTime = 120;
 			const guildConfigs = await send_chan.client.Guilds.findOne({
 				where: {
 					guildId: send_chan.guild.id,
@@ -15,7 +14,7 @@ module.exports = {
 
 			// Print out message asking for gym name verification
 			// Loop over the given `results` array which contains all gym objects
-			let react_out = `Hey, I found a few options, could anyone please specify which gym is correct so I can alert those who are watching for this gym? Choose ${send_chan.client.emojis.get(send_chan.client.myEmojiIds.failure)} if the correct gym was not listed.\n`;
+			let react_out = `Hey, I found a few options, could anyone please specify which gym is correct so I can alert those who are watching for this gym? Choose ${send_chan.client.emojis.cache.get(send_chan.client.myEmojiIds.failure)} if the correct gym was not listed.\n`;
 			for(let i = 0; i < list_max; i++) {
 				if(i == results.length) break;
 				react_out += `${i} - ${results[i].gymName}\n`;

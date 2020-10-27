@@ -30,7 +30,7 @@ class ShowMmrCommand extends Command {
 
 		const member = await message.guild.members.fetch(message.author);
 
-		if(!member.roles.has('428292301429669890') && args.user_id) {
+		if(!member.roles.cache.has('428292301429669890') && args.user_id) {
 			return message.channel.send('Only mods may check other\'s history.');
 		}
 
