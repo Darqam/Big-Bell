@@ -74,7 +74,7 @@ class AddCommand extends Command {
 
 		// At this point, inputs should be good
 		for(let i = 0; i < gym_list.length; i++) {
-			gym_list[i] = gym_list[i].trim();
+			gym_list[i] = gym_list[i].trim().replace('’', '\'');
 			const gym = await this.client.Gyms.findOne({
 				where: {
 					guildId: message.guild.id,

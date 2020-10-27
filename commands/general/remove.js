@@ -24,7 +24,7 @@ class RemoveCommand extends Command {
 		if(!args.gymList) return message.reply('No gyms found in query');
 
 		let gymList = args.gymList.toLowerCase().split(',');
-		gymList = gymList.map(x => x.trim());
+		gymList = gymList.map(x => x.trim().replace('’', '\''));
 
 		let output = '';
 		const errors = [];
