@@ -4,7 +4,7 @@ const stringSimilarity = require('string-similarity');
 class RemoveRocketCommand extends Command {
 	constructor() {
 		super('rocketRemoval', {
-			aliases: ['rr', 'rocketRemove'],
+			aliases: ['rocketRemove', 'rr'],
 			category: 'general',
 			description: {
 				content: 'Removes a leader battle from the given stop.',
