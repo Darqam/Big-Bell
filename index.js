@@ -60,7 +60,10 @@ class MyClient extends AkairoClient {
 	}
 }
 
-const client = new MyClient();
+const { Intents } = require('discord.js');
+const myIntents = new Intents();
+myIntents.add('GUILD_PRESENCES', 'GUILD_MEMBERS');
+const client = new MyClient({ ws: { intents: myIntents } });
 
 process.on('unhandledRejection', (reason, p) => {
 	console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
