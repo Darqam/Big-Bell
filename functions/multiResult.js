@@ -42,7 +42,7 @@ module.exports = {
 			try {
 				// If a user reacted quickly reaction might already be done,
 				// so first check existig reactions
-				const preReacts = react_msg.reactions.filter(r => r.users.size > 1);
+				const preReacts = react_msg.reactions.cache.filter(r => r.users.size > 1);
 				// if there is more than one reaction
 				if(preReacts.size > 1) {
 					console.log(`Got too many answers for ${react_msg.channel.name}, aborting.`);
