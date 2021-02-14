@@ -39,14 +39,20 @@ class RocketLeaderCommand extends Command {
 		let defaulted = false;
 
 		let sorted_name_list;
-		const sorted_lowercase_names_list = stringSimilarity.findBestMatch(leaderInfo[1].toLowerCase().trim(), stopList.map(n=>n.stopName.toLowerCase())).ratings
-			.sort((a, b) => b.rating - a.rating);
+		const ratings = stringSimilarity.findBestMatch(leaderInfo[1].toLowerCase().trim(), stopList.map(n=>n.stopName.toLowerCase())).ratings;
+
+		for(let i = 0; i < stopList.length; i++) {
+			// Although the matching was done for lowercase, keep target names with uppercase
+			ratings[i].target = stopList[i].stopName;
+		}
+
+		const sorted_lowercase_names_list = ratings.sort((a, b) => b.rating - a.rating);
 
 		if(sorted_lowercase_names_list.filter(x => x.rating == 1).length == 1) {
 			stopName = sorted_lowercase_names_list[0].target;
 		}
 		else if(sorted_lowercase_names_list[0].rating > 0.7 && sorted_lowercase_names_list[1].rating < 0.6) {
-			// If we hit here, we default to top choice since we have 70% match or above on one, and less than 70% on any further stop.
+			// If we hit here, we default to top choice since we have 60% match or above on one, and less than 50% on any further stop.
 			// Basically this is a "best guess".
 			defaulted = true;
 			stopName = sorted_lowercase_names_list[0].target;
@@ -67,10 +73,33 @@ class RocketLeaderCommand extends Command {
 			}
 		}
 
+
 		if(!stopName) {
-			for(let i = 0; i < ARBITRARY_LIMIT; i++) {
-				topStops.push(sorted_name_list[i].target);
+			// We still don't have a good match.
+			// Let's loop through both lowercase matches and uppercase matches and add
+			let j = 0;
+			let i = 0;
+			for(let idx = 0; idx < ARBITRARY_LIMIT; idx++) {
+				if(sorted_name_list[i].rating > sorted_lowercase_names_list[j].rating) {
+					if(topStops.includes(sorted_name_list[i].target)) {
+						i++;
+						idx--;
+						continue;
+					}
+					topStops.push(sorted_name_list[i].target);
+					i++;
+				}
+				else {
+					if(topStops.includes(sorted_lowercase_names_list[j].target)) {
+						j++;
+						idx--;
+						continue;
+					}
+					topStops.push(sorted_lowercase_names_list[j].target);
+					j++;
+				}
 			}
+
 			return message.channel.send(`Could not find a unique stop name close to what was given, please try again. Close contestants were: \`${topStops.join(', ')}\``);
 		}
 
