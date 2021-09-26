@@ -95,7 +95,9 @@ class StopAddCommand extends Command {
 			name = '';
 			try {
 
-				const arr = lines[i].split(',');
+				let arr = lines[i].split(',');
+				// Remove the last column (custom exraid stuff)
+				arr.splice(-1, 1);
 
 				const exStatus = arr[arr.length - 1].trim();
 				arr.splice(-1, 1);
@@ -108,6 +110,9 @@ class StopAddCommand extends Command {
 
 				// Remove nickname, don't care
 				arr.splice(-1, 1);
+
+				// Remove all empty entries
+				arr = arr.filter(n => n);
 
 				// Now merge all remaining for full name (can include comma)
 				// Remove the quotation marks from some names
