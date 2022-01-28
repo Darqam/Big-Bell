@@ -1,6 +1,18 @@
-const { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } = require('discord-akairo');
+const { Client, Intents, Collection } = require('discord.js');
+const fs = require('fs');
 const config = require('./config.json');
 const Sequelize = require('sequelize');
+
+// Create a new client instance
+// Guilds: channel updates, creates, deletes
+// guild_messages: old command styles, map updates
+// dm: dm...
+const client = new Client({ intents: [
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.DIRECT_MESSAGES
+] });
+
 
 const sequelize = new Sequelize('database', 'user', 'password', {
 	host: 'localhost',
@@ -11,6 +23,31 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 	storage: 'database.sqlite',
 });
 
+const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
+
+for (const file of eventFiles) {
+    const event = require(`./events/${file}`);
+    if (event.once) {
+        client.once(event.name, (...args) => event.execute(...args));
+    } else {
+        client.on(event.name, (...args) => event.execute(...args));
+    }
+}
+
+// Create our commands collection
+client.commands = new Collection();
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
+for (const file of commandFiles) {
+    const command = require(`./commands/${file}`);
+    client.commands.set(command.data.name, command)
+}
+
+process.on('unhandledRejection', (reason, p) => {
+	console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
+});
+
+
 const guilds = sequelize.define('guilds', {
 	guildId: {
 		type: Sequelize.STRING,
@@ -18,55 +55,6 @@ const guilds = sequelize.define('guilds', {
 	},
 	timezone: Sequelize.STRING,
 	prefixes: Sequelize.STRING,
-});
-
-class MyClient extends AkairoClient {
-	constructor() {
-		super({
-			ownerID: '129714945238630400',
-		}, {
-			disableEveryone: true,
-		});
-
-		this.commandHandler = new CommandHandler(this, {
-			directory: './commands/',
-			prefix: async msg => {
-				if(!msg.guild) {
-					const prefixes = await guilds.findAll();
-					// in node V11 could use `prefixes.map(g => g.prefixes.split(',')).flat()` but don't want to depend on that yet
-					return [].concat(...prefixes.map(g => g.prefixes.split(',')));
-				}
-
-				const guildConfigs = await guilds.findOne({
-					where: {
-						guildId: msg.guild.id,
-					},
-				});
-				if(!guildConfigs) return 'bb!';
-				return guildConfigs.prefixes.split(',');
-			},
-		});
-		this.commandHandler.loadAll();
-
-		this.inhibitorHandler = new InhibitorHandler(this, {
-			directory: './inhibitors/',
-		});
-		// this.inhibitorHandler.loadAll();
-
-		this.listenerHandler = new ListenerHandler(this, {
-			directory: './listeners/',
-		});
-		this.listenerHandler.loadAll();
-	}
-}
-
-const { Intents } = require('discord.js');
-const myIntents = new Intents();
-myIntents.add('GUILD_PRESENCES', 'GUILD_MEMBERS');
-const client = new MyClient({ ws: { intents: myIntents } });
-
-process.on('unhandledRejection', (reason, p) => {
-	console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
 });
 
 client.Guilds = guilds;
@@ -81,7 +69,7 @@ client.Gyms = sequelize.define('gyms', {
 	exRaidEligibility: Sequelize.TEXT,
 });
 
-client.userGyms = sequelize.define('userGyms', {
+client.UserGyms = sequelize.define('userGyms', {
 	userId: Sequelize.STRING,
 	gymId: Sequelize.STRING,
 	gymName: Sequelize.TEXT,
@@ -123,7 +111,7 @@ client.LiveRaids = sequelize.define('liveRaids', {
 	timeHatch: Sequelize.INTEGER,
 });
 
-client.pokestops = sequelize.define('pokestops', {
+client.Pokestops = sequelize.define('pokestops', {
 	stopName: Sequelize.TEXT,
 	guildId: Sequelize.TEXT,
 	coordinates: Sequelize.TEXT,
@@ -131,7 +119,7 @@ client.pokestops = sequelize.define('pokestops', {
 	stopDirections: Sequelize.TEXT,
 });
 
-client.rocketLeaders = sequelize.define('rocketLeaders', {
+client.RocketLeaders = sequelize.define('rocketLeaders', {
 	guildId: Sequelize.TEXT,
 	messageURL: Sequelize.STRING,
 	stopId: Sequelize.TEXT,
@@ -171,10 +159,11 @@ client.Memory = sequelize.define('memory', {
 	processUptime: Sequelize.DOUBLE,
 });
 
-client.myEmojiIds = {
+client.MyEmojiIds = {
 	'failure': '511174899969032193',
 	'success': '511174612323663874',
 	'question': '❓',
 };
+
 
 client.login(config.token);
