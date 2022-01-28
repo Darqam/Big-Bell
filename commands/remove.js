@@ -62,7 +62,6 @@ module.exports = {
 			}
         }
 
-
         // -----------------------
         // Deal with removing specific gyms
         // -----------------------

@@ -165,5 +165,7 @@ client.MyEmojiIds = {
 	'question': '❓',
 };
 
+client.ValidRocketLeaders = ['giovanni?', 'giovanni', 'cliff', 'sierra', 'arlo', 'unknown', 'decoy'];
+
 
 client.login(config.token);

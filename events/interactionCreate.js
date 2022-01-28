@@ -1,4 +1,4 @@
-const { filterGymNames, filterUserGymNames } = require('../functions/autoCompleteGyms.js');
+const { filterGymNames, filterUserGymNames, filterStopNames, filterLeaderNames } = require('../functions/autoCompleteGyms.js');
 
 module.exports = {
     name: 'interactionCreate',
@@ -27,23 +27,23 @@ async function handleCommand(interaction) {
 }
 
 async function handleAutocomplete(interaction) {
-    // Get what was typed
-    const focusedValue = interaction.options.getFocused();
+    // Get the "current" options object
+    const option = interaction.options.getFocused(true);
 
     const gymAutocompleteCommands = ['add'];
     const userGymAutoCompleteCommands = ['remove'];
+    const stopAutocompleteCommands = ['rocket_leader'];
 
     if (gymAutocompleteCommands.includes(interaction.commandName)) {
-        const gyms = await filterGymNames(interaction.client, focusedValue, interaction.guildId)
+        const gyms = await filterGymNames(interaction.client, option.value, interaction.guildId)
         gymNames = gyms.map(g => g.gymName)
 
         const response = await interaction.respond(
             gymNames.map(choice => ({name: choice, value: choice})),
         );
 
-        // console.log(response)
     } else if(userGymAutoCompleteCommands.includes(interaction.commandName)) {
-        const gyms = await filterUserGymNames(interaction, focusedValue);
+        const gyms = await filterUserGymNames(interaction, option.value);
 
         if (gyms.length > 0) {
             gymNames = gyms.map(g => g.gymName)
@@ -62,7 +62,24 @@ async function handleAutocomplete(interaction) {
                 }
             ]);
         }
+    
+    } else if(stopAutocompleteCommands.includes(interaction.commandName)) {
+        // If we are doing stop name completion
+        if (option.name == 'pokestop_name') {
+            const stops = await filterStopNames(interaction, option.value)
+            stopNames = stops.map(g => g.stopName)
 
+            const response = await interaction.respond(
+                stopNames.map(choice => ({name: choice, value: choice})),
+            );
+        } else if (option.name === 'leader') {
+            const leaders = filterLeaderNames(interaction, option.value);
+            const response = await interaction.respond(
+                leaders.map(choice => ({name: choice, value: choice})),
+            );
+        }
+
+        
     }
 
     

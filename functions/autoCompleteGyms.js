@@ -1,5 +1,5 @@
 const stringSimilarity = require('string-similarity');
-const { cacheGymList, cacheUserGymList } = require('./cacheMethods.js');
+const { cacheGymList, cacheUserGymList, cacheStopList } = require('./cacheMethods.js');
 
 
 function arrayStringMatch(stringArray, needle) {
@@ -57,13 +57,40 @@ async function filterUserGymNames(interaction, focusedValue, return_limit=10) {
 		}
 
 	}
+	return results;
+}
+
+async function filterStopNames(interaction, focusedValue, return_limit=10) {
+	// We start by making sure we have a cached stop list
+	if (!interaction.client.stopList) {
+		await cacheStopList(interaction.client, interaction.user);
+	}
+
+	// We first make sure we have things for the right guild
+	const stopList = interaction.client.stopList; // .filter(g => g.guildId == interaction.guildId);
+
+	// Obtain our sorted gym names
+	let sorted_name_list = arrayStringMatch(stopList.map(g => g.stopName), focusedValue)
+	
+	// Now we grab the relevant gym objects and push them to results
+	const results = [];
+	for (let i = 0; i < return_limit; i++) {
+		if (!sorted_name_list[i]) break;
+
+		results.push(stopList.find(stop => stop.stopName == sorted_name_list[i]));
+	}
 
 	return results;
+}
 
+function filterLeaderNames(interaction, focusedValue) {
+	return arrayStringMatch(interaction.client.ValidRocketLeaders, focusedValue);
 	
 }
 
 module.exports = {
 	filterGymNames: filterGymNames,
 	filterUserGymNames: filterUserGymNames,
+	filterStopNames: filterStopNames,
+	filterLeaderNames: filterLeaderNames,
 }
