@@ -88,9 +88,24 @@ function filterLeaderNames(interaction, focusedValue) {
 	
 }
 
+async function filterRocketStops(interaction, focusedValue, return_limit=10) {
+	let rocketStops = await interaction.client.RocketLeaders.findAll();
+
+	let sorted_name_list = arrayStringMatch(rocketStops.map(g => g.stopName), focusedValue)
+
+	const results = [];
+	for (let i = 0; i < return_limit; i++) {
+		if (!sorted_name_list[i]) break;
+
+		results.push(rocketStops.find(stop => stop.stopName == sorted_name_list[i]));
+	}
+	return results;
+}
+
 module.exports = {
 	filterGymNames: filterGymNames,
 	filterUserGymNames: filterUserGymNames,
 	filterStopNames: filterStopNames,
 	filterLeaderNames: filterLeaderNames,
+	filterRocketStops: filterRocketStops,
 }

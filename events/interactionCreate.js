@@ -1,4 +1,4 @@
-const { filterGymNames, filterUserGymNames, filterStopNames, filterLeaderNames } = require('../functions/autoCompleteGyms.js');
+const { filterGymNames, filterUserGymNames, filterStopNames, filterLeaderNames, filterRocketStops } = require('../functions/autoCompleteGyms.js');
 
 module.exports = {
     name: 'interactionCreate',
@@ -33,6 +33,7 @@ async function handleAutocomplete(interaction) {
     const gymAutocompleteCommands = ['add'];
     const userGymAutoCompleteCommands = ['remove'];
     const stopAutocompleteCommands = ['rocket_leader'];
+    const rocketStopAutocompleteCommands = ['remove_rocket'];
 
     if (gymAutocompleteCommands.includes(interaction.commandName)) {
         const gyms = await filterGymNames(interaction.client, option.value, interaction.guildId)
@@ -78,8 +79,15 @@ async function handleAutocomplete(interaction) {
                 leaders.map(choice => ({name: choice, value: choice})),
             );
         }
+    } else if (rocketStopAutocompleteCommands.includes(interaction.commandName)) {
+        if (option.name === 'rocket_stop_name') {
+            const leaders = await filterRocketStops(interaction, option.value);
+            leaderStops = leaders.map(l => l.stopName);
 
-        
+            const response = await interaction.respond(
+                leaderStops.map(choice => ({name: choice, value: choice})),
+            );
+        }
     }
 
     
