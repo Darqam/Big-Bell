@@ -34,15 +34,16 @@ module.exports = {
 
         const lead_message = await interaction.reply({
             content: 'New season started!',
-            embeds: [embed]
+            embeds: [embed],
+            fetchReply: true,
         });
 
 		try{
 			await interaction.client.PvPSeason.create({
 				seasonId: entries[0] ? entries[0].seasonId + 1 : 0,
 				guildId: interaction.guildId,
-				leaderboardMessageId: lead_message.id,
-				leaderboardChannelId: lead_message.channel.id,
+				leaderboardMessageId: lead_message?.id,
+				leaderboardChannelId: interaction.channel.id,
 				seasonActive: true,
 				seasonStart: date.toDateString(),
 				seasonEnd: null,

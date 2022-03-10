@@ -1,7 +1,7 @@
 const { cacheGymList, cacheStopList } = require('../functions/cacheMethods.js');
 const util = require('util');
 
-const mod_command_names = ['season_start'];
+const mod_command_names = ['season_start', 'season_end'];
 const mod_roles = ['215955553007042560'];
 
 module.exports = {

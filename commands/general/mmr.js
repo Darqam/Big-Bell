@@ -48,7 +48,7 @@ module.exports = {
 		const mmr_entry = await interaction.client.MMR.findOne({
 			where: {
 				guildId: interaction.guildId,
-				userID: interaction.userID,
+				userID: interaction.user.id,
 				seasonId: seasons[0].seasonId,
 			},
 		});
@@ -56,9 +56,9 @@ module.exports = {
 		// If the user has no entry, create one
 		if(!mmr_entry) {
 			try {
-				await this.client.MMR.create({
+				await interaction.client.MMR.create({
 					guildId: interaction.guildId,
-					userId: interaction.userID,
+					userId: interaction.user.id,
 					seasonId: seasons[0].seasonId,
 					mmrValue: mmr,
 					userHistory: JSON.stringify([new_hist]),
@@ -85,7 +85,7 @@ module.exports = {
 				}, {
 					where: {
 						guildId: interaction.guildId,
-                        userId: interaction.userID,
+                        userId: interaction.user.id,
                         seasonId: seasons[0].seasonId,
 					},
 				});
@@ -96,7 +96,7 @@ module.exports = {
 				}
 
                 // All good
-                interaction.reply({content: `Updated your MMR score to ${args.mmr_value}`, ephemeral: true});
+                interaction.reply({content: `Updated your MMR score to ${mmr}`, ephemeral: true});
 			}
 			catch(e) {
 				console.log(e);

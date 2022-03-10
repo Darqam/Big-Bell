@@ -52,6 +52,6 @@ module.exports = {
 		embed.setDescription(new_desc);
 		embed.addField(new_title, new_value);
 
-		return message.edit({ embed });
+		return message.edit({ embeds: [embed] });
 	},
 };
