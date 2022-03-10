@@ -36,7 +36,7 @@ async function handleAutocomplete(interaction) {
     const rocketStopAutocompleteCommands = ['remove_rocket'];
 
     if (gymAutocompleteCommands.includes(interaction.commandName)) {
-        const gyms = await filterGymNames(interaction.client, option.value, interaction.guildId)
+        const gyms = await filterGymNames(interaction, option.value)
         gymNames = gyms.map(g => g.gymName)
 
         const response = await interaction.respond(
@@ -45,7 +45,7 @@ async function handleAutocomplete(interaction) {
 
     } else if(userGymAutoCompleteCommands.includes(interaction.commandName)) {
         const gyms = await filterUserGymNames(interaction, option.value);
-
+        
         if (gyms.length > 0) {
             gymNames = gyms.map(g => g.gymName)
             

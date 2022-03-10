@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { sanitizeArgs } = require('../functions/sanitize');
-const { cacheUserGymList } = require('../functions/cacheMethods.js');
+const { sanitizeArgs } = require('../../functions/sanitize');
+const { cacheUserGymList } = require('../../functions/cacheMethods.js');
 
 
 function setDefaults(args) {

@@ -1,7 +1,32 @@
 const { Client, Intents, Collection } = require('discord.js');
 const fs = require('fs');
+const path = require('path');
 const config = require('./config.json');
 const Sequelize = require('sequelize');
+
+function readdirRecursive(directory) {
+    const result = [];
+
+    // Make our firectory path absolute if not already
+    directory = path.resolve(directory);
+
+    (function read(dir) {
+        const files = fs.readdirSync(dir);
+
+        for(const file of files) {
+            const filepath = path.join(dir, file)
+            
+            if(fs.statSync(filepath).isDirectory()) {
+                result.push(...readdirRecursive(filepath));
+                continue;
+            }
+            
+            result.push(filepath)
+        }
+    }(directory));
+
+    return result;
+}
 
 // Create a new client instance
 // Guilds: channel updates, creates, deletes
@@ -35,11 +60,11 @@ for (const file of eventFiles) {
 }
 
 // Create our commands collection
+const commandFiles = readdirRecursive(path.join(__dirname, './commands/')).filter(file => file.endsWith('.js'));
 client.commands = new Collection();
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
+    const command = require(file);
     client.commands.set(command.data.name, command)
 }
 

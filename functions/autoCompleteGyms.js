@@ -14,23 +14,35 @@ function arrayStringMatch(stringArray, needle) {
 	return sorted_name_list;
 }
 
-async function filterGymNames(client, channel_gym, guildId, return_limit=10) {
+function sortMinimalArray(entries, prop, needle, return_limit=10) {
+	// Return empty if empty
+	if (entries.length < 1) return [];
+
+	// Obtain our sorted entries
+	const sortedNameArray = arrayStringMatch(entries.map(g => g[prop]), needle)
+
+	// Limit to top N
+	const results = [];
+	if (entries.length > 0) {
+		for (let i = 0; i < return_limit; i++) {
+			if (!sortedNameArray[i]) break;
+
+			results.push(entries.find(entry => entry[prop] == sortedNameArray[i]));
+		}
+	}
+
+	return results;
+}
+
+async function filterGymNames(interaction, focusedValue, return_limit=10) {
 	// We start by making sure we have a cached gym list
-	if (!client.gymList) await cacheGymList(client);
+	if (!interaction.client.gymList) await cacheGymList(interaction.client);
 	
 	// We first make sure we have things for the right guild
-	const gymList = client.gymList.filter(g => g.guildId == guildId);
+	const gymList = interaction.client.gymList.filter(g => g.guildId == interaction.guildId);
 
-	// Obtain our sorted gym names
-	let sorted_name_list = arrayStringMatch(gymList.map(g => g.gymName), channel_gym)
-	
 	// Now we grab the relevant gym objects and push them to results
-	const results = [];
-	for (let i = 0; i < return_limit; i++) {
-		if (!sorted_name_list[i]) break;
-
-		results.push(gymList.find(sgym => sgym.gymName == sorted_name_list[i]));
-	}
+	const results = sortMinimalArray(gymList, 'gymName', focusedValue);
 
 	return results;
 }
@@ -41,22 +53,10 @@ async function filterUserGymNames(interaction, focusedValue, return_limit=10) {
 		await cacheUserGymList(interaction.client, interaction.user);
 	}
 
-	let userGymList = interaction.client.userGymList[interaction.user.id]
+	const userGymList = interaction.client.userGymList[interaction.user.id]
 
-	// Obtain our sorted gym names
-	let results = []
-
-	if (userGymList.length > 0) {
-		sorted_name_list = arrayStringMatch(userGymList.map(g => g.gymName), focusedValue)
-		
-		// Now we grab the relevant gym objects and push them to results
-		for (let i = 0; i < return_limit; i++) {
-			if (!sorted_name_list[i]) break;
-
-			results.push(userGymList.find(sgym => sgym.gymName == sorted_name_list[i]));
-		}
-
-	}
+	const results = sortMinimalArray(userGymList, 'gymName', focusedValue);
+	
 	return results;
 }
 
@@ -69,16 +69,7 @@ async function filterStopNames(interaction, focusedValue, return_limit=10) {
 	// We first make sure we have things for the right guild
 	const stopList = interaction.client.stopList; // .filter(g => g.guildId == interaction.guildId);
 
-	// Obtain our sorted gym names
-	let sorted_name_list = arrayStringMatch(stopList.map(g => g.stopName), focusedValue)
-	
-	// Now we grab the relevant gym objects and push them to results
-	const results = [];
-	for (let i = 0; i < return_limit; i++) {
-		if (!sorted_name_list[i]) break;
-
-		results.push(stopList.find(stop => stop.stopName == sorted_name_list[i]));
-	}
+	const results = sortMinimalArray(stopList, 'stopName', focusedValue);
 
 	return results;
 }
@@ -89,16 +80,9 @@ function filterLeaderNames(interaction, focusedValue) {
 }
 
 async function filterRocketStops(interaction, focusedValue, return_limit=10) {
-	let rocketStops = await interaction.client.RocketLeaders.findAll();
+	const rocketStops = await interaction.client.RocketLeaders.findAll();
 
-	let sorted_name_list = arrayStringMatch(rocketStops.map(g => g.stopName), focusedValue)
-
-	const results = [];
-	for (let i = 0; i < return_limit; i++) {
-		if (!sorted_name_list[i]) break;
-
-		results.push(rocketStops.find(stop => stop.stopName == sorted_name_list[i]));
-	}
+	const results = sortMinimalArray(rocketStops, 'stopName', focusedValue);
 	return results;
 }
 

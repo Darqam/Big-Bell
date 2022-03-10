@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { cacheUserGymList } = require('../functions/cacheMethods.js');
+const { cacheUserGymList } = require('../../functions/cacheMethods.js');
 
 
 module.exports = {
