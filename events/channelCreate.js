@@ -1,4 +1,4 @@
-const { Permissions } = require('discord.js');
+const { PermissionsBitField, ChannelType } = require('discord.js');
 
 const chanName = require('../functions/isolateNames.js');
 const chanList = require('../functions/findGyms.js');
@@ -16,10 +16,10 @@ module.exports = {
     async execute(channel) {
 
         // Only care about text channels in guilds
-        if(!channel.guild || channel.type != 'GUILD_TEXT') return;
+        if(!channel.guild || channel.type != ChannelType.GuildText) return;
 
         // Get bot permissions, make sure it can view the channel
-		const perm = new Permissions(channel.permissionsFor(channel.guild.me));
+		const perm = new PermissionsBitField(channel.permissionsFor(channel.guild.members.me));
 		if(!perm.has('VIEW_CHANNEL')) return console.log(`Channel ${channel.name} created in ${channel.guild.name} without view channel perms, aborting.`);
 
 

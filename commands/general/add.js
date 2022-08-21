@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { sanitizeArgs } = require('../../functions/sanitize');
 const { cacheUserGymList } = require('../../functions/cacheMethods.js');
 
@@ -34,12 +34,12 @@ module.exports = {
         )
         .addStringOption(option => 
             option.setName('levels')
-            .setDescription('Egg leves to notify, separated by commas (defaults all).')
+            .setDescription('Egg levels to notify, separated by commas (defaults all).')
             .setRequired(false)
         )
         .addStringOption(option => 
             option.setName('pokemons')
-            .setDescription('Exlusive pokemon list for notification (defaults all).')
+            .setDescription('Exclusive pokemon list for notification (defaults all).')
             .setRequired(false)
         ),
     async execute(interaction) {

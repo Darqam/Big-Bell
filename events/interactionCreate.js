@@ -1,15 +1,26 @@
-const { filterGymNames, filterUserGymNames, filterStopNames, filterLeaderNames, filterRocketStops } = require('../functions/autoCompleteGyms.js');
+const { 
+    filterGymNames,
+    filterUserGymNames,
+    filterStopNames,
+    filterLeaderNames,
+    filterRocketStops
+} = require('../functions/autoCompleteGyms.js');
+const { InteractionType } = require('discord.js');
 
 module.exports = {
     name: 'interactionCreate',
     execute(interaction) {
-        if (!interaction.isCommand() && !interaction.isAutocomplete) return;
-
-        if (interaction.isCommand()) {
+        if (interaction.type === InteractionType.ApplicationCommand) {
             handleCommand(interaction);
         }
-        else if (interaction.isAutocomplete()) {
+        else if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
             handleAutocomplete(interaction);
+        }
+        else if (interaction.type === InteractionType.ModalSubmit) {
+            handleModalSubmission(interaction);
+        }
+        else {
+            return;
         }
     }
 }
@@ -31,7 +42,7 @@ async function handleAutocomplete(interaction) {
     const option = interaction.options.getFocused(true);
 
     const gymAutocompleteCommands = ['add'];
-    const userGymAutoCompleteCommands = ['remove'];
+    const userGymAutoCompleteCommands = ['remove', 'edit'];
     const stopAutocompleteCommands = ['rocket_leader'];
     const rocketStopAutocompleteCommands = ['remove_rocket'];
 
@@ -50,7 +61,10 @@ async function handleAutocomplete(interaction) {
             gymNames = gyms.map(g => g.gymName)
             
             // Add an option for all gyms
-            gymNames.push('all');
+            if (interaction.commandName != 'edit') {
+                gymNames.push('all');
+            }
+            
 
             const response = await interaction.respond(
                 gymNames.map(choice => ({name: choice, value: choice})),
@@ -88,7 +102,14 @@ async function handleAutocomplete(interaction) {
                 leaderStops.map(choice => ({name: choice, value: choice})),
             );
         }
-    }
+    }    
+}
 
-    
+async function handleModalSubmission(interaction) {
+    //console.log(interaction.client.commands)
+    const command = interaction.client.commands.find(i => {
+        const modalId = interaction.customId.split('-')[0];
+        return i.data.name == modalId;
+    });
+    command.handleModal(interaction);
 }

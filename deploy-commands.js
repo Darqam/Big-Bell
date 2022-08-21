@@ -1,7 +1,8 @@
-const fs = require('fs');
-const path = require('path')
+const fs = require('node:fs');
+const path = require('path');
+const util = require('util');
 const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
+const { Routes } = require('discord.js');
 const { clientId, guildId, token } = require('./config.json');
 
 
@@ -34,7 +35,7 @@ function readdirRecursive(directory) {
 // Ensure proper directory path with keyword __dirname
 const commands = readdirRecursive(path.join(__dirname, './commands/'));
 
-const rest = new REST({ version: '9' }).setToken(token);
+const rest = new REST({ version: '10' }).setToken(token);
 
 (async () => {
     try {
@@ -47,6 +48,7 @@ const rest = new REST({ version: '9' }).setToken(token);
         
         console.log('Successfully registered application commands.');
     } catch (error) {
-        console.log(error);
+        console.log(util.inspect(error,
+            {showHidden: false, depth: 20, colors: true}));
     }
 })();

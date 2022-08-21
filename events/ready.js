@@ -12,7 +12,7 @@ module.exports = {
         await cacheGymList(client);
         await cacheStopList(client);
 
-        const guild_commands = await client.guilds.cache.get('208330829435240449').commands.fetch();
+        /*const guild_commands = await client.guilds.cache.get('208330829435240449').commands.fetch();
         const mod_commands = guild_commands.filter(c => mod_command_names.includes(c.name));
 
         const role_permissions = []
@@ -33,7 +33,7 @@ module.exports = {
         }
 
         await client.guilds.cache.get('208330829435240449').commands.permissions.set({fullPermissions: full_permissions});
-
+        */
         console.log(`Ready! Logged in as ${client.user.tag}`);
     }
 }

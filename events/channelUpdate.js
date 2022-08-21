@@ -1,4 +1,4 @@
-const { Permissions } = require('discord.js');
+const { PermissionsBitField } = require('discord.js');
 
 let pokemons = require('../data/pokemons.json');
 
@@ -7,7 +7,7 @@ module.exports = {
 
 	async execute(oldChannel, newChannel) {
 		// if(newChannel.guild.id !== '338745842028511235') return;
-		const perm = new Permissions(newChannel.permissionsFor(newChannel.guild.me));
+		const perm = new PermissionsBitField(newChannel.permissionsFor(newChannel.guild.members.me));
 		if(!perm.has('VIEW_CHANNEL')) return;
 		const liveChannel = await oldChannel.client.LiveRaids.findOne({
 			where: {

@@ -1,4 +1,4 @@
-const { Permissions } = require('discord.js');
+const { PermissionsBitField } = require('discord.js');
 
 async function deleteLiveRaid(channel) {
 	// if(channel.guild.id !== '338745842028511235') return;
@@ -23,7 +23,7 @@ async function deleteLiveRaid(channel) {
 module.exports = {
     name: 'channelDelete',
 	async execute(channel) {
-		const perm = new Permissions(channel.permissionsFor(channel.guild.me));
+		const perm = new PermissionsBitField(channel.permissionsFor(channel.guild.members.me));
 		if(!perm.has('VIEW_CHANNEL')) return;
 		deleteLiveRaid(channel);
 		const channelConfig = await channel.client.Announcements.findOne({

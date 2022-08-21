@@ -1,5 +1,5 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -27,10 +27,10 @@ module.exports = {
 		}
 
         const date = new Date();
-		const embed = new MessageEmbed()
+		const embed = new EmbedBuilder()
 		    .setTitle('Current MMR leaderboard')
 		    .setDescription(`As of ${date.toDateString()}`)
-		    .addField('Placement', '*empty for now*');
+		    .addFields([{name: 'Placement', value: '*empty for now*'}]);
 
         const lead_message = await interaction.reply({
             content: 'New season started!',

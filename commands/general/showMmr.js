@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { sanitizeArgs } = require('../../functions/sanitize');
 const { cacheUserGymList } = require('../../functions/cacheMethods.js');
 
