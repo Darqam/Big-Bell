@@ -37,12 +37,12 @@ function sortMinimalArray(entries, prop, needle, return_limit=10) {
 async function filterGymNames(interaction, focusedValue, return_limit=10) {
 	// We start by making sure we have a cached gym list
 	if (!interaction.client.gymList) await cacheGymList(interaction.client);
-	
+
 	// We first make sure we have things for the right guild
 	const gymList = interaction.client.gymList.filter(g => g.guildId == interaction.guildId);
 
 	// Now we grab the relevant gym objects and push them to results
-	const results = sortMinimalArray(gymList, 'gymName', focusedValue);
+	const results = sortMinimalArray(gymList, 'gymName', focusedValue, return_limit);
 
 	return results;
 }

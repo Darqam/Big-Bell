@@ -1,5 +1,5 @@
 module.exports = {
-	sanitizeArgs: function(args) {
+	sanitizeArgs: function(args, client=null) {
 		const timeRegex = /^[0-2]?[0-9]:[0-5][0-9]$/;
 		// Let's check time parameters
 
@@ -61,6 +61,36 @@ module.exports = {
 				return [1, 'Could not understand your disabled input, please state either `true` or `false`.'];
 			}
 			args.disabled = args.disabled.toLowerCase();
+		}
+
+		if(args.pokestop_name) {
+			let stopName = args.pokestop_name.trim().replace('’', '\'');
+			if(!stopName) {
+				return [1, 'Could not understand the stop name.'];
+			}
+			
+			args.pokestop_name = stopName;
+		}
+
+		if(args.leader) {
+			let leader = args.leader.trim();
+			// ensure starts with capital, rest lowercase
+			leader = `${leader[0].toUpperCase()}${leader.substring(1).toLowerCase()}`;
+
+			const validLeaders = client.ValidRocketLeaders;
+			if (!validLeaders.includes(leader.toLowerCase())) {
+				return [1, `⚠️ The rocket leader name is not one of \`${validLeaders.join(', ')}\``];
+			}
+
+			args.leader = leader;
+
+		}
+
+		if(args.loadout) {
+			args.loadout = args.loadout?.trim();
+			args.loadout = args.loadout.replace(/\n/i, '');
+			// This just to avoid null in db
+			if (!args.loadout) args.loadout = '';
 		}
 
 		return [0, '', args];

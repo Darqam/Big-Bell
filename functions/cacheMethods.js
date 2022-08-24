@@ -17,8 +17,13 @@ async function cacheUserGymList(client, user) {
     });
 }
 
+async function cacheRocketLeaders(client) {
+    client.rocketLeaders = await client.RocketLeaders.findAll();
+}
+
 module.exports = {
 	cacheGymList: cacheGymList,
     cacheStopList: cacheStopList,
     cacheUserGymList: cacheUserGymList,
+    cacheRocketLeaders: cacheRocketLeaders,
 }

@@ -1,4 +1,4 @@
-const { cacheGymList, cacheStopList } = require('../functions/cacheMethods.js');
+const { cacheGymList, cacheStopList, cacheRocketLeaders } = require('../functions/cacheMethods.js');
 const util = require('util');
 
 const mod_command_names = ['season_start', 'season_end'];
@@ -11,6 +11,8 @@ module.exports = {
         // Make sure we cache our lists
         await cacheGymList(client);
         await cacheStopList(client);
+        await cacheRocketLeaders(client);
+
 
         /*const guild_commands = await client.guilds.cache.get('208330829435240449').commands.fetch();
         const mod_commands = guild_commands.filter(c => mod_command_names.includes(c.name));

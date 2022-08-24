@@ -31,7 +31,7 @@ module.exports = {
             await cacheUserGymList(interaction.client, interaction.user)
         }
 
-        const userGym = interaction.client.userGymList[user.id].find(ug => ug.gymId = matchingGyms[0].id);
+        const userGym = interaction.client.userGymList[user.id].find(ug => ug.gymId == matchingGyms[0].id);
 
         const modal = new ModalBuilder()
 			.setCustomId(`edit-${userGym.gymId}`)
@@ -122,7 +122,6 @@ module.exports = {
 
         // Grab the gym from the customId
         // Custom id is of the form 'modalName-GymId'
-        
         const gymId = parseInt(interaction.customId.split('-')[1]);
 
         let gym = interaction.client.gymList.filter(g => g.id == gymId)[0]

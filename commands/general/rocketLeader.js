@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { cacheStopList } = require('../../functions/cacheMethods.js');
+const { cacheStopList, cacheRocketLeaders } = require('../../functions/cacheMethods.js');
 
 
 module.exports = {
@@ -41,7 +41,7 @@ module.exports = {
         // ---------------------
         // Validate stop name
         // ---------------------
-        if (!interaction.client.stopList) await cacheStopList;
+        if (!interaction.client.stopList) await cacheStopList(interaction.client);
 
         matchingStop = interaction.client.stopList.filter(g => g.stopName == stopName);
 
@@ -93,6 +93,8 @@ module.exports = {
 				leaderLineup: loadout,
 				spawnDate: date.toString(),
 			});
+
+            cacheRocketLeaders(interaction.client);
 
 			return interaction.reply({
                 content: `Rocket leader encounter added to database!\nLeader: \`${leader}\`, Pokestop: \`${stopName}\`, Extra info: \`${loadout}\``,

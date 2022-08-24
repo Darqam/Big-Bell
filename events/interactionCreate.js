@@ -44,7 +44,7 @@ async function handleAutocomplete(interaction) {
     const gymAutocompleteCommands = ['add'];
     const userGymAutoCompleteCommands = ['remove', 'edit'];
     const stopAutocompleteCommands = ['rocket_leader'];
-    const rocketStopAutocompleteCommands = ['remove_rocket'];
+    const rocketStopAutocompleteCommands = ['remove_rocket', 'rocket_edit'];
 
     if (gymAutocompleteCommands.includes(interaction.commandName)) {
         const gyms = await filterGymNames(interaction, option.value)
