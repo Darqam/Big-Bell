@@ -55,7 +55,7 @@ module.exports = {
 				}
 			}
 
-			const userGyms = await channel.client.UserGyms.findAll({
+			const userGyms = await channel.client.userGyms.findAll({
 				where: {
 					gymId: gym.id,
 				},

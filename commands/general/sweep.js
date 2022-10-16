@@ -1,36 +1,28 @@
-const { Command } = require('discord-akairo');
+const { SlashCommandBuilder } = require('discord.js');
 
-class SweepCommand extends Command {
-	constructor() {
-		super('sweep', {
-			aliases: ['sweep'],
-			category: 'general',
-			description: {
-				content: 'Sweeps through existing live raids in database and checks if they are still valid.',
-				usage: '',
-			},
-			channelRestriction: 'guild',
-		});
-	}
+module.exports = {
+	data: new SlashCommandBuilder()
+		.setName('sweep')
+		.setDescription('Forces a database purge of outdated content.'),
+	async execute(interaction) {
 
-	async exec(message) {
-		const liveRaids = await this.client.LiveRaids.findAll({
+        if (!interaction.guildId) return interaction.reply({content: '⚠️ This command needs to be run in guild.', ephemeral: true});
+
+		const liveRaids = await interaction.client.LiveRaids.findAll({
 			where: {
-				guildId: message.guild.id,
+				guildId: interaction.guildId,
 			},
 		});
 
 		// Grab all the ids from the liveRaids into an array then,
 		// if the channel doesn't exist, or it exists but starts with 'archived' sort it as invalid
 		const invalidChannels = liveRaids.map(x => x.dataValues.channelId).filter(chan =>
-			!message.guild.channels.cache.has(chan) || message.guild.channels.cache.get(chan).name.startsWith('archived')
+			!interaction.guild.channels.cache.has(chan) || interaction.guild.channels.cache.get(chan).name.startsWith('archived')
 		);
 
 		invalidChannels.forEach(chan => {
-			this.client.LiveRaids.destroy({ where:{ channelId:chan } });
+			interaction.client.LiveRaids.destroy({ where:{ channelId: chan } });
 		});
-		message.channel.send(`Removed ${invalidChannels.length} entries from live raids database.`);
-	}
-}
-
-module.exports = SweepCommand;
+		interaction.reply({content: `Removed ${invalidChannels.length} entries from live raids database.`, ephemeral: true});
+	},
+};

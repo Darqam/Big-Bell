@@ -1,91 +1,115 @@
-const { Command } = require('discord-akairo');
+const { SlashCommandBuilder } = require('discord.js');
+const { cacheUserGymList } = require('../../functions/cacheMethods.js');
 
-class RemoveCommand extends Command {
-	constructor() {
-		super('remove', {
-			aliases: ['remove', 'r', 'unwant'],
-			category: 'general',
-			description: {
-				content: 'Removes the author from specified gym lists.',
-				usage: 'Gym Name 1, Gym Name 2, ...',
-				examples: ['Best Gym, Ok gym, ....', 'all'],
-			},
-			args: [
-				{
-					id: 'gymList',
-					match: 'content',
-					type: 'lowercase',
-				},
-			],
-		});
-	}
 
-	async exec(message, args) {
-		if(!args.gymList) return message.reply('No gyms found in query');
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('remove')
+        .setDescription('Removes the author from specified gym lists.')
+        .addStringOption(option =>
+            option.setName('name')
+                .setDescription('The name of the gym')
+                .setRequired(true)
+                .setAutocomplete(true)
+        ),
+    async execute(interaction) {
+        // First we handle making sure that the gym name we got is a valid entry based on our cache
+        gymName = interaction.options.getString('name')
+        gymName = gymName.trim().replace('’', '\'');
 
-		let gymList = args.gymList.toLowerCase().split(',');
-		gymList = gymList.map(x => x.trim().replace('’', '\''));
+        // ----------------------
+        // Deal with potential schenanigans
+        // ----------------------
+        if (gymName.toLowerCase() === 'no gyms in list') {
+            return interaction.reply({
+                content: '*Angry Victreebel noises*',
+                ephemeral: true,
+            });
+        }
 
-		let output = '';
-		const errors = [];
-		const success = [];
+        // -----------------------
+        // Deal with removing all gyms here
+        // -----------------------
+        if (gymName.toLowerCase() === 'all') {
+            userList = await interaction.client.UserGyms.findAll({
+                where: { 
+                    userId: interaction.user.id
+                }
+            });
+            userList = userList.map(g => g.gymName);
 
-		const allGyms = await this.client.userGyms.findAll({ where: { userId: message.author.id } });
+            try {
+				await interaction.client.UserGyms.destroy({
+                    where: { 
+                        userId: interaction.user.id
+                    }
+                });
 
-		if(allGyms.length == 0) {
-			await message.react(message.client.myEmojiIds.failure);
-			return message.reply('I do not have you registered in any gyms');
-		}
+                // No need to await the promise
+                cacheUserGymList(interaction.client, interaction.user);
 
-		if(gymList[0] === 'all') {
-			try {
-				await this.client.userGyms.destroy({ where: { userId: message.author.id } });
-				return message.channel.send(`Succesfully removed you from ${allGyms.length}.`);
+				return interaction.reply({
+                    content: `Succesfully removed you from \`${userList.join(', ')}\`.`,
+                    ephemeral: true,
+                });
 			}
 			catch(e) {
-				console.log('Error in remove command', e);
-				return message.channel.send('There was a problem in removing your entries, please bring this to Daro\'s/Anhim\'s attention.');
+				console.error('Error in remove command', e);
+				return interaction.reply({
+                    content: 'There was a problem in removing your entries, please bring this to Anhim\'s attention.',
+                    ephemeral: true,
+                });
 			}
-		}
+        }
 
+        // -----------------------
+        // Deal with removing specific gyms
+        // -----------------------
+        matchingGym = interaction.client.gymList.filter(g => g.gymName == gymName);
 
-		// Go through the specified gym list and remove the associated ones.
-		for(let i = 0; i < allGyms.length; i++) {
-			if(!gymList.includes(allGyms[i].gymName.toLowerCase())) continue;
-			try {
-				await this.client.userGyms.destroy({
-					where: {
-						userId: message.author.id,
-						gymName: allGyms[i].gymName,
-					},
-				});
-				success.push(allGyms[i].gymName.toLowerCase());
-			}
-			catch(e) {
-				console.log(`Error removing ${gymList[i]} for ${message.author.tag}`, e);
-				errors.push(gymList[i]);
-			}
-		}
-		// End for loop
-		const leftover = gymList.filter(x => !success.includes(x) && !errors.includes(x));
+        // Make sure the gym is in the list
+        if (!matchingGym || matchingGym.length < 1) {
+            return interaction.reply({content: `⚠️ Could not find a gym by the name of \`${gymName}\``, ephemeral:true});
+        }
 
-		if(success.length > 0) {
-			output += `Successfully removed you from: \n\`\`\`\n${success.join('\n')}\`\`\`\n`;
-			if(gymList[0] === 'all') output += 'If this was temporary, consider using the disable command next time, might be faster than running this and adding them back later.';
-			await message.react(message.client.myEmojiIds.success);
-		}
+        // Fetch gym from database to double check things
+        const gym = await interaction.client.Gyms.findOne({
+            where: {
+                guildId: interaction.guildId,
+                gymName: gymName,
+            },
+        });
 
-		if(leftover.length > 0) {
-			output += `Could not find gyms by the following names, or you were not registered there: \n\`\`\`\n${leftover.join('\n')}\`\`\`\n`;
-			await message.react('❓');
-		}
+        if (!gym) return interaction.reply({content: '‼️ \`${gymName}\` was in the local cache but not in the database, this should *NOT* happen, please contact Anhim about this.', ephemeral:true});
 
-		if(errors.length > 0) {
-			output += `Could not remove you to the following gyms due to an unknown error: \n\`\`\`\n${errors.join('\n')}\`\`\``;
-			await message.react(message.client.myEmojiIds.failure);
-		}
-		return message.reply(output);
-	}
+        const userGym = await interaction.client.UserGyms.findOne({
+            where: {
+                gymName: gymName,
+                userId: interaction.user.id,
+            },
+        });
+
+        // If the user already monitors this gym, continue
+        if(!userGym) return interaction.reply({content: `⚠️ You were not subscribed to \`${gymName}\``, ephemeral:true});
+
+        try{
+            await interaction.client.UserGyms.destroy({
+                where: {
+                    gymId: gym.id,
+                    userId: interaction.user.id,
+                }
+            });
+            
+            // No need to await the promise
+            cacheUserGymList(interaction.client, interaction.user);
+
+            return interaction.reply({content: `Successfully removed you from \`${gymName}\``, ephemeral: true});
+        }
+        catch(e) {
+            interaction.reply({content: `⚠️ There was an unexpected error in updating your monitor list, please contact Anhim about this.`, ephemeral:true});
+            console.error(e);
+            console.error(`Error removing from userGyms in remove command with ${interaction.options.data}`);
+        }
+        
+    }
 }
-
-module.exports = RemoveCommand;

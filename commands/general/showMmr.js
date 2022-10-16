@@ -1,73 +1,68 @@
-const { Command } = require('discord-akairo');
+const { SlashCommandBuilder } = require('discord.js');
+const { sanitizeArgs } = require('../../functions/sanitize');
+const { cacheUserGymList } = require('../../functions/cacheMethods.js');
 
-class ShowMmrCommand extends Command {
-	constructor() {
-		super('ShowMmr', {
-			aliases: ['showmmr', 'mmrshow'],
-			category: 'general',
-			description: {
-				content: 'display user MMR',
-				usage: '',
-			},
-			args: [
-				{
-					id: 'user_id',
-					match: 'content',
-					type: 'lowercase',
-				},
-			],
-			channelRestriction: 'guild',
-		});
-	}
 
-	async exec(message, args) {
-		if(message.channel.id === '732373210636746832') {
-			return message.channel.send('Please use <#409858495840649246> for this command.').then(async msg => {
-				await msg.delete({ timeout: 5000 });
-				message.delete();
-			});
-		}
+function setDefaults(args) {
+    // we want a few defaults if certain args were not passed
+    if (!('start' in args)) args.start = '00:00';
+    if (!('end' in args)) args.end = '23:59';
+    if (!('levels' in args)) args.levels = '1, 2, 3, 4, 5, 7';
 
-		const member = await message.guild.members.fetch(message.author);
+    return args
+}
 
-		if(!member.roles.cache.has('428292301429669890') && args.user_id) {
-			return message.channel.send('Only mods may check other\'s history.');
-		}
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('show_mmr')
+        .setDescription('Display MMR')
+        .addUserOption(option =>
+            option.setName('user')
+                .setDescription('The user to query for (mod only)')
+        ),
+    async execute(interaction) {
+        const queryUser = interaction.options.getUser('user') || interaction.user;
 
-		const seasons = await message.client.PvPSeason.findAll({
+        if (!interaction.guildId) return interaction.reply({content: '⚠️ Please use this command in a proper guild.', ephemeral: true});
+
+        // Could maybe depend on interaction.member, but this grabs from cache anyway so meh
+        const commandMember = await interaction.guild.members.fetch(interaction.user);
+        
+        // If the user is not a mod and didn't select themselves
+        if(!commandMember.roles.cache.has('428292301429669890') && (queryUser && queryUser.id !== commandMember.id)) {
+            return interaction.reply({content: 'Only mods may check other\'s history.', ephemeral: true});
+        }
+
+        // Loadup current season
+        const seasons = await interaction.client.PvPSeason.findAll({
 			where: {
-				guildId: message.guild.id,
+				guildId: interaction.guildId,
 			},
 		});
 		// This sorts such that newest is at entry 0
 		seasons.sort((a, b) => (a.seasonId > b.seasonId) ? -1 : 1);
 
-		if(!seasons[0] || seasons[0].seasonActive == false) {
-			return message.channel.send('No active season, aborting.');
+        if(!seasons[0] || seasons[0].seasonActive === false) {
+		    return interaction.reply({content:'No active season, aborting.', ephemeral: true});
 		}
-
-		const user_id = args.user_id ? args.user_id : message.author.id;
 
 		// Fetch an entry by this user's and guild's id
 		// Will return null if non existing
-		const mmr_entry = await message.client.MMR.findOne({
+		const mmrEntry = await interaction.client.MMR.findOne({
 			where: {
-				guildId: message.guild.id,
-				userID: user_id,
+				guildId: interaction.guildId,
+				userID: queryUser.id,
 				seasonId: seasons[0].seasonId,
 			},
 		});
 
-		// If the user has no entry, create one
-		if(!mmr_entry) {
-			return message.channel.send('Could not find an MMR entry for your user id in this season.');
+		if(!mmrEntry) {
+			return interaction.reply({content:'Could not find an MMR entry for your user id in this season.', ephemeral: true});
 		}
-		else {
-			const history = JSON.parse(mmr_entry.userHistory);
-			const out = history.map(h => `${h.date} - ${h.value}`);
-			message.channel.send(out.join('\n'));
-		}
-	}
-}
+		
+        const history = JSON.parse(mmrEntry.userHistory);
+        const out = history.map(h => `${h.date} - ${h.value}`);
 
-module.exports = ShowMmrCommand;
+        return interaction.reply({content: out.join('\n'), ephemeral: true});
+    }
+}

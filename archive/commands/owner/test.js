@@ -16,6 +16,17 @@ class TestCommand extends Command {
 	}
 
 	async exec(message) {
+		const { MessageEmbed } = require('discord.js')
+		const embed = new MessageEmbed()
+		    .setTitle("Test");
+
+		try {
+		    await message.channel.send({ embed });
+		    await message.channel.send(embed);
+		} catch (error) {
+		    console.error(error);
+		}
+		/*
 		// https://github.com/plotly/plotly-nodejs
 		const trace1 = {
 			x: [1, 2, 3, 4],
@@ -46,6 +57,7 @@ class TestCommand extends Command {
 				}],
 			});
 		});
+		*/
 	}
 }
 

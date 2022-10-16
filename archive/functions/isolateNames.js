@@ -54,9 +54,6 @@ module.exports = {
 			channel_gym = channel_array.join(' ');
 		}
 
-		// Convert hyphens to space since this will be done when matching discord channel names
-		channel_gym = channel_gym.replace('-', ' ');
-
 		return [channel_gym, (isMega ? 'mega ' : '') + channelMon.join('-'), eggLvl];
 	},
 };

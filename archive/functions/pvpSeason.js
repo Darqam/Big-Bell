@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 
 module.exports = {
 	updateLeaderboard: async function(client, guild, season = null) {
@@ -47,11 +47,11 @@ module.exports = {
 		const new_title = message.embeds[0].fields[0].name = 'Placement';
 		const new_desc = `As of ${date.toLocaleString()}`;
 
-		const embed = new EmbedBuilder();
+		const embed = new MessageEmbed();
 		embed.setTitle(message.embeds[0].title);
 		embed.setDescription(new_desc);
-		embed.addFields([{name: new_title, value: new_value}]);
+		embed.addField(new_title, new_value);
 
-		return message.edit({ embeds: [embed] });
+		return message.edit({ embed });
 	},
 };

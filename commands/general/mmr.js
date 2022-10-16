@@ -1,131 +1,108 @@
-const { Command } = require('discord-akairo');
+const { SlashCommandBuilder } = require('discord.js');
 const pvpSeason = require('../../functions/pvpSeason.js');
 
-class MmrCommand extends Command {
-	constructor() {
-		super('Mmr', {
-			aliases: ['mmr'],
-			category: 'general',
-			description: {
-				content: 'Updates your user MMR',
-				usage: '123',
-			},
-			args: [
-				{
-					id: 'mmr_value',
-					match: 'content',
-					type: 'lowercase',
-				},
-			],
-			channelRestriction: 'guild',
-		});
-	}
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('mmr')
+        .setDescription('Updates your user MMR')
+        .addStringOption(option =>
+            option.setName('mmr')
+                .setDescription('MMR value')
+                .setRequired(true)),
+    async execute(interaction) {
+        // Validating argument
+        const mmr = parseInt(interaction.options.getString('mmr'));
+        
+        if (!mmr) {
+            return interaction.reply({content: `⚠️ Received mmr value was not a number.`, ephemeral:true});
+        }
 
-	async exec(message, args) {
-		if(!args.mmr_value) {
-			return message.channel.send('No mmr value provided.').then(async msg => {
-				await msg.delete({ timeout:5000 });
-				message.delete();
-			});
-		}
+        if (!interaction.guildId) {
+            return interaction.reply({content: `⚠️ Please run this command in a guild.`, ephemeral:true});
+        }
 
-		// Check if argument is only numbers
-		const reg = new RegExp('^[0-9]+$');
-		if(!reg.test(args.mmr_value)) {
-			return message.channel.send('Value was not a number.').then(async msg => {
-				await msg.delete({ timeout:5000 });
-				message.delete();
-			});
-		}
-
-		const date = new Date();
+        // Create the new mmr object
+        const date = new Date();
 		date.setHours(date.getHours() - 1);
 
-		const seasons = await message.client.PvPSeason.findAll({
+        const new_hist = {
+			date: date.toLocaleString(),
+			value: mmr,
+		};
+
+        // Grab all seasons associated with this guild
+		const seasons = await interaction.client.PvPSeason.findAll({
 			where: {
-				guildId: message.guild.id,
+				guildId: interaction.guildId,
 			},
 		});
 		// This sorts such that newest is at entry 0
 		seasons.sort((a, b) => (a.seasonId > b.seasonId) ? -1 : 1);
 
 		if(!seasons[0] || seasons[0].seasonActive == false) {
-			return message.channel.send('No active season, aborting.').then(async msg => {
-				await msg.delete({ timeout:5000 });
-				message.delete();
-			});
+            return interaction.reply({content: `⚠️ No active season, aborting.`, ephemeral:true});
 		}
 
 		// Fetch an entry by this user's and guild's id
 		// Will return null if non existing
-		const mmr_entry = await message.client.MMR.findOne({
+		const mmr_entry = await interaction.client.MMR.findOne({
 			where: {
-				guildId: message.guild.id,
-				userID: message.author.id,
+				guildId: interaction.guildId,
+				userID: interaction.user.id,
 				seasonId: seasons[0].seasonId,
 			},
 		});
 
-		const mmr = parseInt(args.mmr_value);
-
-		const new_hist = {
-			date: date.toLocaleString(),
-			value: mmr,
-		};
-
 		// If the user has no entry, create one
 		if(!mmr_entry) {
-			try{
-				await this.client.MMR.create({
-					guildId: message.guild.id,
-					userId: message.author.id,
+			try {
+				await interaction.client.MMR.create({
+					guildId: interaction.guildId,
+					userId: interaction.user.id,
 					seasonId: seasons[0].seasonId,
 					mmrValue: mmr,
 					userHistory: JSON.stringify([new_hist]),
 					lastUpdate: date.toString(),
 				});
 
-				message.channel.send(`Created your MMR score with ${args.mmr_value}`).then(async msg => {
-					await msg.delete({ timeout:5000 });
-					message.delete();
-				});
+				interaction.reply({content: `Created your MMR score with ${mmr}`, ephemeral:true});
 			}
 			catch(e) {
 				console.log(e);
-				return message.channel.send('There was an error creating MMR score. This shouldn\'t happen, <@129714945238630400> you need to see this.');
+				return interaction.reply({content: `⚠️ There was an error creating MMR score. This shouldn\'t happen.`, ephemeral:true});
 			}
 		}
 		else {
+            // Grab user mmr history and append new score
 			const history = JSON.parse(mmr_entry.userHistory);
 			history.push(new_hist);
 
-			try{
-				const updated = await this.client.MMR.update({
+			try {
+				const updated = await interaction.client.MMR.update({
 					mmrValue: mmr,
 					userHistory: JSON.stringify(history),
 					lastUpdate: date.toString(),
 				}, {
 					where: {
-						guildId: message.guild.id,
-						userID: message.author.id,
-						seasonId: seasons[0].seasonId,
+						guildId: interaction.guildId,
+                        userId: interaction.user.id,
+                        seasonId: seasons[0].seasonId,
 					},
 				});
+
+                // Update failed
 				if(updated == [0]) {
-					return message.channel.send('There was an error updating the MMR value. This shouldn\'t happen, <@129714945238630400> you need to see this.');
+					return interaction.reply({content: '⚠️ There was an error updating the MMR value. This shouldn\'t happen.', ephemeral:true});
 				}
-				message.channel.send(`Updated your MMR score to ${args.mmr_value}`).then(async msg => {
-					await msg.delete({ timeout:5000 });
-					message.delete();
-				});
+
+                // All good
+                interaction.reply({content: `Updated your MMR score to ${mmr}`, ephemeral: true});
 			}
 			catch(e) {
 				console.log(e);
-				return message.channel.send('There was an error updating MMR score. This shouldn\'t happen, <@129714945238630400> you need to see this.');
+                return interaction.reply({content: 'There was an error updating MMR score. This shouldn\'t happen', ephemeral: true})
 			}
 		}
-		pvpSeason.updateLeaderboard(message.client, message.guild, seasons[0]);
-	}
+		pvpSeason.updateLeaderboard(interaction.client, interaction.guild, seasons[0]);
+    }
 }
-
-module.exports = MmrCommand;

@@ -1,36 +1,14 @@
 {
-  "name": "big_bell_bot",
-  "version": "1.0.0",
-  "description": "A notification bot",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "MIT",
   "dependencies": {
-    "common-tags": "^1.8.0",
-    "discord-akairo": "^8.1.0",
-    "discord.js": "^12.3.1",
-    "eslint": "^5.9.0",
-    "node-cron": "^2.0.3",
-    "node-fetch": "^2.6.1",
-    "plotly": "^1.0.6",
-    "pokemon": "^2.0.2",
-    "sequelize": "^5.21.7",
-    "sqlite": "^3.0.6",
-    "sqlite3": "^4.2.0",
-    "string-similarity": "^3.0.0"
-  },
-  "devDependencies": {
-    "js-yaml": "^3.14.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Darqam/Big-Bell.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Darqam/Big-Bell/issues"
-  },
-  "homepage": "https://github.com/Darqam/Big-Bell#readme"
+    "@discordjs/rest": "^1.0.1",
+    "common-tags": "^1.8.2",
+    "discord-api-types": "^0.37.3",
+    "discord.js": "^14.2.0",
+    "node-fetch": "^3.2.10",
+    "pokemon": "^2.3.3",
+    "sequelize": "^6.21.4",
+    "sqlite": "^4.1.2",
+    "sqlite3": "^5.0.11",
+    "string-similarity": "^4.0.4"
+  }
 }

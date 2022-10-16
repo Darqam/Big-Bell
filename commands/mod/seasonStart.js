@@ -1,47 +1,49 @@
-const { Command } = require('discord-akairo');
-const { MessageEmbed } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
-class SeasonStartCommand extends Command {
-	constructor() {
-		super('seasonStart', {
-			aliases: ['seasonstart'],
-			category: 'mod',
-			description: {
-				content: 'Starts a new pvp season leaderboard',
-				usage: '',
-			},
-			channelRestriction: 'guild',
-		});
-	}
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('season_start')
+        .setDescription('Starts a new PvP')
+        .setDefaultPermission(false),
+    
+    async execute(interaction) {
+        // Validating argument
+        if (!interaction.guildId) {
+            return interaction.reply({content: `⚠️ Please run this command in a guild.`, ephemeral:true});
+        }
 
-	async exec(message) {
-		// Fetch all entries for MMR
-		const entries = await message.client.PvPSeason.findAll({
+        // Fetch all entries for MMR
+		const entries = await interaction.client.PvPSeason.findAll({
 			where: {
-				guildId: message.guild.id,
+				guildId: interaction.guildId,
 			},
 		});
 		// This sorts such that newest is at entry 0
 		entries.sort((a, b) => (a.seasonId > b.seasonId) ? -1 : 1);
 
 		if(entries[0] && entries[0].seasonActive) {
-			return message.channel.send('Latest season is still active, aborting.');
+			return interaction.reply({content: '⚠️ Latest season is still active, aborting.', ephemeral: true});
 		}
-		await message.channel.send('New season started!');
-		const date = new Date();
-		const embed = new MessageEmbed();
-		embed.setTitle('Current MMR leaderboard');
-		embed.setDescription(`As of ${date.toDateString()}`);
-		embed.addField('Placement', '*empty for now*');
 
-		const lead_message = await message.channel.send({ embed });
+        const date = new Date();
+		const embed = new EmbedBuilder()
+		    .setTitle('Current MMR leaderboard')
+		    .setDescription(`As of ${date.toDateString()}`)
+		    .addFields([{name: 'Placement', value: '*empty for now*'}]);
+
+        const lead_message = await interaction.reply({
+            content: 'New season started!',
+            embeds: [embed],
+            fetchReply: true,
+        });
 
 		try{
-			await this.client.PvPSeason.create({
+			await interaction.client.PvPSeason.create({
 				seasonId: entries[0] ? entries[0].seasonId + 1 : 0,
-				guildId: message.guild.id,
-				leaderboardMessageId: lead_message.id,
-				leaderboardChannelId: lead_message.channel.id,
+				guildId: interaction.guildId,
+				leaderboardMessageId: lead_message?.id,
+				leaderboardChannelId: interaction.channel.id,
 				seasonActive: true,
 				seasonStart: date.toDateString(),
 				seasonEnd: null,
@@ -51,9 +53,9 @@ class SeasonStartCommand extends Command {
 		}
 		catch(e) {
 			console.log(e);
-			return message.channel.send('There was an error creating a new season. This shouldn\'t happen, <@129714945238630400> you need to see this.');
+			return interaction.reply('There was an error creating a new season. This shouldn\'t happen, <@129714945238630400> you need to see this.');
 		}
-	}
-}
 
-module.exports = SeasonStartCommand;
+        
+    }
+}
