@@ -155,6 +155,12 @@ client.RocketLeaders = sequelize.define('rocketLeaders', {
 	spawnDate: Sequelize.STRING,
 });
 
+client.RocketHistory = sequelize.define('rocketHistory', {
+	guildId: Sequelize.TEXT,
+	userId: Sequelize.TEXT,
+	reportDate: Sequelize.STRING,
+});
+
 client.PvPSeason = sequelize.define('PvPSeason', {
 	seasonId: Sequelize.INTEGER,
 	guildId: Sequelize.TEXT,

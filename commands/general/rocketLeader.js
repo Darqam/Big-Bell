@@ -96,6 +96,13 @@ module.exports = {
 
             cacheRocketLeaders(interaction.client);
 
+            // Save to rocketHistory
+            await interaction.client.RocketHistory.create({
+				guildId: interaction.guildId,
+				userId: interaction.userId,
+				reportDate: date.toString(),
+			});
+
 			return interaction.reply({
                 content: `Rocket leader encounter added to database!\nLeader: \`${leader}\`, Pokestop: \`${stopName}\`, Extra info: \`${loadout}\``,
                 ephemeral: true,

@@ -12,8 +12,9 @@ module.exports = {
     async execute(interaction) {
         // Validating argument
         const mmr = parseInt(interaction.options.getString('mmr'));
+		console.log(interaction.options.getString('mmr'))
         
-        if (!mmr) {
+        if (!mmr && mmr !== 0) {
             return interaction.reply({content: `⚠️ Received mmr value was not a number.`, ephemeral:true});
         }
 
