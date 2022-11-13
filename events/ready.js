@@ -13,6 +13,18 @@ module.exports = {
         await cacheStopList(client);
         await cacheRocketLeaders(client);
 
+        client.Gyms.sync();
+		client.Guilds.sync();
+		client.UserGyms.sync();
+		client.Announcements.sync();
+		client.Stats.sync();
+		client.LiveRaids.sync();
+		client.Pokestops.sync();
+		client.RocketLeaders.sync();
+        client.RocketHistory.sync();
+		client.PvPSeason.sync();
+		client.MMR.sync();
+		client.Memory.sync();
 
         /*const guild_commands = await client.guilds.cache.get('208330829435240449').commands.fetch();
         const mod_commands = guild_commands.filter(c => mod_command_names.includes(c.name));
